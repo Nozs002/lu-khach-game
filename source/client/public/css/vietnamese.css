@@ -1,0 +1,117 @@
+/* System fonts include the complete Vietnamese alphabet and work offline. */
+html[lang="vi"] body,
+html[lang="vi"] body * {
+    font-family: "Segoe UI", Arial, sans-serif !important;
+}
+
+html[lang="vi"] #background {
+    background: url('../img/common/loading-vi.svg') no-repeat center center, #000;
+}
+html[lang="vi"] .error #background {
+    background: url('../img/common/loading-error-vi.svg') no-repeat center center, #000;
+}
+
+/* The original button sprites contain English lettering. Use live labels. */
+html[lang="vi"] .button,
+html[lang="vi"] #respawn {
+    position: relative;
+    box-sizing: border-box;
+    background: #c7af69 !important;
+    border: 4px solid #65542f;
+    border-radius: 3px;
+    box-shadow: inset 0 3px #f2e0a3, inset 0 -5px #a08443, 0 3px #392f21;
+    color: #352c1e;
+    cursor: pointer;
+    text-shadow: 0 1px #f1e1ae;
+}
+html[lang="vi"] .button::after {
+    content: attr(data-label);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(14px, 2.3vw, 32px);
+    font-weight: 700;
+    pointer-events: none;
+}
+html[lang="vi"] .play > div {
+    background: none !important;
+}
+html[lang="vi"] .button:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 3px #a08443;
+}
+html[lang="vi"] .play.disabled {
+    filter: grayscale(0.8);
+    opacity: 0.65;
+    cursor: default;
+}
+html[lang="vi"] .play.loading::after {
+    content: attr(data-loading-label);
+}
+html[lang="vi"] .play.loading img {
+    display: none;
+}
+
+html[lang="vi"] #parchment h1 {
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+html[lang="vi"] #instructions ul {
+    font-size: clamp(11px, 1.55vw, 25px);
+    line-height: 1.45;
+}
+html[lang="vi"] #instructions li {
+    padding-right: 4%;
+}
+html[lang="vi"] #instructions p {
+    font-size: clamp(10px, 1.35vw, 20px);
+}
+html[lang="vi"] .vi-achievements-title {
+    position: absolute;
+    top: 2%;
+    width: 100%;
+    color: #514631;
+    text-align: center;
+    font-size: 0.85em;
+    font-weight: 700;
+}
+html[lang="vi"] #achievements .achievement-name {
+    width: 30%;
+    font-size: 0.78em;
+}
+html[lang="vi"] #achievements .achievement-description {
+    width: 57%;
+    font-size: 0.72em;
+}
+html[lang="vi"] #achievements li span {
+    line-height: 1.35;
+    padding-top: 0.65em;
+}
+html[lang="vi"] #achievements li .coin {
+    margin-right: 2%;
+}
+html[lang="vi"] .bubble p {
+    line-height: 1.5;
+}
+html[lang="vi"] #notifications {
+    font-size: clamp(10px, 1.2vw, 18px);
+}
+html[lang="vi"] #population {
+    font-size: clamp(9px, 1.1vw, 17px);
+}
+html[lang="vi"] #playercount {
+    font-size: clamp(9px, 1vw, 16px);
+    white-space: nowrap;
+}
+html[lang="vi"] #about p {
+    line-height: 1.5;
+}
+
+@media screen and (max-width: 600px) {
+    html[lang="vi"] #parchment h1 {font-size: 12px;}
+    html[lang="vi"] #instructions ul {font-size: 11px;}
+    html[lang="vi"] #achievements li .achievement-name {font-size: 11px;}
+    html[lang="vi"] #achievements li .achievement-description {font-size: 10px;}
+}

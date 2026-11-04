@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES2017", "module": "AMD",
+    "lib": ["ES2022", "DOM"], "strict": true, "skipLibCheck": true,
+    "outDir": "public/js", "sourceMap": true,
+    "removeComments": false
+  },
+  "include": ["src/**/*.ts"]
+}

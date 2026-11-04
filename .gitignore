@@ -1,0 +1,13 @@
+node_modules/
+dist/
+target/
+.deps/
+*.log
+.idea/
+.vscode/
+source/client/public/js/gameclient.js
+source/client/public/js/gameclient.js.map
+source/client/public/js/config.js
+source/client/public/js/config.js.map
+source/client/public/js/timer.js
+source/client/public/js/timer.js.map

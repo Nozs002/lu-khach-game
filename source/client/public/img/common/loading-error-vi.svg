@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="100" viewBox="0 0 480 100">
+  <path d="M216 25h16m16 0h16m-32-5v10m16-10v10" fill="none" stroke="#d6c486" stroke-width="3"/>
+  <text x="240" y="65" text-anchor="middle" fill="#ee5757" font-family="Segoe UI, Arial, sans-serif" font-size="18">Không thể kết nối đến máy chủ</text>
+</svg>
