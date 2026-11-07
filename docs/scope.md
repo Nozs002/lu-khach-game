@@ -1,5 +1,7 @@
 # Phạm vi mới — phát triển dựa trên BrowserQuest
 
+> Mục tiêu này được thay thế ngày 07/11/2026 bởi [kế hoạch tự xây game trong 10 ngày](plan-10-days.md). Giữ nội dung dưới đây làm lịch sử của bản port.
+
 Quyết định này thay thế hướng tự viết game Phaser độc lập. Prototype cũ nằm trong source/prototype-v1.
 
 ## Mục tiêu

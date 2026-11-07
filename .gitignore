@@ -5,6 +5,7 @@ target/
 *.log
 .idea/
 .vscode/
+/NOTICE.md
 source/client/public/js/gameclient.js
 source/client/public/js/gameclient.js.map
 source/client/public/js/config.js

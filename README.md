@@ -1,77 +1,36 @@
-# BrowserQuest — Java server / TypeScript client
+# Lữ khách — Game web multiplayer 2D
 
-Bài tập lớn Lập trình mạng, **phát triển dựa trên BrowserQuest** của Mozilla / Little Workshop. Giữ bản đồ, hình ảnh, âm thanh, giao diện và cơ chế nền; thay server Node.js bằng Java và chuyển client dần sang TypeScript.
+Dự án bài tập lớn Lập trình mạng. Nhóm tự xây game tương tự BrowserQuest trong 10 ngày với 4 người làm song song.
 
-**Đây là bản chuyển đổi từng phần, chưa phải port hoàn chỉnh.** Lớp mạng, Config và Timer đã dùng TypeScript strict; renderer, tìm đường, nhân vật và phần lớn game/UI vẫn là JavaScript gốc. Server Java đã có luồng multiplayer và chiến đấu cơ bản, chưa tương đương toàn bộ server gốc. Xem [trạng thái và lộ trình](docs/migration.md).
+## Trạng thái hiện tại
 
-## Chạy local trên Windows
+Đang thiết kế, chưa bắt đầu triển khai game mới. Ngày 07/11/2026 đã xóa mã nguồn game cũ, bản port BrowserQuest, prototype Phaser, tài nguyên đi kèm và các thư mục thư viện/build. Hiện chưa có lệnh chạy game.
 
-Cần JDK 17+, Node.js 22.12+. Lần cài đầu cần Internet. Đặt JAVA_HOME tới JDK; script cũng nhận JDK 17 tại đường dẫn Oracle thông dụng.
+## Tài liệu hiện hành
 
-Terminal 1:
+- [Thiết kế game v0.1](docs/game-design.md): gameplay, luật chơi, giao diện, kiến trúc, dữ liệu, giao thức và nghiệm thu.
+- [Kế hoạch 10 ngày](docs/plan-10-days.md): phân công P1–P4, lịch thực hiện và các mốc tích hợp.
 
-```powershell
-cd D:\Workspace\Projects\btl_ltm\source\server
-.\run.ps1
-```
+Các tài liệu architecture.md, protocol.md, scope.md và migration.md cũ trong docs được giữ làm lịch sử; không mô tả trạng thái code hiện tại. NOTICE.md và LICENSE-BrowserQuest giữ thông tin nguồn gốc của bản port trước đây.
 
-Server đọc bản đồ BrowserQuest 172 × 314 và phục vụ tại ws://127.0.0.1:8080/. Script tải JAR từ Maven Central và biên dịch Java. Có Maven thì có thể dùng `mvn compile exec:java` trong source/server.
+## Công nghệ dự kiến
 
-Terminal 2:
+- Client: TypeScript, HTML5 Canvas 2D, HTML/CSS, Vite.
+- Server: Java 17+, Java-WebSocket, Gson.
+- Giao tiếp: WebSocket, JSON; server quyết định trạng thái gameplay.
+- Dữ liệu: RAM cho phiên chơi; JSON cho bản đồ và cấu hình; chưa có database.
 
-```powershell
-cd D:\Workspace\Projects\btl_ltm\source\client
-npm.cmd install
-npm.cmd run dev
-```
-
-Mở địa chỉ Local Vite in ra, thường http://127.0.0.1:5173, trong hai tab rồi nhập tên. **Bấm chuột trên bản đồ để di chuyển/tương tác như BrowserQuest gốc**; Enter mở chat. Bản này không dùng WASD của prototype cũ.
-
-TypeScript được biên dịch thành AMD trong public/js khi chạy dev/build. Khi sửa TypeScript, khởi động lại dev hoặc chạy `npm.cmd run dev:types` trong terminal khác để theo dõi thay đổi.
-
-Đổi cổng server: `.\run.ps1 -Port 8081`; client dùng query `?server=ws%3A%2F%2F127.0.0.1%3A8081%2F`. Mặc định chỉ chạy local. Chưa cấu hình phát hành Internet/TLS.
-
-## Kiểm tra
-
-```powershell
-# source/server
-.\run.ps1 -BuildOnly
-
-# source/client
-npm.cmd run build
-# Cần Java server đang chạy; thực thi cả module GameClient đã compile
-npm.cmd run test:network
-```
-
-Test mạng kiểm tra handshake, LIST/WHO/SPAWN từ bản đồ gốc, hai người chơi, MOVE, CHAT, sát thương, disconnect và dữ liệu sai. Không thay thế kiểm tra trình duyệt về render, animation, âm thanh hoặc trải nghiệm chiến đấu.
-
-## Cấu trúc
+## Cấu trúc chuẩn bị
 
 ```text
 btl_ltm/
-├── INSTRUCTION.md          # Giữ nguyên
-├── LICENSE-BrowserQuest    # LICENSE từ nguồn
-├── NOTICE.md               # Credits, nguồn gốc và các thay đổi
-├── docs/                   # Phạm vi, kiến trúc, giao thức, lộ trình port
+├── README.md
+├── INSTRUCTION.md       # Giữ nguyên yêu cầu giảng viên
+├── docs/                # Thiết kế, kế hoạch và tài liệu lịch sử
+├── statics/             # Sơ đồ/hình ảnh phục vụ báo cáo
 └── source/
-    ├── client/
-    │   ├── src/            # Các module đã chuyển TypeScript
-    │   ├── public/         # Tài nguyên và module JS chưa chuyển
-    │   └── tests/          # Tích hợp TS → Java qua WebSocket thật
-    ├── server/
-    │   ├── src/main/java/  # Server Java
-    │   └── maps/           # Bản đồ và chỉ số từ baseline
-    └── prototype-v1/       # Lưu bản Phaser trước khi đổi hướng; không chạy mặc định
+    ├── client/          # Chưa triển khai client mới
+    └── server/          # Chưa triển khai server mới
 ```
 
-- [Phạm vi](docs/scope.md)
-- [Kiến trúc](docs/architecture.md)
-- [Giao thức](docs/protocol.md)
-- [Lộ trình chuyển đổi](docs/migration.md)
-- [Nguồn gốc, giấy phép và credits](NOTICE.md)
-
-Thư mục nguồn BrowserQuest chỉ đọc và được giữ nguyên; không đọc design. Tên nhóm, thành viên, MSSV và thời hạn chưa được cung cấp.
-
-## Tham khảo
-
-[BrowserQuest](https://github.com/mozilla/BrowserQuest), [Java-WebSocket](https://github.com/TooTallNate/Java-WebSocket), [Gson](https://github.com/google/gson), [TypeScript AMD modules](https://www.typescriptlang.org/tsconfig/module.html).
+Thư mục BrowserQuest nguồn bên ngoài dự án giữ nguyên, chỉ dùng tham khảo và không đọc design. Tên nhóm, thành viên và ngày bắt đầu triển khai chưa chốt.

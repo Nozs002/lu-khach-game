@@ -1,5 +1,7 @@
 # Lộ trình chuyển BrowserQuest sang Java và TypeScript
 
+> Lộ trình này được thay thế ngày 07/11/2026 bởi [kế hoạch tự xây game trong 10 ngày](plan-10-days.md). Nội dung dưới đây là lộ trình cũ để tham khảo, không còn là mục tiêu triển khai hiện hành.
+
 ## Quyết định mới
 
 Phát triển trực tiếp trên nền BrowserQuest, sử dụng bản đồ, tài nguyên, renderer, tìm đường và cơ chế của game. Thay server Node.js bằng Java, chuyển client dần sang TypeScript. Không tiếp tục phát triển game Phaser độc lập.
