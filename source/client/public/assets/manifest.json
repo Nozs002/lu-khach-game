@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "tileSize": 24,
+  "imageSmoothingEnabled": false,
+  "assets": {
+    "characters/player.png": {
+      "url": "/assets/characters/player.png",
+      "source": "Actor/Character/NinjaBlue/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "characters/player-walk.png": {
+      "url": "/assets/characters/player-walk.png",
+      "source": "Actor/Character/NinjaBlue/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "characters/player-attack.png": {
+      "url": "/assets/characters/player-attack.png",
+      "source": "Actor/Character/NinjaBlue/SeparateAnim/Attack.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "characters/player-dead.png": {
+      "url": "/assets/characters/player-dead.png",
+      "source": "Actor/Character/NinjaBlue/SeparateAnim/Dead.png",
+      "width": 16,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 1,
+      "rows": 1
+    },
+    "mobs/slime.png": {
+      "url": "/assets/mobs/slime.png",
+      "source": "Actor/Monster/Slime/Slime.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "items/health-potion.png": {
+      "url": "/assets/items/health-potion.png",
+      "source": "Items/Potion/LifePot.png",
+      "width": 9,
+      "height": 11
+    },
+    "tiles/floor.png": {
+      "url": "/assets/tiles/floor.png",
+      "source": "Backgrounds/Tilesets/TilesetFloor.png",
+      "width": 352,
+      "height": 417
+    },
+    "tiles/nature.png": {
+      "url": "/assets/tiles/nature.png",
+      "source": "Backgrounds/Tilesets/TilesetNature.png",
+      "width": 384,
+      "height": 336
+    }
+  },
+  "staticFrames": {
+    "player": {
+      "asset": "characters/player.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "slime": {
+      "asset": "mobs/slime.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "healthPotion": {
+      "asset": "items/health-potion.png",
+      "sourceRect": [
+        0,
+        0,
+        9,
+        11
+      ]
+    }
+  },
+  "notes": [
+    "Các sprite sheet được sao chép nguyên bản. Không vẽ toàn bộ sheet thành một nhân vật hoặc đối tượng duy nhất.",
+    "Đã có khung hình tĩnh để sử dụng; cần kiểm tra trực quan hướng và thứ tự khung hình trước khi tích hợp hoạt ảnh.",
+    "floor.png và nature.png là atlas chứa nhiều ô hình. Việc chọn ô hình và dữ liệu va chạm được quy định trong dữ liệu bản đồ, không nằm trong ảnh PNG.",
+    "Vẽ vùng an toàn và các dấu chỉ mục tiêu bằng Canvas."
+  ]
+}
