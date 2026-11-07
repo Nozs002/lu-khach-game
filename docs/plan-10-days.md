@@ -1,5 +1,7 @@
 # Kế hoạch game web multiplayer trong 10 ngày — 4 người
 
+> Quyết định 07/11/2026: chuyển sang chia dọc theo [giao thức v1 và phân công đã chốt](protocol-v1.md). Mỗi người làm cả client/server của tính năng mình. Bảng phân công, lịch theo người, quyền sở hữu protocol và nhánh theo tầng bên dưới là phương án cũ; dùng phân công và mốc tích hợp trong tài liệu mới. Phạm vi, thời lượng giả định và tiêu chí nghiệm thu vẫn áp dụng.
+
 > Cập nhật 07/11/2026: theo yêu cầu mới, code port, prototype và tài nguyên cũ đã được xóa. Các đoạn dưới nói giữ code cũ hoặc source/prototype-v1 phản ánh kế hoạch trước khi dọn mã; hiện chỉ giữ tài liệu lịch sử và repo BrowserQuest nguồn bên ngoài. Bắt đầu lập trình mới sau khi review [thiết kế game](game-design.md).
 
 Ngày lập: 07/11/2026. Mục tiêu 10 ngày do người dùng đặt. Đây là kế hoạch triển khai đề xuất, chưa phải cam kết về năng lực hoặc giờ làm của từng thành viên.

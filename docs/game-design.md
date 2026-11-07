@@ -226,6 +226,8 @@ Snapshot players chứa id/name/x/y/hp/maxHp/state/targetId/respawnReadyTick; mo
 
 ## 12. Giao thức ứng dụng v1 đề xuất
 
+> Đã chốt hợp đồng triển khai tại [protocol-v1.md](protocol-v1.md) ngày 07/11/2026, bao gồm schema chi tiết và cách chia dọc. Khi khác nhau, dùng tài liệu đó; nội dung bên dưới là bản đề xuất trước khi chốt.
+
 Endpoint dự kiến: ws://127.0.0.1:8080/game. Chưa thay đổi endpoint hoặc giao thức của code cũ trong tài liệu này.
 
 Mỗi command là JSON object {v:1,type,requestId,payload}. requestId là số nguyên dương tăng dần theo kết nối. Server chỉ tin playerId gắn với socket, không nhận playerId do client tự xưng. ACK chỉ có nghĩa command đã được chấp nhận ở lớp xử lý, không có nghĩa đã đi tới đích hoặc đã gây damage.
@@ -297,6 +299,8 @@ Chạy phát triển bằng Vite cho web và Java process riêng cho game server
 
 ## 15. Module và quyền sở hữu của 4 người
 
+> Phân công theo tầng trong mục này đã được thay bằng [phân công chia dọc](protocol-v1.md#1-mỗi-người-làm-cả-client-và-server). Nhãn P1–P4 tại bảng nghiệm thu mục 16 cũng là nhãn cũ; tra người phụ trách tính năng theo tài liệu mới.
+
 Đây là bố trí mục tiêu cho code mới, chưa phải thao tác di chuyển file đã thực hiện.
 
 ```text
@@ -337,6 +341,8 @@ P1 nhận WorldState chỉ đọc và callback onMove/onAttack/onLoot từ P2; k
 Đo tick duration và RTT trên môi trường demo. Mục tiêu tick hoàn tất dưới 100 ms với tải nghiệm thu 4 client; đây là mục tiêu đo, chưa phải kết quả. Client hướng tới render 60 FPS nếu máy đáp ứng; không cam kết trên mọi thiết bị. Khi không đạt, đo điểm nghẽn trước khi thêm tối ưu phức tạp.
 
 ## 17. Quyết định cần review trước khi bắt đầu code
+
+> Giao thức và điểm ghép module (mục 3–4 bên dưới) đã được chốt trong [protocol-v1.md](protocol-v1.md). Nhóm điền tên thật cho các vai trò và triển khai theo hợp đồng đó.
 
 1. Chốt tên game, phong cách hình ảnh và người phụ trách P1–P4.
 2. Review các thông số đề xuất ở mục 4–8; giữ một file config chuẩn cho client/server.
