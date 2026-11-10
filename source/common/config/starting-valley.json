@@ -1,0 +1,49 @@
+{
+  "id": "starting-valley",
+  "width": 32,
+  "height": 24,
+  "tileSize": 24,
+  "safeZone": {
+    "x": 2,
+    "y": 2,
+    "width": 6,
+    "height": 6
+  },
+  "playerSpawns": [
+    { "x": 3, "y": 3 },
+    { "x": 4, "y": 3 },
+    { "x": 3, "y": 4 },
+    { "x": 5, "y": 4 }
+  ],
+  "mobSpawnZones": [
+    {
+      "id": "field-a",
+      "x": 12,
+      "y": 4,
+      "width": 16,
+      "height": 15,
+      "count": 5
+    }
+  ],
+  "initialMobs": [
+    { "id": "m-1", "kind": "SLIME", "x": 10, "y": 5, "hp": 40, "maxHp": 40 },
+    { "id": "m-2", "kind": "SLIME", "x": 14, "y": 7, "hp": 40, "maxHp": 40 },
+    { "id": "m-3", "kind": "SLIME", "x": 18, "y": 11, "hp": 40, "maxHp": 40 },
+    { "id": "m-4", "kind": "SLIME", "x": 12, "y": 15, "hp": 40, "maxHp": 40 },
+    { "id": "m-5", "kind": "SLIME", "x": 22, "y": 8, "hp": 40, "maxHp": 40 }
+  ],
+  "initialItems": [
+    { "id": "i-1", "kind": "HEALTH_POTION", "x": 6, "y": 5, "expiresTick": 200 },
+    { "id": "i-2", "kind": "HEALTH_POTION", "x": 9, "y": 6, "expiresTick": 200 }
+  ],
+  "obstacleTiles": [
+    { "x": 10, "y": 9 },
+    { "x": 10, "y": 10 },
+    { "x": 10, "y": 11 },
+    { "x": 16, "y": 5 },
+    { "x": 17, "y": 5 },
+    { "x": 20, "y": 14 },
+    { "x": 20, "y": 15 },
+    { "x": 21, "y": 15 }
+  ]
+}

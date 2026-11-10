@@ -1,0 +1,478 @@
+body {
+    background-color: #101418;
+    color: #fff;
+    font-family: "Courier New", Courier, monospace;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Khung viền pixel chung */
+.pixel-box {
+    background: rgba(20, 24, 29, 0.96);
+    border: 3px solid #55606e;
+    box-shadow: inset -3px -3px 0px #1b2026, inset 3px 3px 0px #7f8fa6;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+/* Màn hình đăng nhập */
+.login-card {
+    width: 460px;
+}
+
+.login-card h2 {
+    font-size: 18px;
+    color: #f1c40f;
+    margin: 0 0 12px 0;
+    text-align: center;
+}
+
+.char-list {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.char-card {
+    background: #0d1115;
+    border: 3px solid #444;
+    padding: 10px;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    transition: all 0.15s;
+}
+
+.char-card:hover {
+    border-color: #888;
+}
+
+.char-card.selected {
+    border-color: #f1c40f;
+    background: #2c3540;
+}
+
+.char-card img {
+    width: 44px;
+    height: 44px;
+    image-rendering: pixelated;
+}
+
+.char-card h4 {
+    margin: 6px 0 0 0;
+    font-size: 12px;
+    color: #fff;
+}
+
+.char-desc-box {
+    background: #0f1317;
+    border: 1px dashed #555;
+    padding: 10px;
+    font-size: 12px;
+    color: #bdc3c7;
+    min-height: 42px;
+    text-align: left;
+    line-height: 1.4;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+input[type="text"] {
+    background: #0b0e11;
+    border: 2px solid #55606e;
+    color: #fff;
+    padding: 9px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: #f1c40f;
+}
+
+button {
+    background: #27ae60;
+    border: 2px solid #2ecc71;
+    color: #fff;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+button:disabled {
+    background: #485460 !important;
+    border-color: #636e72 !important;
+    color: #b2bec3 !important;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #2980b9;
+    border-color: #3498db;
+    font-size: 12px;
+}
+
+/* Khung màn hình Game chính */
+#game-container {
+    width: 1060px;
+    max-width: 98vw;
+    height: 690px;
+    max-height: 98vh;
+    background: #1a2229;
+    border: 4px solid #485460;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Thanh trạng thái Top Bar */
+.top-bar {
+    padding: 6px 12px;
+    background: rgba(10, 14, 18, 0.85);
+    font-size: 12px;
+    border-bottom: 2px solid #333c46;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.status-online { color: #2ecc71; font-weight: bold; }
+.status-offline { color: #e74c3c; font-weight: bold; }
+
+.hp-hud {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hp-bar-track {
+    width: 140px;
+    height: 12px;
+    background: #111;
+    border: 2px solid #55606e;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background: #2ecc71;
+    transition: width 0.15s ease;
+}
+
+.world-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-leave {
+    background: #c0392b;
+    border-color: #e74c3c;
+    padding: 4px 10px;
+    font-size: 11px;
+}
+
+/* Thanh thông báo thao tác */
+.feedback-banner {
+    padding: 4px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid #2f3640;
+}
+
+.feedback-banner.info {
+    background: rgba(39, 174, 96, 0.14);
+    color: #a3f7bf;
+}
+
+.feedback-banner.error {
+    background: rgba(231, 76, 60, 0.25);
+    color: #ff9f9f;
+    font-weight: bold;
+}
+
+/* Phần thân chính (Canvas + Sidebar) */
+.main-body {
+    display: flex;
+    gap: 10px;
+    padding: 8px 10px;
+    flex: 1;
+    min-height: 0;
+}
+
+.canvas-wrapper {
+    position: relative;
+    width: 680px;
+    height: 510px;
+    flex-shrink: 0;
+    border: 3px solid #485460;
+    background-color: #202f24;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    cursor: crosshair;
+}
+
+/* MÀN HÌNH CHẾT & HỒI SINH (Phần 4) */
+.death-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 5, 5, 0.78);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+.death-modal {
+    width: 390px;
+    text-align: center;
+    border-color: #e74c3c;
+    background: rgba(28, 12, 14, 0.96);
+}
+
+.death-modal h2 {
+    margin: 0 0 8px 0;
+    color: #ff6b6b;
+    font-size: 20px;
+}
+
+.death-desc {
+    font-size: 12px;
+    color: #dfe6e9;
+    line-height: 1.4;
+    margin: 0 0 10px 0;
+}
+
+.death-countdown {
+    font-size: 13px;
+    color: #f1c40f;
+    font-weight: bold;
+    margin: 0 0 12px 0;
+}
+
+.btn-respawn {
+    width: 100%;
+    background: #27ae60;
+    border-color: #2ecc71;
+    padding: 10px;
+    font-size: 13px;
+}
+
+/* Sidebar */
+.sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    min-height: 0;
+}
+
+.panel:first-child {
+    height: 115px;
+}
+
+.panel:last-child {
+    flex: 1;
+}
+
+.panel h3 {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    color: #f39c12;
+    border-bottom: 1px solid #444;
+    padding-bottom: 4px;
+}
+
+.player-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+    font-size: 11px;
+}
+
+.player-list li {
+    padding: 3px 0;
+    border-bottom: 1px dashed #333;
+}
+
+/* Bảng nút test nhanh Phần 4 */
+.test-panel {
+    flex-shrink: 0;
+}
+
+.test-btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.btn-tool {
+    padding: 6px 6px;
+    font-size: 11px;
+    background: #2c3e50;
+    border: 1px solid #576574;
+}
+
+.btn-tool.btn-loot {
+    grid-column: span 2;
+    background: #16a085;
+    border-color: #1abc9c;
+}
+
+.btn-tool.btn-warn {
+    background: #d35400;
+    border-color: #e67e22;
+}
+
+.btn-tool.btn-danger {
+    background: #c0392b;
+    border-color: #e74c3c;
+}
+
+.btn-tool.btn-kill {
+    grid-column: span 2;
+    background: #8e44ad;
+    border-color: #9b59b6;
+}
+
+.log {
+    color: #bdc3c7;
+    font-size: 11px;
+    overflow-y: auto;
+    flex: 1;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+/* Thanh dưới cùng: Khung Chat + Hộp thoại */
+.bottom-bar {
+    display: flex;
+    gap: 10px;
+    padding: 0 10px 8px 10px;
+    height: 112px;
+}
+
+.chat-panel {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 8px;
+}
+
+.chat-header {
+    font-size: 11px;
+    color: #f1c40f;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(8, 11, 14, 0.75);
+    border: 1px solid #353b48;
+    padding: 4px 6px;
+    font-size: 11px;
+    margin-bottom: 5px;
+    line-height: 1.35;
+}
+
+.chat-item {
+    word-break: break-word;
+}
+
+.chat-author {
+    color: #74b9ff;
+    font-weight: bold;
+}
+
+.chat-author.me {
+    color: #f1c40f;
+}
+
+.chat-text {
+    color: #ecf0f1;
+}
+
+.chat-input-row {
+    display: flex;
+    gap: 6px;
+}
+
+.chat-input-row input {
+    flex: 1;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+
+.btn-chat-send {
+    padding: 5px 14px;
+    font-size: 12px;
+}
+
+/* Hộp thoại Dialogue Box (tương thích P1) */
+.dialogue-box {
+    flex: 2;
+    background-color: rgba(12, 16, 20, 0.95);
+    border: 3px solid #ecf0f1;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #bdc3c7;
+    image-rendering: pixelated;
+    object-fit: cover;
+    background-color: #333;
+    flex-shrink: 0;
+}
+
+.character-name {
+    color: #f1c40f;
+    margin: 0 0 4px 0;
+    font-size: 13px;
+}
+
+.dialogue-text {
+    color: #ffffff;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+}
