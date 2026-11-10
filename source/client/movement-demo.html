@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chức năng 2 · Movement demo</title>
+<style>
+  * { box-sizing: border-box; } body { margin: 0; background: #152c32; color: #e2ebde; font: 16px/1.6 system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 40px auto; padding: 0 24px; } h1 { font-size: 30px; margin: 8px 0; } .eyebrow { color: #72dccc; letter-spacing: .14em; font-size: 12px; }
+  canvas { display: block; width: 100%; max-width: 768px; height: auto; image-rendering: pixelated; touch-action: none; margin: 24px 0; border-radius: 8px; }
+  p { max-width: 780px; } button { padding: 10px 18px; background: #ffe49b; color: #152c32; border: 0; border-radius: 6px; cursor: pointer; } #status { color: #ffe49b; min-height: 26px; } small { color: #b1c3bc; }
+</style>
+<main>
+  <div class="eyebrow">LỮ KHÁCH / CHỨC NĂNG 02</div>
+  <h1>Khám phá hai miền đất</h1>
+  <p>Click ô để đi. Cổng xanh ngọc rộng hai ô ở giữa mỗi cạnh đưa bạn sang bản đồ còn lại. Nhân vật vàng là bạn; nhân vật xanh là người chơi giả.</p>
+  <small>Demo world giả chạy trong trình duyệt · 5 ô/giây · chưa tích hợp multiplayer</small>
+  <div id="status">Đang nạp bản đồ…</div>
+  <div id="message" role="status" aria-live="polite"></div>
+  <canvas aria-label="Bản đồ di chuyển bằng chuột"></canvas>
+  <button id="disconnect">Mô phỏng rời game</button>
+  <p><small>Vùng có viền nét đứt là vùng an toàn. Nền, cây và đá dùng tileset có sẵn. Click ô đang đứng để dừng; click mới thay đường cũ. Tải lại trang để vào lại demo.</small></p>
+</main>
+<script type="module" src="./movement-build/movement-demo.js"></script>
+</html>
