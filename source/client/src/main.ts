@@ -74,6 +74,15 @@ document.getElementById('joinBtn')?.addEventListener('click', connectGame);
 document.getElementById('playerName')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') connectGame();
 });
+document.getElementById('startGameBtn')?.addEventListener('click', () => {
+    // Tạm thời ghi log và thông báo ra hộp thoại (Xử lý màn chơi thực sự sau)
+    const logDiv = document.getElementById('systemLog')!;
+    logDiv.innerHTML += `<div>[Sảnh Chờ] Bạn đã bấm nút VÀO GAME!</div>`;
+    logDiv.scrollTop = logDiv.scrollHeight;
+
+    document.getElementById('dialogue-name')!.innerText = 'Hệ Thống';
+    document.getElementById('dialogue-text')!.innerText = 'Đã nhấn VÀO GAME! Đang chờ thiết lập màn chơi...';
+});
 
 function connectGame() {
     const nameInput = document.getElementById('playerName') as HTMLInputElement;
