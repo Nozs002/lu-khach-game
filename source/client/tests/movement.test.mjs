@@ -22,10 +22,13 @@ assert.equal(map.walkable({ x: 0, y: 0 }), false, 'map detached from mutable cal
 assert.throws(() => { map.data.collisions.push(5); });
 assert.equal(map.walkable({ x: NaN, y: 0 }), false);
 assert.equal(map.walkable({ x: 4.5, y: 3 }), false);
-const canvas = { width: 768, height: 576, getBoundingClientRect: () => ({ left: 10, top: 20, right: 394, bottom: 308, width: 384, height: 288 }) };
+const canvas = { width: 1536, height: 576, getBoundingClientRect: () => ({ left: 10, top: 20, right: 778, bottom: 308, width: 768, height: 288 }) };
 assert.deepEqual(pointerTile(canvas, 28, 50), { x: 1, y: 2 });
-assert.equal(pointerTile(canvas, 394, 50), null);
+assert.equal(pointerTile(canvas, 778, 50), null);
 assert.equal(pointerTile(canvas, 5, 50), null);
+assert.deepEqual(pointerTile(canvas, 616, 50), { x: 50, y: 2 }, 'right half uses 64 columns');
+assert.deepEqual(pointerTile(canvas, 777, 307), { x: 63, y: 23 }, 'last cell');
+assert.equal(map.inside({ x: 64, y: 3 }), false);
 let listener, sent = [];
 canvas.addEventListener = (_name, fn) => { listener = fn; };
 canvas.removeEventListener = (_name, fn) => assert.equal(fn, listener);

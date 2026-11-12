@@ -56,7 +56,7 @@ python -m http.server 8000 --bind 127.0.0.1
 
 Giữ terminal này mở. Truy cập bằng Chrome hoặc Edge:
 
-[http://127.0.0.1:8000/client/movement-demo.html](http://127.0.0.1:8000/client/movement-demo.html)
+[http://127.0.0.1:8000/source/client/movement-demo.html](http://127.0.0.1:8000/client/movement-demo.html)
 
 **Phải phục vụ từ thư mục `source/`** để trình duyệt đọc được cả client và `common/maps/`. Không mở HTML bằng cách nhấp đúp hoặc dùng địa chỉ `file://`.
 

@@ -23,7 +23,7 @@ public final class MapLoader {
     public static WorldMap parse(JsonElement raw) {
         try {
             JsonObject d = raw.getAsJsonObject();
-            if (integer(d.get("width")) != 32 || integer(d.get("height")) != 24 || integer(d.get("tileSize")) != 24) throw new IllegalArgumentException("INVALID_DIMENSIONS");
+            if (integer(d.get("width")) != 64 || integer(d.get("height")) != 24 || integer(d.get("tileSize")) != 24) throw new IllegalArgumentException("INVALID_DIMENSIONS");
             List<Integer> collisions = new ArrayList<>(); d.getAsJsonArray("collisions").forEach(v -> collisions.add(integer(v)));
             JsonObject z = d.getAsJsonObject("safeZone");
             Zone zone = new Zone(integer(z.get("x")), integer(z.get("y")), integer(z.get("width")), integer(z.get("height")));

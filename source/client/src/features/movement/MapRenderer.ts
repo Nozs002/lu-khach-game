@@ -11,20 +11,20 @@ export class MapRenderer {
   }
   private background(map: GridMap): HTMLCanvasElement {
     const cached = this.backgrounds.get(map); if (cached) return cached;
-    const layer = document.createElement('canvas'); layer.width = 768; layer.height = 576;
+    const layer = document.createElement('canvas'); layer.width = 1536; layer.height = 576;
     const c = layer.getContext('2d')!; c.imageSmoothingEnabled = false;
     const d = map.data, visuals = d.visuals!;
     const tile = (sprite: AtlasTile, x: number, y: number) => {
       const [sx, sy, sw, sh] = sprite.rect;
       c.drawImage(this.tiles![sprite.atlas], sx, sy, sw, sh, x * 24, y * 24, 24, 24);
     };
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) {
-      const index = y * 32 + x, variant = visuals.terrain[index];
+    for (let y = 0; y < 24; y++) for (let x = 0; x < 64; x++) {
+      const index = y * 64 + x, variant = visuals.terrain[index];
       tile(visuals.ground[Math.max(0, variant)], x, y);
       if (variant === -1 && map.walkable({ x, y })) tile(visuals.road, x, y);
     }
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) if (!map.walkable({ x, y })) {
-      const sprites = x === 0 || x === 31 || y === 0 || y === 23 ? visuals.border : visuals.obstacles;
+    for (let y = 0; y < 24; y++) for (let x = 0; x < 64; x++) if (!map.walkable({ x, y })) {
+      const sprites = x === 0 || x === 63 || y === 0 || y === 23 ? visuals.border : visuals.obstacles;
       tile(sprites[(x * 7 + y * 11) % sprites.length], x, y);
     }
     const z = d.safeZone;
@@ -34,11 +34,11 @@ export class MapRenderer {
   }
   draw(map: GridMap, entities: readonly Entity[], path: readonly Tile[], target: Tile | null, selfId: string): void {
     const c = this.ctx, d = map.data;
-    c.clearRect(0, 0, 768, 576);
+    c.clearRect(0, 0, 1536, 576);
     c.imageSmoothingEnabled = false;
     if (this.tiles && d.visuals) c.drawImage(this.background(map), 0, 0);
     else {
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) {
+    for (let y = 0; y < 24; y++) for (let x = 0; x < 64; x++) {
       const safe = x >= d.safeZone.x && y >= d.safeZone.y && x < d.safeZone.x + d.safeZone.width && y < d.safeZone.y + d.safeZone.height;
       c.fillStyle = !map.walkable({ x, y }) ? '#273d43' : safe ? '#486b53' : (x + y) % 2 ? '#8ba579' : '#91ac80';
       c.fillRect(x * 24, y * 24, 24, 24);

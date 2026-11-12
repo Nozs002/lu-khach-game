@@ -15,7 +15,7 @@ export async function loadTileAtlas(base: URL = new URL('../../../public/assets/
 }
 
 export function validateVisuals(v: MapVisuals): void {
-  if (!v || !Array.isArray(v.ground) || !v.ground.length || !Array.isArray(v.obstacles) || !v.obstacles.length || !Array.isArray(v.border) || !v.border.length || !Array.isArray(v.terrain) || v.terrain.length !== 768 || v.terrain.some(n => !Number.isInteger(n) || n < -1 || n >= v.ground.length)) throw new Error('INVALID_MAP_VISUALS');
+  if (!v || !Array.isArray(v.ground) || !v.ground.length || !Array.isArray(v.obstacles) || !v.obstacles.length || !Array.isArray(v.border) || !v.border.length || !Array.isArray(v.terrain) || v.terrain.length !== 1536 || v.terrain.some(n => !Number.isInteger(n) || n < -1 || n >= v.ground.length)) throw new Error('INVALID_MAP_VISUALS');
   for (const tile of [...v.ground, v.road, ...v.obstacles, ...v.border]) {
     if (!tile || !['floor', 'nature'].includes(tile.atlas) || !Array.isArray(tile.rect) || tile.rect.length !== 4 || tile.rect.some((n: number) => !Number.isInteger(n) || n < 0)) throw new Error('INVALID_ATLAS_TILE');
     const [x, y, w, h] = tile.rect, bounds = tile.atlas === 'floor' ? [352, 417] : [384, 336];
