@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lữ Khách Game - Sảnh Chờ Pixel</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+    <!-- Màn hình Đăng nhập -->
+    <div id="loginUI" class="pixel-box login-card">
+        <h2>CHỌN LỮ KHÁCH</h2>
+
+        <!-- Khu vực hiển thị danh sách nhân vật sẽ được JavaScript tự động điền -->
+        <div id="character-list" class="char-list"></div>
+
+        <!-- Khung mô tả nhân vật -->
+        <div id="character-desc" class="char-desc-box"></div>
+
+        <div class="input-group" style="margin-top: 15px;">
+            <input type="text" id="playerName" placeholder="Nhập tên của bạn..." />
+            <button id="joinBtn">VÀO GAME</button>
+        </div>
+    </div>
+
+    <!-- Màn hình Game UI -->
+    <div id="gameUI" style="display: none;">
+        <div id="game-container">
+
+            <!-- Thanh trạng thái top bar -->
+            <div class="top-bar">
+                <div class="status-box">
+                    Trạng thái: <span id="status" class="status-online">Đã kết nối</span>
+                </div>
+            </div>
+
+            <!-- Màn hình chơi chính (Canvas + Sidebar) -->
+            <div class="main-body">
+                <!-- Canvas 2D chơi Game -->
+                <canvas id="gameCanvas" width="510" height="340"></canvas>
+
+                <!-- Bảng thông tin Sidebar (Danh sách & Log) -->
+                <div class="sidebar">
+                    <div class="pixel-box panel">
+                        <h3>LỮ KHÁCH ONLINE</h3>
+                        <ul id="players" class="player-list"></ul>
+                    </div>
+                    <div class="pixel-box panel">
+                        <h3>NHẬT KÝ LÀNG</h3>
+                        <div id="systemLog" class="log"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hộp thoại Dialogue Box kiểu Pixel -->
+            <div class="dialogue-box">
+                <img src="/assets/characters/avatar.png" alt="Avatar" class="avatar" onerror="this.style.visibility='hidden'">
+                <div class="dialogue-content">
+                    <h3 id="dialogue-name" class="character-name">Hệ Thống</h3>
+                    <p id="dialogue-text" class="dialogue-text">Sử dụng phím WASD hoặc Mũi tên để di chuyển!</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
