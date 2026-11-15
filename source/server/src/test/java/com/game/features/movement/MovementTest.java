@@ -27,7 +27,7 @@ public final class MovementTest {
     public static void main(String[] args) throws Exception {
         Path common = Path.of(args.length == 0 ? "../common" : args[0]);
         WorldMap map = MapLoader.load(common.resolve("maps/world-01.json"));
-        Map<String,WorldMap> maps = Map.of(map.id,map,"world-02",MapLoader.load(common.resolve("maps/world-02.json")));
+        Map<String,WorldMap> maps = Map.of(map.id,map,"world-02",MapLoader.load(common.resolve("maps/world-02.json")),"world-03",MapLoader.load(common.resolve("maps/world-03.json")));
         WorldMap.validateWorld(maps);
         for (JsonElement value : read(common.resolve("fixtures/movement/paths.json")).getAsJsonArray()) {
             JsonObject f = value.getAsJsonObject(); List<Tile> result = AStar.findPath(map,tile(f.get("start")),tile(f.get("goal")));
@@ -49,8 +49,10 @@ public final class MovementTest {
         JsonObject nan = new JsonObject(); nan.addProperty("x",Double.NaN); nan.addProperty("y",3);
         check(!module.commands.handle(player.id(),nan).accepted(),"NaN rejected");
         check(module.commands.handle(player.id(),command(-1,3)).code().equals("INVALID_TARGET"),"bounds");
-        check(module.commands.handle(player.id(),command(24,4)).code().equals("BLOCKED_TILE"),"wall");
-        check(module.commands.handle(player.id(),command(48,18)).code().equals("NO_PATH"),"unreachable");
+        check(module.commands.handle(player.id(),command(13,5)).code().equals("BLOCKED_TILE"),"wall");
+        player.map = "world-02";
+        check(module.commands.handle(player.id(),command(25,12)).code().equals("NO_PATH"),"unreachable island");
+        player.map = "world-01";
         for (int now = 0; now <= 1000; now += 10) {
             for (int i = 0; i < 25; i++) check(module.commands.handle(player.id(),command(10,3)).accepted(),"spam accepted");
             module.system.update(now); check(player.position.x() <= 3 + now/200,"spam speed cap"); check(module.queuedSteps(player.id()) < 1536,"bounded path");
@@ -65,7 +67,7 @@ public final class MovementTest {
         // All eight gate cells: enter target map, map change consumes a step, no bounce.
         for (WorldMap.Exit exit : map.exits) for (int i = 0; i < 2; i++) {
             FakeWorld w = new FakeWorld(); Entity p = new Entity(); Tile gate = exit.cells().get(i);
-            p.position = new Tile(Math.max(1,Math.min(62,gate.x())),Math.max(1,Math.min(22,gate.y()))); w.players.put(p.id(),p);
+            p.position = new Tile(Math.max(1,Math.min(50,gate.x())),Math.max(1,Math.min(22,gate.y()))); w.players.put(p.id(),p);
             MovementModule m = new MovementModule(w,maps); m.joined(p.id(),0);
             check(m.commands.handle(p.id(),command(gate.x(),gate.y())).accepted(),"gate command");
             m.system.update(199); check(p.map.equals("world-01"),"gate respects speed");
@@ -75,10 +77,10 @@ public final class MovementTest {
         // A shared authoritative world exposes identical positions to multiple readers.
         FakeWorld w = new FakeWorld(); Entity a = new Entity(), b = new Entity(); w.players.put("a",a); w.players.put("b",b);
         MovementModule m = new MovementModule(w,maps); m.joined("a",0); m.joined("b",0);
-        a.position = new Tile(10,8); b.position = new Tile(10,8);
-        m.commands.handle("a",command(15,8)); m.commands.handle("b",command(15,8));
+        a.position = new Tile(3,6); b.position = new Tile(3,6);
+        m.commands.handle("a",command(8,6)); m.commands.handle("b",command(8,6));
         for (int t = 100; t <= 6000; t += 100) { m.system.update(t); check(a.position.equals(b.position),"shared positions"); check(map.walkable(a.position),"never enters wall"); }
-        check(a.position.equals(new Tile(15,8)),"arrives around wall");
+        check(a.position.equals(new Tile(8,6)),"arrives around wall");
         a.alive = false; m.commands.handle("a",command(5,5)); check(m.queuedSteps("a") == 0,"dead clears path");
         w.players.remove("b"); m.system.update(6200); check(m.activePlayers() == 1,"missing entity cleaned");
         System.out.println("Java: shared fixtures, validation, spam, cooldown, slow tick, eight gates, cleanup passed");

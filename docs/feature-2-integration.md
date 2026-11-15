@@ -1,6 +1,6 @@
 # Cách chạy chức năng 2 — bản đồ và di chuyển
 
-Tài liệu này hướng dẫn chạy trên Windows bằng PowerShell tại dự án hiện tại. Demo hiển thị hai map bằng assets có sẵn, cho phép click để di chuyển và đi qua cổng chuyển map.
+Tài liệu này hướng dẫn chạy trên Windows bằng PowerShell tại dự án hiện tại. Demo hiển thị ba map 52 cột × 24 dòng, canh trái và chừa vùng trống bên phải bằng assets có sẵn, cho phép click để di chuyển và đi qua cổng chuyển map.
 
 **Demo dùng world giả trong trình duyệt, chưa kết nối multiplayer.** Không cần chạy server Java để mở demo. Phần Java được chạy riêng bằng bộ kiểm thử movement; mở hai tab demo sẽ tạo hai world độc lập.
 
@@ -20,7 +20,7 @@ Trong checkout hiện tại đã có:
 - TypeScript: `source/client/node_modules/typescript/bin/tsc`.
 - Gson: `source/server/.deps/gson-2.11.0.jar`.
 - Assets: `source/client/public/assets/tiles/floor.png` và `nature.png`.
-- Map: `source/common/maps/world-01.json` và `world-02.json`.
+- Map: `source/common/maps/world-01.json`, `world-02.json` và `world-03.json`.
 
 Không cần chạy `npm run dev`, Maven hoặc tạo/sửa `package.json` để dùng demo này.
 
@@ -70,10 +70,10 @@ Nhấn `Ctrl+C` trong terminal để dừng HTTP server.
 2. Click ô trống để di chuyển. Các chấm nhỏ thể hiện đường dự kiến; ô viền sáng là đích. Nhân vật vàng là bạn, nhân vật xanh là người chơi giả.
 3. Click đích khác khi đang đi để thay đường. Click ô đang đứng để dừng. Tốc độ tối đa là 5 ô/giây.
 4. Click ô đá hoặc cây chặn để thử báo lỗi. Thu nhỏ cửa sổ và click lại để thử tọa độ khi canvas bị co theo CSS.
-5. Click một trong hai ô cổng ở giữa cạnh trái, phải, trên hoặc dưới. Khi tới cổng, nhân vật chuyển sang map còn lại và xuất hiện ở phía trong cạnh đối diện. Dòng `Bản đồ` đổi giữa `world-01` và `world-02`.
+5. Click một trong hai ô cổng ở giữa cạnh trái, phải, trên hoặc dưới. Khi tới cổng, nhân vật chuyển sang map kế tiếp hoặc trước đó và xuất hiện ở phía trong cạnh đối diện. Bộ chọn bản đồ và dòng trạng thái cập nhật tương ứng. Có thể dùng bộ chọn để xem ngay cả ba map.
 6. Nhấn **Mô phỏng rời game**. Tick ngừng cập nhật và click không còn gửi lệnh. Tải lại trang để bắt đầu phiên demo mới.
 
-Vùng viền nét đứt là vùng an toàn. Hình ảnh nền, cây và đá được lấy từ hai PNG gốc; dữ liệu va chạm, cổng và lựa chọn tile được lưu trong JSON map.
+Mỗi map có 52 × 24 ô, mỗi ô 24 px (1248 × 576 px). Phần bản đồ nằm sát trái, giữ nguyên tỷ lệ; vùng bên phải rộng tương đương 12 cột được để trống và không nhận di chuyển. Nền, nước, cầu, cây và đá lấy từ PNG có sẵn; dữ liệu va chạm, cổng và lớp trang trí lưu trong JSON map.
 
 ## 5. Chạy kiểm thử client
 
@@ -108,12 +108,12 @@ $env:MOVEMENT_CHROME = 'D:\Tools\Chrome\chrome.exe'
 node tests/movement.browser.mjs
 ```
 
-Khi thành công, terminal in `Browser: ... passed`. Test kiểm tra tải cả hai tileset, click khi canvas thu nhỏ, tới đích, ô chặn, đổi map và rời demo. Test tự phục vụ file bằng browser route, không cần mở HTTP server.
+Khi thành công, terminal in `Browser: ... passed`. Test kiểm tra tải ba tileset, click khi canvas thu nhỏ, tới đích, ô chặn, đổi map và rời demo. Test tự phục vụ file bằng browser route, không cần mở HTTP server.
 
 Ảnh kiểm chứng được tạo tại:
 
 - `source/client/movement-build/map-world-01.png`.
-- `source/client/movement-build/demo-preview.png` — ảnh sau khi sang map 2.
+- `statics/maps/world-01.png`, `world-02.png`, `world-03.png` — ảnh từng bản đồ kèm vùng trống bên phải.
 
 ## 6. Chạy kiểm thử movement Java
 
@@ -176,3 +176,7 @@ Chạy demo và các bộ kiểm thử trên chưa đồng nghĩa đã tích h�
 Khi đóng gói, client và server phải dùng cùng bản `common/maps/*.json`. Host cấu hình đường phục vụ map và assets của mình. Nếu assets được phục vụ tại `/assets/tiles/`, preload bằng `loadTileAtlas(new URL('/assets/tiles/', location.origin))` rồi truyền atlas làm tham số thứ năm của `MovementModule`.
 
 Chỉ nghiệm thu multiplayer sau khi hai client thật cùng thấy di chuyển và đổi map, đóng tab không còn movement state, đồng thời nhập tên, vào/rời, online và PING/PONG vẫn hoạt động đúng.
+
+## 9. Dựng lại dữ liệu cảnh
+
+Ba cảnh lần lượt là Đồng cỏ song hồ, Hồ Ngọc giữa núi và Suối Ba Cầu. Để chỉnh bố cục, sửa `source/common/maps/build_maps.py` rồi chạy `python source/common/maps/build_maps.py` từ thư mục repo (cần Pillow). Script tạo lại lớp nền, trang trí, cầu và va chạm từ cùng một bố cục; không sửa các PNG atlas gốc. Sau đó biên dịch và chạy kiểm thử như trên.

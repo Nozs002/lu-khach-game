@@ -6,10 +6,20 @@ import { sameTile, type Entity, type Snapshot, type Tile } from './features/move
 import { loadTileAtlas } from './features/movement/TileAtlas.js';
 
 const status = document.querySelector<HTMLDivElement>('#status')!;
-const report = (message: string) => { document.querySelector('#message')!.textContent = message; };
+const messageBox = document.querySelector<HTMLDivElement>('#message')!;
+let messageTimer: number | undefined;
+const report = (message: string) => {
+  window.clearTimeout(messageTimer);
+  messageBox.textContent = message;
+  messageBox.hidden = !message;
+  if (message) messageTimer = window.setTimeout(() => {
+    messageBox.hidden = true;
+    messageBox.textContent = '';
+  }, 1000);
+};
 async function start(): Promise<void> {
   const maps = new Map<string, GridMap>();
-  for (const id of ['world-01', 'world-02']) {
+  for (const id of ['world-01', 'world-02', 'world-03']) {
     const response = await fetch(`../common/maps/${id}.json`);
     if (!response.ok) throw new Error(`Không nạp được ${id}`);
     const map = new GridMap(await response.json()); maps.set(id, map);
@@ -35,6 +45,16 @@ async function start(): Promise<void> {
   };
   const tiles = await loadTileAtlas();
   const module = new MovementModule(port, document.querySelector('canvas')!, maps, report, tiles);
+  document.querySelector<HTMLSelectElement>('#map-select')!.addEventListener('change', event => {
+    if (!connected) return;
+    const mapId = (event.target as HTMLSelectElement).value;
+    const spawn = maps.get(mapId)!.data.spawn;
+    paths.clear();
+    players.set('demo-self', { id: 'demo-self', mapId, ...spawn });
+    snapshot = { tick: ++tick, entities: [...players.values()] };
+    subscribers.forEach(fn => fn(snapshot));
+    report('');
+  });
   move('demo-peer', { x: 28, y: 16 });
   for (const id of players.keys()) nextStep.set(id, performance.now() + 200);
   const timer = window.setInterval(() => {
@@ -51,12 +71,14 @@ async function start(): Promise<void> {
     }
     snapshot = { tick: ++tick, entities: [...players.values()] }; subscribers.forEach(fn => fn(snapshot));
     const self = players.get('demo-self')!;
-    status.textContent = `Bản đồ: ${self.mapId} · Vị trí (${self.x}, ${self.y}) · Tick ${tick} · 2 nhân vật giả`;
+    status.textContent = `${maps.get(self.mapId)!.data.name} · ${self.mapId} · Vị trí (${self.x}, ${self.y}) · 52 × 24 ô`;
+    document.querySelector<HTMLSelectElement>('#map-select')!.value = self.mapId;
   }, 100);
   let frame = 0;
   const draw = (now: number) => { module.render(now); frame = requestAnimationFrame(draw); }; frame = requestAnimationFrame(draw);
   const disconnect = () => {
     if (!connected) return; connected = false;
+    report('');
     clearInterval(timer); cancelAnimationFrame(frame); paths.clear(); nextStep.clear(); players.clear();
     snapshot = { tick: ++tick, entities: [] }; disconnects.forEach(fn => fn());
     subscribers.clear(); errors.clear(); disconnects.clear(); status.textContent = 'Đã rời demo; đường đi và trạng thái đã được dọn.';
