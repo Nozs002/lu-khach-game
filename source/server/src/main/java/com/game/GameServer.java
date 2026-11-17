@@ -454,6 +454,7 @@ public class GameServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
+        System.err.println("WebSocket server error: " + ex);
         if (conn != null) {
             cleanupSession(conn);
         }

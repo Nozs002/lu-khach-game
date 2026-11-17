@@ -5,7 +5,7 @@ import { sameTile, type Tile } from './types.js';
 export function findPath(map: GridMap, start: Tile, goal: Tile): Tile[] | null {
   if (!map.walkable(start) || !map.walkable(goal)) return null;
   if (sameTile(start, goal)) return [];
-  const key = (p: Tile) => p.y * 32 + p.x;
+  const key = (p: Tile) => p.y * map.data.width + p.x;
   const h = (p: Tile) => Math.abs(p.x - goal.x) + Math.abs(p.y - goal.y);
   const open = [{ p: start, g: 0, f: h(start), order: 0 }];
   const cost = new Map([[key(start), 0]]), parent = new Map<number, Tile>();

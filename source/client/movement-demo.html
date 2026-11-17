@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chức năng 2 · Movement demo</title>
+<style>
+  * { box-sizing: border-box; } body { margin: 0; background: #152c32; color: #e2ebde; font: 16px/1.6 system-ui, sans-serif; }
+  main { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+  header, footer { flex: none; padding: 6px 12px; background: #102328; }
+  h1 { font-size: 18px; margin: 0; } .eyebrow { color: #72dccc; letter-spacing: .14em; font-size: 10px; }
+  .map-stage { flex: 1; min-height: 0; container-type: size; display: flex; align-items: flex-start; justify-content: flex-start; overflow: hidden; }
+  .world-layout { position: relative; display: flex; flex: none; width: min(100cqw, 266.6667cqh); aspect-ratio: 64 / 24; }
+  canvas { display: block; width: 81.25%; height: 100%; image-rendering: pixelated; touch-action: none; }
+  .reserved-space { flex: 1; }
+  .heading { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  select { padding: 7px 10px; color: #e2ebde; background: #203e40; border: 1px solid #58706a; border-radius: 5px; font: inherit; font-size: 13px; }
+  footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
+  button { flex: none; padding: 8px 12px; background: #ffe49b; color: #152c32; border: 0; border-radius: 6px; cursor: pointer; }
+  #status { color: #ffe49b; font-size: 12px; } small { color: #b1c3bc; }
+  #message { position: absolute; z-index: 1; top: 12px; left: 40.625%; transform: translateX(-50%); width: max-content; max-width: calc(81.25% - 24px); padding: 8px 14px; border: 1px solid #e5c776; border-radius: 6px; background: #102328ed; color: #ffe49b; box-shadow: 0 4px 14px #0005; font-size: 13px; text-align: center; pointer-events: none; animation: message-drop .16s ease-out; }
+  @keyframes message-drop { from { opacity: 0; transform: translate(-50%, -12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @media (prefers-reduced-motion: reduce) { #message { animation: none; } }
+</style>
+<main>
+  <header>
+  <div class="eyebrow">LỮ KHÁCH / CHỨC NĂNG 02</div>
+  <div class="heading"><h1>Ba miền sông nước</h1>
+  <select id="map-select" aria-label="Chọn bản đồ">
+    <option value="world-01">01 · Đồng cỏ song hồ</option>
+    <option value="world-02">02 · Hồ Ngọc giữa núi</option>
+    <option value="world-03">03 · Suối Ba Cầu</option>
+  </select></div>
+  <div id="status">Đang nạp bản đồ…</div>
+  </header>
+  <div class="map-stage">
+    <div class="world-layout">
+      <div id="message" role="status" aria-live="polite" hidden></div>
+      <canvas aria-label="Bản đồ 52 cột 24 dòng, di chuyển bằng chuột"></canvas>
+      <div class="reserved-space" aria-hidden="true"></div>
+    </div>
+  </div>
+  <footer>
+  <small>Click ô để đi · Cổng xanh để chuyển map · Vàng: bạn · Xanh: người chơi giả · Demo chưa tích hợp multiplayer</small>
+  <button id="disconnect">Mô phỏng rời game</button>
+  </footer>
+</main>
+<script type="module" src="./movement-build/movement-demo.js"></script>
+</html>

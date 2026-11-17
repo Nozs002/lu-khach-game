@@ -11,34 +11,39 @@ export class MapRenderer {
   }
   private background(map: GridMap): HTMLCanvasElement {
     const cached = this.backgrounds.get(map); if (cached) return cached;
-    const layer = document.createElement('canvas'); layer.width = 768; layer.height = 576;
+    const layer = document.createElement('canvas'); layer.width = map.data.width * 24; layer.height = map.data.height * 24;
     const c = layer.getContext('2d')!; c.imageSmoothingEnabled = false;
     const d = map.data, visuals = d.visuals!;
     const tile = (sprite: AtlasTile, x: number, y: number) => {
       const [sx, sy, sw, sh] = sprite.rect;
       c.drawImage(this.tiles![sprite.atlas], sx, sy, sw, sh, x * 24, y * 24, 24, 24);
     };
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) {
-      const index = y * 32 + x, variant = visuals.terrain[index];
+    for (let y = 0; y < d.height; y++) for (let x = 0; x < d.width; x++) {
+      const index = y * d.width + x, variant = visuals.terrain[index];
       tile(visuals.ground[Math.max(0, variant)], x, y);
       if (variant === -1 && map.walkable({ x, y })) tile(visuals.road, x, y);
     }
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) if (!map.walkable({ x, y })) {
-      const sprites = x === 0 || x === 31 || y === 0 || y === 23 ? visuals.border : visuals.obstacles;
+    if (visuals.decorations) for (const decoration of visuals.decorations) {
+      const { sprite, x, y, width, height } = decoration;
+      c.save();
+      c.translate((x + width / 2) * 24, (y + height / 2) * 24);
+      c.rotate((decoration.rotation ?? 0) * Math.PI / 180);
+      c.drawImage(this.tiles![sprite.atlas], ...sprite.rect, -width * 12, -height * 12, width * 24, height * 24);
+      c.restore();
+    }
+    else for (let y = 0; y < d.height; y++) for (let x = 0; x < d.width; x++) if (!map.walkable({ x, y })) {
+      const sprites = x === 0 || x === d.width - 1 || y === 0 || y === d.height - 1 ? visuals.border : visuals.obstacles;
       tile(sprites[(x * 7 + y * 11) % sprites.length], x, y);
     }
-    const z = d.safeZone;
-    c.fillStyle = '#72dccc1c'; c.fillRect(z.x * 24, z.y * 24, z.width * 24, z.height * 24);
-    c.strokeStyle = '#b6e9bb'; c.lineWidth = 1; c.setLineDash([4, 5]); c.strokeRect(z.x * 24 + 2, z.y * 24 + 2, z.width * 24 - 4, z.height * 24 - 4); c.setLineDash([]);
     this.backgrounds.set(map, layer); return layer;
   }
   draw(map: GridMap, entities: readonly Entity[], path: readonly Tile[], target: Tile | null, selfId: string): void {
     const c = this.ctx, d = map.data;
-    c.clearRect(0, 0, 768, 576);
+    c.clearRect(0, 0, c.canvas.width, c.canvas.height);
     c.imageSmoothingEnabled = false;
     if (this.tiles && d.visuals) c.drawImage(this.background(map), 0, 0);
     else {
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) {
+    for (let y = 0; y < d.height; y++) for (let x = 0; x < d.width; x++) {
       const safe = x >= d.safeZone.x && y >= d.safeZone.y && x < d.safeZone.x + d.safeZone.width && y < d.safeZone.y + d.safeZone.height;
       c.fillStyle = !map.walkable({ x, y }) ? '#273d43' : safe ? '#486b53' : (x + y) % 2 ? '#8ba579' : '#91ac80';
       c.fillRect(x * 24, y * 24, 24, 24);

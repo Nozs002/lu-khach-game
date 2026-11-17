@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "ES2022", "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"], "strict": true, "noEmitOnError": true,
+    "rootDir": "src", "outDir": "movement-build"
+  },
+  "include": ["src/features/movement/**/*.ts", "src/movement-demo.ts"]
+}

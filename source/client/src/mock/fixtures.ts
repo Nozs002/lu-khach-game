@@ -13,7 +13,7 @@ import {
  * hoặc chưa ghép code của P1, P2, P3.
  */
 export function createDefaultMapFixture(): MapData {
-    const width = 32;
+    const width = 52;
     const height = 24;
     const tileSize = 24;
     const blocked = new Set<number>();
@@ -39,7 +39,7 @@ export function createDefaultMapFixture(): MapData {
     }
 
     return {
-        id: 'starting-valley',
+        id: 'world-01',
         width,
         height,
         tileSize,
@@ -50,18 +50,18 @@ export function createDefaultMapFixture(): MapData {
 
 export function createInitialMobsFixture(): MobData[] {
     return [
-        { id: 'm-1', kind: 'SLIME', x: 9, y: 4, homeX: 9, homeY: 4, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
-        { id: 'm-2', kind: 'SLIME', x: 12, y: 6, homeX: 12, homeY: 6, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
-        { id: 'm-3', kind: 'SLIME', x: 15, y: 10, homeX: 15, homeY: 10, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
-        { id: 'm-4', kind: 'SLIME', x: 11, y: 14, homeX: 11, homeY: 14, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
-        { id: 'm-5', kind: 'SLIME', x: 19, y: 8, homeX: 19, homeY: 8, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null }
+        { id: 'm-1', kind: 'SLIME', mapId: 'world-01', x: 9, y: 4, homeX: 9, homeY: 4, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
+        { id: 'm-2', kind: 'SLIME', mapId: 'world-01', x: 12, y: 6, homeX: 12, homeY: 6, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
+        { id: 'm-3', kind: 'SLIME', mapId: 'world-01', x: 15, y: 10, homeX: 15, homeY: 10, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
+        { id: 'm-4', kind: 'SLIME', mapId: 'world-01', x: 11, y: 14, homeX: 11, homeY: 14, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null },
+        { id: 'm-5', kind: 'SLIME', mapId: 'world-01', x: 19, y: 8, homeX: 19, homeY: 8, hp: 40, maxHp: 40, state: 'IDLE', targetId: null, spawnGeneration: 1, respawnReadyTick: null }
     ];
 }
 
 export function createInitialItemsFixture(): ItemData[] {
     return [
-        { id: 'i-1', kind: 'HEALTH_POTION', x: 6, y: 4, expiresTick: 200 },
-        { id: 'i-2', kind: 'HEALTH_POTION', x: 8, y: 5, expiresTick: 200 }
+        { id: 'i-1', kind: 'HEALTH_POTION', mapId: 'world-01', x: 6, y: 4, expiresTick: 200 },
+        { id: 'i-2', kind: 'HEALTH_POTION', mapId: 'world-01', x: 8, y: 5, expiresTick: 200 }
     ];
 }
 
@@ -71,6 +71,7 @@ export function createWelcomeFixture(playerName: string, avatar: string): Welcom
         id: 'p-1',
         name: playerName || 'Hoàng',
         avatar: avatar || 'knight',
+        mapId: map.id,
         x: 4,
         y: 4,
         hp: 70, // Khởi đầu 70/100 HP ở chế độ giả lập để có thể test nhặt bình máu ngay!
@@ -84,6 +85,7 @@ export function createWelcomeFixture(playerName: string, avatar: string): Welcom
         id: 'p-2',
         name: 'An (Bot P1)',
         avatar: 'hunter',
+        mapId: map.id,
         x: 5,
         y: 3,
         hp: 85,
@@ -102,7 +104,7 @@ export function createWelcomeFixture(playerName: string, avatar: string): Welcom
     return {
         playerId: 'p-1',
         tickDurationMs: 100,
-        map,
+        mapId: map.id,
         state
     };
 }

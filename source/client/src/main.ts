@@ -124,7 +124,7 @@ async function preloadWorldAssets() {
         console.warn('Tile atlas load fallback:', e);
     }
 
-    for (const mapId of ['world-01', 'world-02']) {
+    for (const mapId of ['world-01', 'world-02', 'world-03']) {
         try {
             const res = await fetch(`/maps/${mapId}.json`);
             if (res.ok) {

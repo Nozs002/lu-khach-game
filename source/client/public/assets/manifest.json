@@ -70,6 +70,11 @@
       "source": "Backgrounds/Tilesets/TilesetNature.png",
       "width": 384,
       "height": 336
+    },
+    "tiles/water.png": {
+      "url": "/assets/tiles/water.png",
+      "width": 448,
+      "height": 272
     }
   },
   "staticFrames": {
@@ -104,7 +109,7 @@
   "notes": [
     "Các sprite sheet được sao chép nguyên bản. Không vẽ toàn bộ sheet thành một nhân vật hoặc đối tượng duy nhất.",
     "Đã có khung hình tĩnh để sử dụng; cần kiểm tra trực quan hướng và thứ tự khung hình trước khi tích hợp hoạt ảnh.",
-    "floor.png và nature.png là atlas chứa nhiều ô hình. Việc chọn ô hình và dữ liệu va chạm được quy định trong dữ liệu bản đồ, không nằm trong ảnh PNG.",
+    "floor.png, nature.png và water.png là atlas. Dữ liệu bản đồ chọn source rect cho nền, bờ hồ, cầu, cây và đá; không kéo giãn toàn bộ sheet.",
     "Vẽ vùng an toàn và các dấu chỉ mục tiêu bằng Canvas."
   ]
 }

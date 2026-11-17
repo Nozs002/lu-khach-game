@@ -20,7 +20,7 @@ export class MovementModule {
     if (!self || !maps.has(self.mapId)) throw new Error('MISSING_SELF_MAP');
     this.mapId = self.mapId;
     const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('CANVAS_UNAVAILABLE');
-    canvas.width = 768; canvas.height = 576;
+    canvas.width = 1248; canvas.height = 576;
     this.renderer = new MapRenderer(ctx, tiles);
     this.input = new ClickMoveController(canvas, () => maps.get(this.mapId)!, () => port.getSnapshot().entities.find(e => e.id === port.playerId), p => { if (this.active) port.sendCommand('MOVE_TO', p); }, report);
     const accept = (s: Snapshot) => {

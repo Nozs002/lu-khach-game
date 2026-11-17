@@ -53,7 +53,7 @@ public class WorldContext implements MovementWorld {
     }
 
     private void loadMaps() {
-        String[] mapIds = {"world-01", "world-02"};
+        String[] mapIds = {"world-01", "world-02", "world-03"};
         String[] possibleBaseDirs = {
             "source/common/maps",
             "../common/maps",
@@ -82,28 +82,35 @@ public class WorldContext implements MovementWorld {
             }
         }
 
-        if (maps.size() == 2) {
-            WorldMap.validateWorld(maps);
-        }
+        if (maps.size() != mapIds.length) throw new IllegalStateException("Missing world maps");
+        WorldMap.validateWorld(maps);
     }
 
     private void spawnInitialMobs() {
-        // Quái trên world-01 (các ô hợp lệ ngoài SafeZone 2..6, 2..5)
-        int[][] world01MobSpawns = {
-            {9, 4}, {12, 6}, {18, 10}, {11, 14}, {22, 8}
-        };
-        for (int[] pos : world01MobSpawns) {
-            String mid = "m-" + mobIdGenerator.incrementAndGet();
-            mobsById.put(mid, new Mob(mid, "SLIME", "world-01", pos[0], pos[1], Mob.DEFAULT_SLIME_HP));
-        }
-
-        // Quái trên world-02
-        int[][] world02MobSpawns = {
-            {8, 6}, {14, 8}, {18, 12}, {10, 16}, {22, 10}
-        };
-        for (int[] pos : world02MobSpawns) {
-            String mid = "m-" + mobIdGenerator.incrementAndGet();
-            mobsById.put(mid, new Mob(mid, "SLIME", "world-02", pos[0], pos[1], Mob.DEFAULT_SLIME_HP));
+        // Pick reachable ground in each redesigned map, avoiding water, portals and safe zones.
+        for (WorldMap map : maps.values()) {
+            java.util.Set<WorldMap.Tile> reachable = new java.util.HashSet<>();
+            java.util.ArrayDeque<WorldMap.Tile> queue = new java.util.ArrayDeque<>();
+            reachable.add(map.spawn); queue.add(map.spawn);
+            int[][] directions = {{0,-1},{1,0},{0,1},{-1,0}};
+            while (!queue.isEmpty()) {
+                WorldMap.Tile tile = queue.remove();
+                for (int[] d : directions) {
+                    WorldMap.Tile next = new WorldMap.Tile(tile.x()+d[0], tile.y()+d[1]);
+                    if (map.walkable(next) && !map.portal(next) && reachable.add(next)) queue.add(next);
+                }
+            }
+            int[][] preferred = {{9,4},{12,6},{18,10},{11,14},{22,8}};
+            for (int[] pos : preferred) {
+                WorldMap.Tile spawn = reachable.stream()
+                    .filter(t -> !map.isInSafeZone(t.x(), t.y()) && !map.portal(t))
+                    .min(java.util.Comparator.<WorldMap.Tile>comparingInt(t -> Math.abs(t.x()-pos[0])+Math.abs(t.y()-pos[1]))
+                        .thenComparingInt(WorldMap.Tile::y).thenComparingInt(WorldMap.Tile::x))
+                    .orElseThrow(() -> new IllegalStateException("No mob spawn in " + map.id));
+                reachable.remove(spawn);
+                String mid = "m-" + mobIdGenerator.incrementAndGet();
+                mobsById.put(mid, new Mob(mid, "SLIME", map.id, spawn.x(), spawn.y(), Mob.DEFAULT_SLIME_HP));
+            }
         }
     }
 

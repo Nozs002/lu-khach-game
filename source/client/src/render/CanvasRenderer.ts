@@ -1,5 +1,6 @@
+import { MapRenderer } from '../features/movement/MapRenderer';
 import { GridMap } from '../features/movement/GridMap';
-import { AtlasTile, TileAtlas } from '../features/movement/TileAtlas';
+import { TileAtlas } from '../features/movement/TileAtlas';
 import { Tile } from '../features/movement/types';
 import {
     ChatBubble,
@@ -66,8 +67,8 @@ export class CanvasRenderer {
         const tileSize = 24;
 
         return {
-            x: Math.max(0, Math.min(31, Math.floor(canvasX / tileSize))),
-            y: Math.max(0, Math.min(23, Math.floor(canvasY / tileSize)))
+            x: Math.floor(canvasX / tileSize),
+            y: Math.floor(canvasY / tileSize)
         };
     }
 
@@ -114,89 +115,13 @@ export class CanvasRenderer {
             return;
         }
 
-        // Render sẵn ra offscreen canvas để tối ưu 60 FPS
         if (!this.backgrounds.has(mapId)) {
-            const bgCanvas = document.createElement('canvas');
-            bgCanvas.width = 768;
-            bgCanvas.height = 576;
-            const bgCtx = bgCanvas.getContext('2d')!;
-            bgCtx.imageSmoothingEnabled = false;
-
-            const d = gridMap.data;
-            const visuals = d.visuals;
-
-            if (this.tileAtlas && visuals) {
-                const tile = (sprite: AtlasTile, x: number, y: number) => {
-                    const [sx, sy, sw, sh] = sprite.rect;
-                    bgCtx.drawImage(this.tileAtlas![sprite.atlas], sx, sy, sw, sh, x * 24, y * 24, 24, 24);
-                };
-
-                for (let y = 0; y < 24; y++) {
-                    for (let x = 0; x < 32; x++) {
-                        const index = y * 32 + x;
-                        const variant = visuals.terrain[index];
-                        tile(visuals.ground[Math.max(0, variant)], x, y);
-                        if (variant === -1 && gridMap.walkable({ x, y })) {
-                            tile(visuals.road, x, y);
-                        }
-                    }
-                }
-
-                for (let y = 0; y < 24; y++) {
-                    for (let x = 0; x < 32; x++) {
-                        if (!gridMap.walkable({ x, y })) {
-                            const sprites = (x === 0 || x === 31 || y === 0 || y === 23)
-                                ? visuals.border
-                                : visuals.obstacles;
-                            tile(sprites[(x * 7 + y * 11) % sprites.length], x, y);
-                        }
-                    }
-                }
-            } else {
-                for (let y = 0; y < 24; y++) {
-                    for (let x = 0; x < 32; x++) {
-                        bgCtx.fillStyle = !gridMap.walkable({ x, y })
-                            ? '#273d43'
-                            : (x + y) % 2 === 0 ? '#486b53' : '#3e5c46';
-                        bgCtx.fillRect(x * 24, y * 24, 24, 24);
-                    }
-                }
-            }
-
-            // Vẽ Safe Zone
-            const z = d.safeZone;
-            bgCtx.fillStyle = 'rgba(46, 204, 113, 0.18)';
-            bgCtx.fillRect(z.x * 24, z.y * 24, z.width * 24, z.height * 24);
-            bgCtx.strokeStyle = 'rgba(46, 204, 113, 0.85)';
-            bgCtx.lineWidth = 1;
-            bgCtx.setLineDash([4, 4]);
-            bgCtx.strokeRect(z.x * 24 + 1, z.y * 24 + 1, z.width * 24 - 2, z.height * 24 - 2);
-            bgCtx.setLineDash([]);
-
-            // Nhãn Khu an toàn
-            bgCtx.fillStyle = 'rgba(230, 255, 235, 0.9)';
-            bgCtx.font = 'bold 9px "Courier New", monospace';
-            bgCtx.fillText('KHU AN TOÀN', z.x * 24 + 4, z.y * 24 + 12);
-
-            // Vẽ Cổng chuyển map (Exits) với mũi tên chỉ hướng
-            for (const exit of d.exits) {
-                for (const cell of exit.cells) {
-                    bgCtx.fillStyle = 'rgba(52, 152, 219, 0.55)';
-                    bgCtx.fillRect(cell.x * 24 + 1, cell.y * 24 + 1, 22, 22);
-                    bgCtx.strokeStyle = '#00d2d3';
-                    bgCtx.lineWidth = 2;
-                    bgCtx.strokeRect(cell.x * 24 + 2, cell.y * 24 + 2, 20, 20);
-
-                    bgCtx.fillStyle = '#ffffff';
-                    bgCtx.font = 'bold 14px "Courier New", monospace';
-                    bgCtx.textAlign = 'center';
-                    bgCtx.textBaseline = 'middle';
-                    const arrow = ({ left: '←', right: '→', top: '↑', bottom: '↓' } as Record<string, string>)[exit.side] || '⚑';
-                    bgCtx.fillText(arrow, cell.x * 24 + 12, cell.y * 24 + 12);
-                }
-            }
-
-            this.backgrounds.set(mapId, bgCanvas);
+            const background = document.createElement('canvas');
+            background.width = gridMap.data.width * gridMap.data.tileSize;
+            background.height = gridMap.data.height * gridMap.data.tileSize;
+            const renderer = new MapRenderer(background.getContext('2d')!, this.tileAtlas);
+            renderer.draw(gridMap, [], [], null, '');
+            this.backgrounds.set(mapId, background);
         }
 
         this.ctx.drawImage(this.backgrounds.get(mapId)!, 0, 0);
