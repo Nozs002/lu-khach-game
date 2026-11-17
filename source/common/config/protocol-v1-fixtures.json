@@ -1,0 +1,155 @@
+{
+  "description": "Dữ liệu giả định (Fixtures) theo docs/protocol-v1.md Mục 6-8 để P1-P4 test độc lập không cần chờ nhau",
+  "commands": {
+    "join": { "v": 1, "type": "JOIN", "requestId": 1, "payload": { "name": "Hoang" } },
+    "chat": { "v": 1, "type": "CHAT", "requestId": 2, "payload": { "text": "Xin chào anh em làng Lữ Khách!" } },
+    "loot": { "v": 1, "type": "LOOT", "requestId": 3, "payload": { "itemId": "i-1" } },
+    "respawn": { "v": 1, "type": "RESPAWN", "requestId": 4, "payload": {} },
+    "moveTo": { "v": 1, "type": "MOVE_TO", "requestId": 5, "payload": { "x": 6, "y": 5 } },
+    "attack": { "v": 1, "type": "ATTACK", "requestId": 6, "payload": { "targetId": "m-1" } }
+  },
+  "events": {
+    "welcome": {
+      "v": 1,
+      "type": "WELCOME",
+      "requestId": 1,
+      "tick": 0,
+      "payload": {
+        "playerId": "p-1",
+        "tickDurationMs": 100,
+        "map": {
+          "id": "starting-valley",
+          "width": 32,
+          "height": 24,
+          "tileSize": 24,
+          "collisions": [],
+          "safeZone": { "x": 2, "y": 2, "width": 6, "height": 6 }
+        },
+        "state": {
+          "players": [
+            {
+              "id": "p-1",
+              "name": "Hoang",
+              "x": 4,
+              "y": 4,
+              "hp": 70,
+              "maxHp": 100,
+              "state": "IDLE",
+              "targetId": null,
+              "respawnReadyTick": null
+            }
+          ],
+          "mobs": [
+            {
+              "id": "m-1",
+              "kind": "SLIME",
+              "x": 10,
+              "y": 5,
+              "hp": 40,
+              "maxHp": 40,
+              "state": "IDLE",
+              "targetId": null,
+              "spawnGeneration": 1
+            }
+          ],
+          "items": [
+            {
+              "id": "i-1",
+              "kind": "HEALTH_POTION",
+              "x": 5,
+              "y": 4,
+              "expiresTick": 200
+            }
+          ]
+        }
+      }
+    },
+    "chatBroadcast": {
+      "v": 1,
+      "type": "CHAT",
+      "tick": 10,
+      "payload": {
+        "playerId": "p-1",
+        "name": "Hoang",
+        "text": "Xin chào anh em làng Lữ Khách!"
+      }
+    },
+    "ackLoot": {
+      "v": 1,
+      "type": "ACK",
+      "requestId": 3,
+      "tick": 12,
+      "payload": {
+        "commandType": "LOOT"
+      }
+    },
+    "itemSpawn": {
+      "v": 1,
+      "type": "ENTITY_SPAWN",
+      "tick": 15,
+      "payload": {
+        "id": "i-2",
+        "kind": "ITEM",
+        "spawnGeneration": null
+      }
+    },
+    "itemDespawnLooted": {
+      "v": 1,
+      "type": "ENTITY_DESPAWN",
+      "tick": 12,
+      "payload": {
+        "id": "i-1",
+        "reason": "LOOTED"
+      }
+    },
+    "itemDespawnExpired": {
+      "v": 1,
+      "type": "ENTITY_DESPAWN",
+      "tick": 200,
+      "payload": {
+        "id": "i-2",
+        "reason": "EXPIRED"
+      }
+    },
+    "mobRespawn": {
+      "v": 1,
+      "type": "ENTITY_SPAWN",
+      "tick": 165,
+      "payload": {
+        "id": "m-1",
+        "kind": "MOB",
+        "spawnGeneration": 2
+      }
+    },
+    "errorHpFull": {
+      "v": 1,
+      "type": "ERROR",
+      "requestId": 3,
+      "tick": 14,
+      "payload": {
+        "code": "HP_FULL",
+        "message": "Máu của bạn đã đầy (100/100), không cần dùng bình máu"
+      }
+    },
+    "errorItemUnavailable": {
+      "v": 1,
+      "type": "ERROR",
+      "requestId": 3,
+      "tick": 14,
+      "payload": {
+        "code": "ITEM_UNAVAILABLE",
+        "message": "Bình máu không còn tồn tại hoặc đã được người khác nhặt"
+      }
+    },
+    "errorRespawnNotReady": {
+      "v": 1,
+      "type": "ERROR",
+      "requestId": 4,
+      "tick": 25,
+      "payload": {
+        "code": "RESPAWN_NOT_READY",
+        "message": "Chưa hết thời gian chờ hồi sinh (3 giây)"
+      }
+    }
+  }
+}
