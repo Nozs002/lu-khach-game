@@ -50,16 +50,13 @@
                 </div>
             </div>
 
-            <!-- Thanh phản hồi thao tác nhanh -->
-            <div id="feedbackBanner" class="feedback-banner info">
-                Hướng dẫn: Click ô trống/cổng để di chuyển | Click Bình máu (hoặc phím E) để nhặt (+30 HP) | Click Slime để đánh | Nhấn Enter để Chat
-            </div>
-
             <!-- Màn hình chơi chính (Canvas + Sidebar) -->
             <div class="main-body">
-                <!-- Khung chứa Canvas 52x24 ô và vùng trống 12 cột bên phải + Màn hình chết phủ lên trên -->
+                <section class="map-stage" aria-label="Bản đồ trò chơi">
                 <div class="canvas-wrapper">
-                    <canvas id="gameCanvas" width="1536" height="576"></canvas>
+                    <canvas id="gameCanvas" width="1248" height="576"></canvas>
+
+                    <div id="feedbackBanner" class="feedback-banner info" role="status" aria-live="polite" hidden></div>
 
                     <!-- MÀN HÌNH CHẾT & HỒI SINH -->
                     <div id="deathOverlay" class="death-overlay" style="display: none;">
@@ -75,9 +72,11 @@
                     </div>
                 </div>
 
-                <!-- Bảng thông tin Sidebar -->
-                <div class="sidebar">
-                    <div class="pixel-box panel">
+                </section>
+
+                <!-- Các bảng thông tin nằm bên phải bản đồ -->
+                <aside class="sidebar" aria-label="Thông tin và trò chuyện">
+                    <div class="pixel-box panel online-panel">
                         <h3>LỮ KHÁCH ONLINE</h3>
                         <ul id="players" class="player-list"></ul>
                     </div>
@@ -94,18 +93,15 @@
                         </div>
                     </div>
 
-                    <div class="pixel-box panel">
+                    <div class="pixel-box panel log-panel">
                         <h3>NHẬT KÝ LÀNG</h3>
                         <div id="systemLog" class="log"></div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Khu vực dưới cùng: Khung Chat thời gian thực + Hộp thoại nhân vật -->
-            <div class="bottom-bar">
+                    <!-- Chat và hộp thoại cùng nằm trong cột phải -->
                 <div class="chat-panel pixel-box">
                     <div class="chat-header">
-                        <span>KHUNG CHAT THỜI GIAN THỰC (Nhấn Enter để mở/gửi, Esc để đóng)</span>
+                        <span>CHAT THỜI GIAN THỰC · Enter gửi / Esc đóng</span>
                     </div>
                     <div id="chatMessages" class="chat-messages"></div>
                     <div class="chat-input-row">
@@ -126,6 +122,7 @@
                         <p id="dialogue-text" class="dialogue-text">Sử dụng chuột click hoặc phím WASD để di chuyển!</p>
                     </div>
                 </div>
+                </aside>
             </div>
 
         </div>

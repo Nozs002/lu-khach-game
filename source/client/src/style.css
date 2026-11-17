@@ -21,7 +21,7 @@ body {
 
 /* Màn hình đăng nhập */
 .login-card {
-    width: 460px;
+    width: min(460px, calc(100vw - 24px));
 }
 
 .login-card h2 {
@@ -130,12 +130,11 @@ button:disabled {
 
 /* Khung màn hình Game chính */
 #game-container {
-    width: 1060px;
-    max-width: 98vw;
-    height: 690px;
-    max-height: 98vh;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     background: #1a2229;
-    border: 4px solid #485460;
+    border: 2px solid #485460;
     box-shadow: 0 0 24px rgba(0, 0, 0, 0.85);
     display: flex;
     flex-direction: column;
@@ -234,19 +233,19 @@ button:disabled {
 
 .canvas-wrapper {
     position: relative;
-    width: 680px;
-    height: auto;
-    aspect-ratio: 64 / 24;
-    align-self: flex-start;
+    width: min(100cqw, 216.6667cqh);
+    aspect-ratio: 52 / 24;
     flex-shrink: 0;
     border: 3px solid #485460;
     background-color: #202f24;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
+    box-sizing: border-box;
 }
 
 #gameCanvas {
+    display: block;
     width: 100%;
     height: 100%;
     image-rendering: pixelated;
@@ -265,7 +264,7 @@ button:disabled {
 }
 
 .death-modal {
-    width: 390px;
+    width: min(390px, calc(100% - 20px));
     text-align: center;
     border-color: #e74c3c;
     background: rgba(28, 12, 14, 0.96);
@@ -301,7 +300,10 @@ button:disabled {
 
 /* Sidebar */
 .sidebar {
-    flex: 1;
+    flex: 0 0 clamp(310px, 26vw, 380px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 2px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -315,13 +317,8 @@ button:disabled {
     min-height: 0;
 }
 
-.panel:first-child {
-    height: 115px;
-}
-
-.panel:last-child {
-    flex: 1;
-}
+.online-panel { flex: 0 0 76px; }
+.log-panel { flex: 1 0 90px; max-height: 160px; }
 
 .panel h3 {
     margin: 0 0 6px 0;
@@ -394,16 +391,9 @@ button:disabled {
     line-height: 1.35;
 }
 
-/* Thanh dưới cùng: Khung Chat + Hộp thoại */
-.bottom-bar {
-    display: flex;
-    gap: 10px;
-    padding: 0 10px 8px 10px;
-    height: 112px;
-}
-
 .chat-panel {
-    flex: 3;
+    flex: 1 0 140px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
     padding: 6px 8px;
@@ -451,6 +441,7 @@ button:disabled {
 
 .chat-input-row input {
     flex: 1;
+    min-width: 0;
     padding: 5px 8px;
     font-size: 12px;
 }
@@ -462,7 +453,9 @@ button:disabled {
 
 /* Hộp thoại Dialogue Box (tương thích P1) */
 .dialogue-box {
-    flex: 2;
+    flex: 0 0 auto;
+    min-height: 78px;
+    overflow-wrap: anywhere;
     background-color: rgba(12, 16, 20, 0.95);
     border: 3px solid #ecf0f1;
     padding: 8px 10px;
@@ -493,4 +486,42 @@ button:disabled {
     margin: 0;
     font-size: 11px;
     line-height: 1.35;
+}
+
+/* The map uses the remaining viewport; all controls stay in the right rail. */
+#gameUI { width: 100%; height: 100%; }
+.top-bar { flex-shrink: 0; flex-wrap: wrap; gap: 6px 14px; }
+.status-box { flex: 1; min-width: 180px; }
+.hp-hud, .world-meta { flex-wrap: wrap; }
+.map-stage { flex: 1; min-width: 0; min-height: 0; container-type: size; display: flex; align-items: center; justify-content: flex-start; overflow: hidden; }
+.sidebar > * { min-width: 0; }
+.panel, .chat-panel { overflow: hidden; }
+.chat-messages { min-height: 45px; overflow-wrap: anywhere; }
+.feedback-banner { position: absolute; z-index: 10; top: 12px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); padding: 8px 14px; border: 1px solid #e5c776; border-radius: 6px; background: #102328ed; color: #ffe49b; text-align: center; pointer-events: none; animation: feedback-drop .16s ease-out; }
+.feedback-banner.info, .feedback-banner.error { background: #102328ed; }
+@keyframes feedback-drop { from { opacity: 0; transform: translate(-50%, -12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .feedback-banner { animation: none; } }
+@media (max-width: 900px) {
+    .sidebar { flex-basis: 290px; }
+    .top-bar { font-size: 11px; }
+    .world-meta { gap: 6px; }
+    .hp-bar-track { width: 90px; }
+}
+@media (max-height: 750px) and (min-width: 651px) {
+    .online-panel { flex-basis: 64px; }
+    .log-panel { flex-basis: 80px; }
+    .panel h3 { font-size: 11px; margin-bottom: 4px; padding-bottom: 3px; }
+    .btn-tool { padding: 4px; font-size: 10px; }
+    .chat-panel { flex-basis: 120px; min-height: 120px; }
+    .dialogue-box { min-height: 70px; }
+    .avatar { width: 40px; height: 40px; }
+}
+@media (max-width: 650px) {
+    body { overflow: auto; }
+    #game-container { height: auto; min-height: 100dvh; }
+    .main-body { flex-direction: column; }
+    .map-stage { flex: none; width: 100%; aspect-ratio: 52 / 24; }
+    .sidebar { flex: none; width: 100%; overflow: visible; }
+    .log-panel { height: 120px; flex: none; }
+    .chat-panel { height: 170px; flex: none; }
 }

@@ -42,6 +42,7 @@ export class LootRespawnFeature {
     private hpBarFillEl: HTMLElement;
     private itemCountEl: HTMLElement;
     private feedbackBannerEl: HTMLElement;
+    private feedbackTimer?: number;
 
     constructor(
         private net: WebSocketClient,
@@ -403,7 +404,13 @@ export class LootRespawnFeature {
 
     public showFeedback(text: string, isError: boolean) {
         if (!this.feedbackBannerEl) return;
+        window.clearTimeout(this.feedbackTimer);
         this.feedbackBannerEl.textContent = text;
         this.feedbackBannerEl.className = isError ? 'feedback-banner error' : 'feedback-banner info';
+        this.feedbackBannerEl.hidden = !text;
+        if (text) this.feedbackTimer = window.setTimeout(() => {
+            this.feedbackBannerEl.hidden = true;
+            this.feedbackBannerEl.textContent = '';
+        }, 1000);
     }
 }
