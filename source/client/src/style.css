@@ -143,6 +143,21 @@ button:disabled {
 }
 
 /* Thanh trạng thái Top Bar */
+.btn-start {
+    background: #e67e22;
+    border: 2px solid #f39c12;
+    color: #fff;
+    padding: 4px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #000;
+    transition: transform .1s ease;
+}
+.btn-start:hover { background: #f39c12; transform: scale(1.03); }
+.btn-start:active { transform: scale(.97); }
+
 .top-bar {
     padding: 6px 12px;
     background: rgba(10, 14, 18, 0.85);

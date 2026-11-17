@@ -93,6 +93,15 @@ window.addEventListener('keyup', (e) => {
 });
 
 document.getElementById('joinBtn')?.addEventListener('click', () => connectGame());
+document.getElementById('startGameBtn')?.addEventListener('click', () => {
+    const logDiv = document.getElementById('systemLog')!;
+    const entry = document.createElement('div');
+    entry.textContent = '[Sảnh Chờ] Bạn đã bấm nút VÀO GAME!';
+    logDiv.appendChild(entry);
+    logDiv.scrollTop = logDiv.scrollHeight;
+    document.getElementById('dialogue-name')!.innerText = 'Hệ Thống';
+    document.getElementById('dialogue-text')!.innerText = 'Đã nhấn VÀO GAME! Đang chờ thiết lập màn chơi...';
+});
 document.getElementById('playerName')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') connectGame();
 });
