@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lữ Khách Game - Sảnh Chờ Pixel</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
+
 <body>
 
     <!-- Màn hình Đăng nhập -->
@@ -55,7 +57,7 @@
 
             <!-- Hộp thoại Dialogue Box kiểu Pixel -->
             <div class="dialogue-box">
-                <img src="/assets/characters/avatar.png" alt="Avatar" class="avatar" onerror="this.style.visibility='hidden'">
+                <img src="/assets/characters/knight.png" alt="Avatar" class="avatar" onerror="this.style.visibility='hidden'">
                 <div class="dialogue-content">
                     <h3 id="dialogue-name" class="character-name">Hệ Thống</h3>
                     <p id="dialogue-text" class="dialogue-text">Sử dụng phím WASD hoặc Mũi tên để di chuyển!</p>
@@ -65,6 +67,9 @@
         </div>
     </div>
 
+    <div id="toast-container" class="toast-container" aria-label="Thông báo game"></div>
+
     <script type="module" src="/src/main.ts"></script>
 </body>
+
 </html>

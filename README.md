@@ -8,6 +8,8 @@ Dự án bài tập lớn Lập trình mạng. Nhóm tự xây game tương tự
 
 ## Tài liệu hiện hành
 
+- [Hệ thống map](docs/world-maps.md): đề xuất làng nghỉ và các vùng khám phá nối tiếp, bố cục, NPC, quái và nội dung bảng tin; chưa triển khai.
+- [Cốt truyện cơ bản và map](docs/story-and-map.md): bản đề xuất mới ngày 13/11/2026, tham khảo cấu trúc BrowserQuest; độc lập với Miền Quên, hiện chỉ viết tài liệu.
 - [Giao thức v1 và chia dọc đã chốt](docs/protocol-v1.md): phân công mỗi người làm cả client/server, schema, JSON mẫu và cách ghép module. Ưu tiên tài liệu này khi phân công/giao thức khác bản thiết kế và lịch cũ.
 - [Thiết kế game v0.1](docs/game-design.md): gameplay, luật chơi, giao diện, kiến trúc, dữ liệu, giao thức và nghiệm thu.
 - [Kế hoạch 10 ngày](docs/plan-10-days.md): phân công P1–P4, lịch thực hiện và các mốc tích hợp.

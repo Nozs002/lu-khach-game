@@ -1,5 +1,8 @@
 # Chạy Java game server
 
+Xem [giải thích luồng hoạt động WebSocket](../../docs/websocket-flow.md) để hiểu
+thứ tự sự kiện, trao đổi JSON, Ping/Pong và dọn phiên người chơi.
+
 ## Yêu cầu
 
 - JDK 17 trở lên

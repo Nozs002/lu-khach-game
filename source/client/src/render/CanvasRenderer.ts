@@ -1,30 +1,22 @@
-import { PlayerData } from '../network/WebSocketClient';
+import { getCharacterSource } from '../data/characters';
+import type { Player } from '../data/player';
+import { imageCache } from './ImageCache';
 
 export class CanvasRenderer {
     private ctx: CanvasRenderingContext2D;
-    private imageCache: Map<string, HTMLImageElement> = new Map();
 
     constructor(private canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
     }
 
-    private getImage(avatarName: string): HTMLImageElement {
-        // Nếu Server gửi avatar bị undefined hoặc rỗng, tự động lấy 'knight' (hoặc 'avatar')
-        const name = (avatarName && avatarName !== 'undefined') ? avatarName : 'knight';
+    private getSource(characterId: string): string {
+        // Dùng nhân vật knight nếu server không gửi characterId hợp lệ.
+        const name = (characterId && characterId !== 'undefined') ? characterId : 'knight';
 
-        if (!this.imageCache.has(name)) {
-            const img = new Image();
-            img.src = `/assets/characters/${name}.png`;
-
-            img.onload = () => console.log(`[CANVAS OK] Tải thành công ảnh: ${img.src}`);
-            img.onerror = () => console.error(`[CANVAS LỖI] Không tìm thấy file: ${img.src}`);
-
-            this.imageCache.set(name, img);
-        }
-        return this.imageCache.get(name)!;
+        return getCharacterSource(name);
     }
 
-    render(players: Map<string, PlayerData>, myId: string | null) {
+    render(players: Map<string, Player>, myId: string | null) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Vẽ Lưới nền
@@ -39,7 +31,8 @@ export class CanvasRenderer {
         // Vẽ từng người chơi
         players.forEach((player) => {
             const isMe = player.id === myId;
-            const img = this.getImage(player.avatar);
+            const source = this.getSource(player.characterId);
+            const img = imageCache.get(source);
 
             // Vẽ ảnh nhân vật (Kích thước 48x48)
             if (img.complete && img.naturalWidth !== 0) {

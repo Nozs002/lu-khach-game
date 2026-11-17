@@ -1,26 +1,42 @@
-export interface PlayerData {
-    id: string;
-    name: string;
-    avatar: string;
-    x: number;
-    y: number;
-}
+import type { Player } from '../data/player';
+import type { HandlerContext } from './handlers/HandlerContext';
+import { WelcomeHandler } from './handlers/WelcomeHandler';
+import { PlayerJoinedHandler } from './handlers/PlayerJoinedHandler';
+import { PlayerLeftHandler } from './handlers/PlayerLeftHandler';
+import { StateUpdateHandler } from './handlers/StateUpdateHandler';
+import { ErrorHandler } from './handlers/ErrorHandler';
 
 export class WebSocketClient {
     private ws!: WebSocket;
     public myId: string | null = null;
-    public players: Map<string, PlayerData> = new Map();
+    public players: Map<string, Player> = new Map();
 
     connect(
         name: string,
-        avatar: string,
+        characterId: string,
         onReady: () => void,
-        onLog: (msg: string) => void,
+        onLog: (message: string) => void,
         onDialogue: (name: string, text: string) => void,
-        onPlayersUpdate: () => void,
-        onStatusChange: (online: boolean, text: string) => void
+        onPlayersUpdate: (players: Map<string, Player>, myId: string | null) => void,
+        onStatusChange: (online: boolean, text: string) => void,
+        onError: (message: string) => void
     ) {
         this.ws = new WebSocket('ws://localhost:8080');
+        const context: HandlerContext = {
+            state: this,
+            name,
+            onReady,
+            onLog,
+            onDialogue,
+            onPlayersUpdate,
+            onError,
+            close: () => this.ws.close()
+        };
+        const welcomeHandler = new WelcomeHandler(context);
+        const playerJoinedHandler = new PlayerJoinedHandler(context);
+        const playerLeftHandler = new PlayerLeftHandler(context);
+        const stateUpdateHandler = new StateUpdateHandler(context);
+        const errorHandler = new ErrorHandler(context);
 
         window.addEventListener('offline', () => {
             onStatusChange(false, 'Mất mạng (Offline)!');
@@ -30,7 +46,7 @@ export class WebSocketClient {
         });
 
         this.ws.onopen = () => {
-            this.ws.send(JSON.stringify({ type: 'JOIN', name, avatar }));
+            this.ws.send(JSON.stringify({ type: 'JOIN', name, characterId }));
             onStatusChange(true, 'Đã kết nối');
         };
 
@@ -39,43 +55,23 @@ export class WebSocketClient {
 
             switch (data.type) {
                 case 'WELCOME':
-                    this.myId = data.id;
-                    data.payload.forEach((p: PlayerData) => this.players.set(p.id, p));
-                    onReady();
-                    onPlayersUpdate();
-                    onLog(`[Hệ thống] Chào mừng! ID của bạn là ${this.myId}`);
-                    onDialogue('Hệ Thống', `Chào mừng ${name} đã gia nhập sảnh chờ!`);
+                    welcomeHandler.handle(data);
                     break;
 
                 case 'PLAYER_JOINED':
-                    this.players.set(data.payload.id, data.payload);
-                    onPlayersUpdate();
-                    onLog(`[Sự kiện] ${data.payload.name} vừa vào làng.`);
-                    onDialogue('Thông Báo', `${data.payload.name} vừa mới gia nhập.`);
+                    playerJoinedHandler.handle(data);
                     break;
 
                 case 'PLAYER_LEFT':
-                    const leaver = this.players.get(data.id);
-                    const leaverName = leaver ? leaver.name : 'Một người chơi';
-                    this.players.delete(data.id);
-                    onPlayersUpdate();
-                    onLog(`[Sự kiện] ${leaverName} đã rời đi.`);
-                    onDialogue('Thông Báo', `${leaverName} đã rời khỏi khu vực.`);
+                    playerLeftHandler.handle(data);
                     break;
 
                 case 'STATE_UPDATE':
-                    this.players.clear();
-                    data.payload.forEach((p: PlayerData) => this.players.set(p.id, p));
-                    onPlayersUpdate();
-                    break;
-
-                case 'PING':
-                    this.ws.send(JSON.stringify({ type: 'PONG' }));
+                    stateUpdateHandler.handle(data);
                     break;
 
                 case 'ERROR':
-                    alert(data.payload || data.message);
-                    this.ws.close();
+                    errorHandler.handle(data);
                     break;
             }
         };

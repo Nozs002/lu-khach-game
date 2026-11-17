@@ -4,7 +4,7 @@ public class NetworkMessage {
     public String type;
     public String id;
     public String name;
-    public String avatar;
+    public String characterId;
     public float dx;
     public float dy;
     public Object payload;

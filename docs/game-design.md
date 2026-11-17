@@ -10,7 +10,7 @@ Phiên bản: 0.1 — bản nháp để nhóm review. Ngày: 07/11/2026.
 
 Lữ khách là game nhập vai hành động 2D nhìn từ trên xuống, chơi trực tiếp trên trình duyệt. Tối đa 4 người trong phạm vi nghiệm thu cùng khám phá một bản đồ, chiến đấu với quái và nhặt bình máu. Thế giới dùng chung; mỗi người điều khiển một nhân vật, không có PvP.
 
-Game lấy cảm hứng từ BrowserQuest về góc nhìn, click-to-move và tương tác nhiều người chơi. Nhóm tự viết client TypeScript và server Java. Bản port hiện có giữ làm tham khảo; chưa dùng nó làm bằng chứng sản phẩm mới đã hoàn thành. Không đọc design hoặc sửa repo BrowserQuest nguồn.
+Game lấy cảm hứng từ BrowserQuest về góc nhìn, click-to-move và tương tác nhiều người chơi. Nhóm tự viết client TypeScript và server Java. Bản port hiện có giữ làm tham khảo; chưa dùng nó làm bằng chứng sản phẩm mới đã hoàn thành. Repo BrowserQuest nguồn chỉ đọc để tham khảo, không sửa. Theo hướng ngày 13/11/2026, thiết kế lại cốt truyện cơ bản và map tại [story-and-map.md](story-and-map.md); không sử dụng bộ thiết kế Miền Quên trong thư mục design của nguồn tham khảo. Các ý tưởng mới vẫn là đề xuất, chưa thay đổi phạm vi hoặc giao thức hiện hành.
 
 Mục tiêu trải nghiệm: người mới vào được game nhanh, thấy người chơi khác, hiểu cách di chuyển và đánh quái mà không cần hướng dẫn dài. Mục tiêu kỹ thuật: thể hiện kết nối hai chiều, đồng bộ trạng thái, quyền quyết định của server và xử lý đồng thời.
 
