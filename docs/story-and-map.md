@@ -94,7 +94,7 @@ Nghỉ chân trước hết là chức năng của không gian: nơi an toàn đ
 
 ## 5. Bố cục sơ bộ
 
-Đề xuất map 32 × 24 ô, tileSize 24 như kích thước khởi đầu của tài liệu cũ; đây chưa phải kích thước đã chốt cho làng. Nếu các quầy và đường đi quá chật, tăng kích thước sau khi phác ô, thay vì thu hẹp lối đi.
+Mỗi map, gồm M0 — Làng Bến Cỏ, rộng 172 × 314 ô với tileSize 24. Sơ đồ trong [map-m0-village.md](map-m0-village.md) chỉ phác khu vực lõi 32 × 24 ô; cần bố trí các khu vực còn lại của map M0 trên lưới đầy đủ.
 
 ```text
                             BẮC

@@ -2,21 +2,27 @@ package com.game.handler;
 
 import com.game.model.NetworkMessage;
 import com.game.model.Player;
+import com.game.world.WorldMap;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 
+import java.awt.Point;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class JoinHandler {
     private final Map<WebSocket, Player> players;
     private final Gson gson;
     private final int maxPlayers;
+    private final WorldMap worldMap;
+    private final Random random = new Random();
 
-    public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers) {
+    public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers, WorldMap worldMap) {
         this.players = players;
         this.gson = gson;
         this.maxPlayers = maxPlayers;
+        this.worldMap = worldMap;
     }
 
     // Trả về người chơi vừa tạo; null nếu yêu cầu bị từ chối.
@@ -35,16 +41,15 @@ public class JoinHandler {
                 ? input.characterId
                 : "knight";
 
-        // Chọn tọa độ xuất hiện ngẫu nhiên.
-        float spawnX = 50 + (float) (Math.random() * 380);
-        float spawnY = 50 + (float) (Math.random() * 220);
+        Point spawn = worldMap.randomSpawnTile(random);
 
-        Player newPlayer = new Player(playerId, playerName, playerCharacterId, spawnX, spawnY);
+        Player newPlayer = new Player(playerId, playerName, playerCharacterId, spawn.x, spawn.y);
         players.put(conn, newPlayer);
 
         NetworkMessage welcomeMsg = new NetworkMessage("WELCOME");
         welcomeMsg.id = playerId;
         welcomeMsg.payload = players.values();
+        welcomeMsg.map = worldMap.toClientData();
         conn.send(gson.toJson(welcomeMsg));
 
         return newPlayer;
