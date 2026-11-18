@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lữ Khách Game - Sảnh Chờ Pixel</title>
+    <title>Lữ Khách — Bến Cỏ</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
 
@@ -26,46 +26,75 @@
         </div>
     </div>
 
-    <!-- Màn hình Game UI -->
-    <div id="gameUI" style="display: none;">
+    <!-- Game shell: canvas and sidebar remain separate input surfaces. -->
+    <main id="gameUI" style="display: none;" aria-label="Lữ khách">
         <div id="game-container">
-
-            <!-- Thanh trạng thái top bar -->
-            <div class="top-bar">
-                <div class="status-box">
-                    Trạng thái: <span id="status" class="status-online">Đã kết nối</span>
+            <header class="top-bar">
+                <div class="game-heading"><h1>LỮ KHÁCH</h1><span id="map-name">M0 · Bến Cỏ</span></div>
+                <div class="connection-controls">
+                    <span id="status" class="status-offline" role="status">Chưa kết nối</span>
+                    <button id="leaveBtn" class="secondary-button" type="button">Rời game</button>
                 </div>
-            </div>
-
-            <!-- Màn hình chơi chính (Canvas + Sidebar) -->
+            </header>
             <div class="main-body">
-                <!-- Canvas 2D chơi Game -->
-                <canvas id="gameCanvas" width="510" height="340"></canvas>
-
-                <!-- Bảng thông tin Sidebar (Danh sách & Log) -->
-                <div class="sidebar">
-                    <div class="pixel-box panel">
-                        <h3>LỮ KHÁCH ONLINE</h3>
+                <section class="world-column" aria-label="Thế giới game">
+                    <div class="canvas-frame pixel-box">
+                        <canvas id="gameCanvas" width="768" height="576" aria-label="Thế giới Tiled — Bến Cỏ"></canvas>
+                        <p>Di chuyển: WASD hoặc phím mũi tên.</p>
+                    </div>
+                    <div class="map-toolbar">
+                        <p class="world-caption">Lớp nền · Thế giới 172 × 314 ô · Khung nhìn 32 × 24 ô</p>
+                        <label class="ground-view-label">Xem bản đồ
+                            <select id="ground-view" aria-label="Chọn vùng xem bản đồ"></select>
+                        </label>
+                        <button id="grid-toggle" class="secondary-button" type="button" aria-pressed="true">Ẩn lưới ô</button>
+                    </div>
+                    <p class="world-caption">Đổi vùng để xem bản đồ. Nhấn WASD hoặc mũi tên để di chuyển và quay về nhân vật.</p>
+                    <details class="pixel-box online-panel">
+                        <summary>LỮ KHÁCH ONLINE <span id="player-count">0</span></summary>
                         <ul id="players" class="player-list"></ul>
-                    </div>
-                    <div class="pixel-box panel">
-                        <h3>NHẬT KÝ LÀNG</h3>
-                        <div id="systemLog" class="log"></div>
-                    </div>
-                </div>
+                    </details>
+                </section>
+                <aside class="sidebar" aria-label="Thông tin người chơi">
+                    <section class="pixel-box panel" aria-labelledby="character-title">
+                        <h2 id="character-title">NHÂN VẬT</h2>
+                        <div class="character-profile">
+                            <img id="player-avatar" class="player-avatar" src="/assets/characters/knight.png" alt="Nhân vật của bạn">
+                            <div class="character-stats">
+                                <h3 id="player-name">Lữ khách</h3>
+                                <p class="stat-label">Máu <span>— / —</span></p>
+                                <div class="stat-track unavailable" aria-label="Chưa có dữ liệu máu từ máy chủ"></div>
+                            </div>
+                        </div>
+                        <p class="stat-label mana-label">Mana <span>— / —</span></p>
+                        <p class="placeholder-note">Chưa có dữ liệu máu · Mana chưa thiết kế</p>
+                    </section>
+                    <section class="pixel-box panel" aria-labelledby="skills-title">
+                        <h2 id="skills-title">KỸ NĂNG</h2>
+                        <p class="placeholder-note">Chưa thiết kế kỹ năng.</p>
+                    </section>
+                    <section class="pixel-box panel" aria-labelledby="equipment-title">
+                        <h2 id="equipment-title">TRANG BỊ</h2>
+                        <p class="placeholder-note">Chưa thiết kế hệ thống trang bị.</p>
+                    </section>
+                    <section class="pixel-box panel journal-panel" aria-labelledby="journal-title">
+                        <h2 id="journal-title">NHẬT KÝ</h2>
+                        <div id="systemLog" class="log" role="log" aria-label="Nhật ký sự kiện" tabindex="0"></div>
+                        <button id="new-log-button" class="new-log-button" type="button" hidden>Có sự kiện mới ↓</button>
+                    </section>
+                    <section class="pixel-box panel help-panel" aria-labelledby="help-title">
+                        <h2 id="help-title">HƯỚNG DẪN CHƠI</h2>
+                        <ul class="help-list">
+                            <li>WASD hoặc mũi tên: di chuyển từng ô.</li>
+                            <li>Vật cản được đánh dấu trong bản đồ sẽ chặn đường.</li>
+                            <li>Chọn vùng để xem các khu vực khác.</li>
+                        </ul>
+                        <p class="placeholder-note">Điều khiển chuột và tương tác NPC đang chờ triển khai.</p>
+                    </section>
+                </aside>
             </div>
-
-            <!-- Hộp thoại Dialogue Box kiểu Pixel -->
-            <div class="dialogue-box">
-                <img src="/assets/characters/knight.png" alt="Avatar" class="avatar" onerror="this.style.visibility='hidden'">
-                <div class="dialogue-content">
-                    <h3 id="dialogue-name" class="character-name">Hệ Thống</h3>
-                    <p id="dialogue-text" class="dialogue-text">Sử dụng phím WASD hoặc Mũi tên để di chuyển!</p>
-                </div>
-            </div>
-
         </div>
-    </div>
+    </main>
 
     <div id="toast-container" class="toast-container" aria-label="Thông báo game"></div>
 

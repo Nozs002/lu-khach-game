@@ -1,5 +1,11 @@
 # Hệ thống map — Lữ khách
 
+Cập nhật phạm vi 17/11/2026: người dùng chọn thế giới ngoài trời **172 × 314 ô**, thêm **M5 — Rừng Sâu, M6 — Bờ Biển, M7 — Sa Mạc**. M5 là khu rừng mới bên cạnh M2 đã có. Bản bố cục tám khu hiện hành ở [world-layout-preview.md](world-layout-preview.md); các phần đề xuất năm map bên dưới là thiết kế trước mở rộng. M0–M3/M5–M7 là vùng của thế giới ngoài trời, M4 là nội thất hang riêng. Chưa thay đổi runtime.
+
+Kiến trúc map được đề xuất thiết kế lại tại [map-system-v2.md](map-system-v2.md), dựa trên cơ chế tile/layer, collision, entities và xuất dữ liệu client/server của BrowserQuest. Nội dung M0 và kết nối vùng bên dưới vẫn là cơ sở; v2 chưa được triển khai vào runtime.
+
+Cập nhật 17/11/2026: đã xác nhận tên làng **Bến Cỏ**, **đài phun nước** làm điểm nhấn quảng trường, không khí **ban ngày, sáng và yên bình**. Các kích thước, tọa độ và nội dung chưa xác nhận vẫn là đề xuất. Chi tiết tại [bản phác M0](map-m0-village.md).
+
 Ngày: 13/11/2026. Đây là thiết kế nội dung, chỉ viết tài liệu. Map nghỉ không có quái, người bán đồ, NPC hướng dẫn rải rác và bảng tin nhận nhiệm vụ/xem thành tựu là các yêu cầu đã xác nhận. **Tên, số lượng, kích thước, quái, nhiệm vụ và kết nối map trong tài liệu này là đề xuất mới.**
 
 Thiết kế tiếp nối [cốt truyện và map nghỉ](story-and-map.md), độc lập với Miền Quên. Tham khảo BrowserQuest ở cách phân vùng cảnh quan, đặt mốc khám phá, NPC và đường đi; không sao chép nguyên bản đồ. Chưa cập nhật giao thức hay triển khai chuyển map.

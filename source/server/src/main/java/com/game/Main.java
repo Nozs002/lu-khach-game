@@ -4,7 +4,8 @@ public class Main {
     private static final int DEFAULT_PORT = 8080;
 
     public static void main(String[] args) {
-        GameServer server = new GameServer(8080);
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
+        GameServer server = new GameServer(port);
         server.start();
     }
 }

@@ -1,4 +1,4 @@
-import { CHARACTERS, getCharacterSource } from '../data/characters';
+import { CHARACTERS, getCharacterAvatarSource } from '../data/characters';
 
 export let selectedCharacterId = CHARACTERS[0].id;
 
@@ -12,7 +12,7 @@ export function renderCharacterSelection() {
         const charCard = document.createElement('div');
         charCard.className = `char-card ${char.id === selectedCharacterId ? 'selected' : ''}`;
         charCard.innerHTML = `
-            <img src="${getCharacterSource(char.id)}" alt="${char.name}" onerror="this.onerror=null; this.style.display='none';">
+            <img src="${getCharacterAvatarSource(char.id)}" alt="${char.name}" onerror="this.onerror=null; this.style.display='none';">
             <h4>${char.name}</h4>
         `;
 

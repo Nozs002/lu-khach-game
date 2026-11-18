@@ -46,8 +46,18 @@ public class GameServer extends WebSocketServer {
         try {
             NetworkMessage input = gson.fromJson(message, NetworkMessage.class);
 
+            synchronized (players) {
             switch (input.type) {
+                case "MOVE":
+                    Player player = players.get(conn);
+                    if (player != null && player.move(input.dx, input.dy)) {
+                        NetworkMessage state = new NetworkMessage("STATE_UPDATE");
+                        state.payload = players.values();
+                        broadcastMessage(gson.toJson(state), null);
+                    }
+                    break;
                 case "JOIN":
+                    if (players.containsKey(conn)) break;
                     Player newPlayer = joinHandler.handle(conn, input);
                     if (newPlayer != null) {
                         NetworkMessage joinedMsg = new NetworkMessage("PLAYER_JOINED");
@@ -56,6 +66,7 @@ public class GameServer extends WebSocketServer {
                     }
                     break;
             }
+            }
         } catch (Exception e) {
             System.err.println("Lỗi xử lý tin nhắn: " + e.getMessage());
         }
@@ -63,6 +74,7 @@ public class GameServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
+        System.err.println("WebSocket error: " + ex.getMessage());
         if (conn != null) {
             cleanupSession(conn);
         }

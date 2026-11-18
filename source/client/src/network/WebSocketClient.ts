@@ -8,36 +8,46 @@ import { ErrorHandler } from './handlers/ErrorHandler';
 
 export class WebSocketClient {
     private ws!: WebSocket;
+
     public myId: string | null = null;
     public players: Map<string, Player> = new Map();
+
+    move(dx: number, dy: number) {
+        if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify({ type: 'MOVE', dx, dy }));
+    }
 
     connect(
         name: string,
         characterId: string,
         onReady: () => void,
         onLog: (message: string) => void,
-        onDialogue: (name: string, text: string) => void,
+
         onPlayersUpdate: (players: Map<string, Player>, myId: string | null) => void,
         onStatusChange: (online: boolean, text: string) => void,
         onError: (message: string) => void
     ) {
+        // mở cổng kết nối
         this.ws = new WebSocket('ws://localhost:8080');
+
+        // đóng gói context để truyền tham số cho hàm
         const context: HandlerContext = {
             state: this,
             name,
             onReady,
             onLog,
-            onDialogue,
+
             onPlayersUpdate,
             onError,
             close: () => this.ws.close()
         };
+
         const welcomeHandler = new WelcomeHandler(context);
         const playerJoinedHandler = new PlayerJoinedHandler(context);
         const playerLeftHandler = new PlayerLeftHandler(context);
         const stateUpdateHandler = new StateUpdateHandler(context);
         const errorHandler = new ErrorHandler(context);
 
+        // xử lý khi mất mạng, đóng kết nối
         window.addEventListener('offline', () => {
             onStatusChange(false, 'Mất mạng (Offline)!');
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -45,11 +55,13 @@ export class WebSocketClient {
             }
         });
 
+        // Gửi kết nối
         this.ws.onopen = () => {
             this.ws.send(JSON.stringify({ type: 'JOIN', name, characterId }));
             onStatusChange(true, 'Đã kết nối');
         };
 
+        // Nhận thông tin từ server
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
@@ -76,15 +88,10 @@ export class WebSocketClient {
             }
         };
 
+        // đóng kết nối
         this.ws.onclose = () => {
             onStatusChange(false, 'Mất kết nối!');
             onLog('[Hệ thống] Đã ngắt kết nối với máy chủ.');
         };
-    }
-
-    sendMove(dx: number, dy: number) {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({ type: 'MOVE', dx, dy }));
-        }
     }
 }

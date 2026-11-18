@@ -2,6 +2,7 @@ package com.game.handler;
 
 import com.game.model.NetworkMessage;
 import com.game.model.Player;
+import com.game.model.StartMap;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 
@@ -30,18 +31,20 @@ public class JoinHandler {
         }
 
         String playerId = UUID.randomUUID().toString();
-        String playerName = input.name != null ? input.name : "Lữ Khách";
+        String playerName = input.name != null ? input.name : "Lữ Khách " + playerId;
         String playerCharacterId = (input.characterId != null && !input.characterId.isEmpty())
                 ? input.characterId
                 : "knight";
 
-        // Chọn tọa độ xuất hiện ngẫu nhiên.
-        float spawnX = 50 + (float) (Math.random() * 380);
-        float spawnY = 50 + (float) (Math.random() * 220);
+        // Use authored Tiled spawn, then connected free cells for additional players.
+        float[] spawn = StartMap.spawn(players.values());
+        float spawnX = spawn[0];
+        float spawnY = spawn[1];
 
         Player newPlayer = new Player(playerId, playerName, playerCharacterId, spawnX, spawnY);
         players.put(conn, newPlayer);
 
+        // gửi thông báo cho người chơi vừa join
         NetworkMessage welcomeMsg = new NetworkMessage("WELCOME");
         welcomeMsg.id = playerId;
         welcomeMsg.payload = players.values();

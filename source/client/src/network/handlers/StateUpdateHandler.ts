@@ -7,7 +7,9 @@ export class StateUpdateHandler {
     handle(data: { payload: Player[] }): void {
         const { state, onPlayersUpdate } = this.context;
         state.players.clear();
-        data.payload.forEach(player => state.players.set(player.id, player));
+        data.payload.forEach((player) => {
+            state.players.set(player.id, player);
+        });
         onPlayersUpdate(state.players, state.myId);
     }
 }
