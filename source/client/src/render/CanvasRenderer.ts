@@ -1,10 +1,19 @@
-import { getCharacterSource } from '../data/characters';
+import { getCharacterWalkSheet } from '../data/characters';
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import type { GridPoint } from '../pathfinding/AStarPathfinder';
 import { imageCache } from './ImageCache';
 
-const SPRITE_SIZE = 48; //Kích thước sprite của nhân vật, có thể thay đổi nếu cần thiết
+const SPRITE_SIZE = 48; // Kích thước hiển thị trên canvas (pixel)
+const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
+
+// Cột 0: xuống, Cột 1: lên, Cột 2: trái, Cột 3: phải
+const enum DirectionColumn {
+    Down = 0,
+    Up = 1,
+    Left = 2,
+    Right = 3
+}
 
 interface RenderPosition {
     x: number;
@@ -14,6 +23,10 @@ interface RenderPosition {
     targetX: number;
     targetY: number;
     startedAt: number;
+    direction: DirectionColumn;
+    animFrame: number;
+    animElapsedMs: number;
+    lastTickAt: number;
 }
 
 export class CanvasRenderer {
@@ -29,11 +42,6 @@ export class CanvasRenderer {
 
     public getCanvas(): HTMLCanvasElement {
         return this.canvas;
-    }
-
-    private getSource(characterId: string): string {
-        const name = (characterId && characterId !== 'undefined') ? characterId : 'knight';
-        return getCharacterSource(name);
     }
 
     public getTileAtClientPosition(clientX: number, clientY: number): GridPoint | null {
@@ -59,7 +67,8 @@ export class CanvasRenderer {
         players: Map<string, Player>,
         myId: string | null,
         previewPath: readonly GridPoint[] = [],
-        map: MapData | null = null
+        map: MapData | null = null,
+        timestamp: number = performance.now()
     ): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (!map) return;
@@ -70,11 +79,11 @@ export class CanvasRenderer {
             this.cameraX = 0;
             this.cameraY = 0;
         }
-        const now = performance.now();
+
         const activeIds = new Set<string>();
         players.forEach(player => {
             activeIds.add(player.id);
-            this.updateRenderPosition(player, now);
+            this.updateRenderPosition(player, timestamp);
         });
         this.renderPositions.forEach((_position, id) => {
             if (!activeIds.has(id)) this.renderPositions.delete(id);
@@ -88,6 +97,14 @@ export class CanvasRenderer {
         this.drawPlayers(players, myId, map);
     }
 
+    private resolveDirection(dx: number, dy: number, fallback: DirectionColumn): DirectionColumn {
+        if (dx === 0 && dy === 0) return fallback;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            return dx < 0 ? DirectionColumn.Left : DirectionColumn.Right;
+        }
+        return dy < 0 ? DirectionColumn.Up : DirectionColumn.Down;
+    }
+
     private updateRenderPosition(player: Player, now: number): void {
         let position = this.renderPositions.get(player.id);
         if (!position) {
@@ -98,19 +115,44 @@ export class CanvasRenderer {
                 fromY: player.y,
                 targetX: player.x,
                 targetY: player.y,
-                startedAt: now
+                startedAt: now,
+                direction: DirectionColumn.Down,
+                animFrame: 0,
+                animElapsedMs: 0,
+                lastTickAt: now
             };
             this.renderPositions.set(player.id, position);
             return;
         }
 
+        const deltaMs = Math.max(0, now - position.lastTickAt);
+        position.lastTickAt = now;
+
         this.interpolate(position, now);
+
         if (position.targetX !== player.x || position.targetY !== player.y) {
+            const dx = player.x - position.x;
+            const dy = player.y - position.y;
+            position.direction = this.resolveDirection(dx, dy, position.direction);
             position.fromX = position.x;
             position.fromY = position.y;
             position.targetX = player.x;
             position.targetY = player.y;
             position.startedAt = now;
+        }
+
+        const isMoving = position.x !== position.targetX || position.y !== position.targetY;
+        if (isMoving) {
+            position.animElapsedMs += deltaMs;
+            if (position.animElapsedMs >= WALK_FRAME_DURATION_MS) {
+                const steps = Math.floor(position.animElapsedMs / WALK_FRAME_DURATION_MS);
+                position.animFrame = (position.animFrame + steps) % 4;
+                position.animElapsedMs %= WALK_FRAME_DURATION_MS;
+            }
+        } else {
+            // Đứng yên: dừng đổi frame, giữ nguyên hướng nhìn gần nhất
+            position.animFrame = 0;
+            position.animElapsedMs = 0;
         }
     }
 
@@ -218,13 +260,35 @@ export class CanvasRenderer {
             const position = this.renderPositions.get(player.id);
             if (!position) return;
             const isMe = player.id === myId;
-            const source = this.getSource(player.characterId);
-            const img = imageCache.get(source);
+            const characterId = (player.characterId && player.characterId !== 'undefined')
+                ? player.characterId
+                : 'knight';
+            const walkSheet = getCharacterWalkSheet(characterId);
+            const img = imageCache.get(walkSheet.source);
             const pixelX = position.x * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
             const pixelY = position.y * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
 
             if (img.complete && img.naturalWidth !== 0) {
-                this.ctx.drawImage(img, pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
+                // Kích thước frame lấy trực tiếp từ kích thước thực tế của sprite sheet (không dùng SPRITE_SIZE)
+                const frameWidth = img.naturalWidth / walkSheet.cols;
+                const frameHeight = img.naturalHeight / walkSheet.rows;
+                const sx = position.direction * frameWidth;
+                const sy = position.animFrame * frameHeight;
+
+                const prevSmoothing = this.ctx.imageSmoothingEnabled;
+                this.ctx.imageSmoothingEnabled = false;
+                this.ctx.drawImage(
+                    img,
+                    sx,
+                    sy,
+                    frameWidth,
+                    frameHeight,
+                    pixelX,
+                    pixelY,
+                    SPRITE_SIZE,
+                    SPRITE_SIZE
+                );
+                this.ctx.imageSmoothingEnabled = prevSmoothing;
             } else {
                 this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
                 this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
