@@ -40,16 +40,13 @@
                 <section class="world-column" aria-label="Thế giới game">
                     <div class="canvas-frame pixel-box">
                         <canvas id="gameCanvas" width="768" height="576" aria-label="Thế giới Tiled — Bến Cỏ"></canvas>
-                        <p>Di chuyển: WASD hoặc phím mũi tên.</p>
                     </div>
                     <div class="map-toolbar">
-                        <p class="world-caption">Lớp nền · Thế giới 172 × 314 ô · Khung nhìn 32 × 24 ô</p>
                         <label class="ground-view-label">Xem bản đồ
                             <select id="ground-view" aria-label="Chọn vùng xem bản đồ"></select>
                         </label>
                         <button id="grid-toggle" class="secondary-button" type="button" aria-pressed="true">Ẩn lưới ô</button>
                     </div>
-                    <p class="world-caption">Đổi vùng để xem bản đồ. Nhấn WASD hoặc mũi tên để di chuyển và quay về nhân vật.</p>
                     <details class="pixel-box online-panel">
                         <summary>LỮ KHÁCH ONLINE <span id="player-count">0</span></summary>
                         <ul id="players" class="player-list"></ul>
@@ -85,11 +82,11 @@
                     <section class="pixel-box panel help-panel" aria-labelledby="help-title">
                         <h2 id="help-title">HƯỚNG DẪN CHƠI</h2>
                         <ul class="help-list">
-                            <li>WASD hoặc mũi tên: di chuyển từng ô.</li>
+                            <li>Click ô trống: tự tìm đường và di chuyển.</li>
                             <li>Vật cản được đánh dấu trong bản đồ sẽ chặn đường.</li>
                             <li>Chọn vùng để xem các khu vực khác.</li>
                         </ul>
-                        <p class="placeholder-note">Điều khiển chuột và tương tác NPC đang chờ triển khai.</p>
+                        <p class="placeholder-note">Click đích mới để đổi đường đi. Tương tác NPC chưa triển khai.</p>
                     </section>
                 </aside>
             </div>

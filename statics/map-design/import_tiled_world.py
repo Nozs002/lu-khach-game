@@ -58,6 +58,13 @@ def main():
     for path, data in [(ROOT / 'source/client/src/data/world.generated.json', client), (ROOT / 'source/server/src/main/resources/maps/world.generated.json', runtime)]:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, separators=(',', ':')), encoding='utf-8')
+    # IDE/exec:java launches may reuse target/classes without copying resources.
+    # Keep an existing compiled output in sync as well as the source resource.
+    classes = ROOT / 'source/server/target/classes'
+    if classes.is_dir():
+        compiled_map = classes / 'maps/world.generated.json'
+        compiled_map.parent.mkdir(parents=True, exist_ok=True)
+        compiled_map.write_text(json.dumps(runtime, separators=(',', ':')), encoding='utf-8')
     print(f'Imported {runtime["width"]} x {runtime["height"]}; {len(runtime["spawns"])} spawn(s), {sum(map(sum, runtime["collision"]))} blocked cells')
 
 

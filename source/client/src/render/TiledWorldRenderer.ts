@@ -3,10 +3,11 @@ import { imageCache } from './ImageCache';
 
 const tilesetsByDescendingGid = [...WORLD.tilesets].reverse();
 
-export function drawWorld(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, width: number, height: number, foreground: boolean) {
+export function drawWorld(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, width: number, height: number, abovePlayers: boolean) {
     const size = WORLD.tileSize;
     for (const layer of WORLD.layers) {
-        if (!layer.visible || (layer.name === 'foreground') !== foreground) continue;
+        const coversPlayers = layer.name === 'objects';
+        if (!layer.visible || coversPlayers !== abovePlayers) continue;
         ctx.save();
         ctx.globalAlpha = layer.opacity;
         for (let y = Math.max(0, Math.floor(cameraY / size)); y < Math.min(WORLD.height, Math.ceil((cameraY + height) / size)); y++) {

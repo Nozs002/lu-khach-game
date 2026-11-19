@@ -185,7 +185,6 @@ input[type="text"]:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3
 .world-column { display: flex; flex-direction: column; gap: 12px; }
 .canvas-frame { padding: 6px; background: #101010; }
 #gameCanvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; background: #161d18; image-rendering: pixelated; }
-.world-caption { margin: 0; font-size: 12px; color: #999; }
 .map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .map-toolbar button { padding: 6px 10px; font-size: 11px; }
 .ground-view-label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #ccc; font-size: 12px; }
