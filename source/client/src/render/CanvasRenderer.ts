@@ -1,6 +1,6 @@
 import { WORLD, WORLD_VIEWS } from '../data/tiledWorld';
 import { drawWorld } from './TiledWorldRenderer';
-import { getCharacter, getCharacterSpriteSource, getCharacterWalkSheet } from '../data/characters';
+import { getCharacterWalkSheet } from '../data/characters';
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import type { GridPoint } from '../pathfinding/AStarPathfinder';
@@ -8,6 +8,9 @@ import { imageCache } from './ImageCache';
 
 const SPRITE_SIZE = 16;
 const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
+const EDGE_PAN_MARGIN_PX = 48; // Vùng mép trong của canvas kích hoạt lia camera (tọa độ canvas)
+const EDGE_PAN_SPEED_PX_PER_SEC = 520; // Tốc độ lia camera tối đa (pixel/giây)
+const MAX_FRAME_DELTA_MS = 100; // Giới hạn delta time tránh giật khung hình khi chuyển tab
 
 // Cột 0: xuống, Cột 1: lên, Cột 2: trái, Cột 3: phải
 const enum DirectionColumn {
@@ -35,9 +38,14 @@ export class CanvasRenderer {
     private ctx: CanvasRenderingContext2D;
     private gridVisible = true;
     private followPlayer = true;
+    private freeCamera = false;
     private cameraX = 0;
     private cameraY = 0;
     private map: MapData | null = null;
+    private lastRenderAt: number | null = null;
+    private pointerCanvasX: number | null = null;
+    private pointerCanvasY: number | null = null;
+    private onCameraModeChange?: (freeCamera: boolean) => void;
     private readonly renderPositions = new Map<string, RenderPosition>();
 
     constructor(private canvas: HTMLCanvasElement) {
@@ -50,33 +58,98 @@ export class CanvasRenderer {
 
     setGridVisible(visible: boolean): void { this.gridVisible = visible; }
 
-    setGroundView(id: string): void {
-        this.followPlayer = id === 'spawn';
+    public setCameraModeChangeListener(listener?: (freeCamera: boolean) => void): void {
+        this.onCameraModeChange = listener;
+    }
+
+    public isFreeCamera(): boolean {
+        return this.freeCamera;
+    }
+
+    public toggleFreeCamera(myId: string | null = null): boolean {
+        return this.setFreeCamera(!this.freeCamera, myId);
+    }
+
+    public setFreeCamera(enabled: boolean, myId: string | null = null): boolean {
+        if (this.freeCamera === enabled) {
+            if (!enabled) {
+                this.followPlayer = true;
+                this.snapCameraToPlayer(myId);
+            }
+            return this.freeCamera;
+        }
+
+        this.freeCamera = enabled;
+        this.followPlayer = !enabled;
+        if (!enabled) {
+            this.snapCameraToPlayer(myId);
+        }
+        this.onCameraModeChange?.(this.freeCamera);
+        return this.freeCamera;
+    }
+
+    public centerOnPlayer(myId: string | null): void {
+        this.snapCameraToPlayer(myId);
+    }
+
+    public updatePointerClientPosition(clientX: number, clientY: number): void {
+        const point = this.clientToCanvasPoint(clientX, clientY);
+        if (!point) {
+            this.clearPointerPosition();
+            return;
+        }
+        this.pointerCanvasX = point.x;
+        this.pointerCanvasY = point.y;
+    }
+
+    public clearPointerPosition(): void {
+        this.pointerCanvasX = null;
+        this.pointerCanvasY = null;
+    }
+
+    setGroundView(id: string, myId: string | null = null): void {
+        const isSpawn = id === 'spawn';
+        this.followPlayer = isSpawn;
+        this.freeCamera = !isSpawn;
+        this.onCameraModeChange?.(this.freeCamera);
+
+        if (isSpawn) {
+            this.snapCameraToPlayer(myId);
+            return;
+        }
+
         const view = WORLD_VIEWS.find(view => view.id === id);
         if (!view) return;
-        this.cameraX = Math.max(0, Math.min(view.x * WORLD.tileSize, WORLD.width * WORLD.tileSize - this.canvas.width));
-        this.cameraY = Math.max(0, Math.min(view.y * WORLD.tileSize, WORLD.height * WORLD.tileSize - this.canvas.height));
+        this.setCameraClamped(view.x * WORLD.tileSize, view.y * WORLD.tileSize, this.map);
     }
 
     public getCanvas(): HTMLCanvasElement {
         return this.canvas;
     }
 
-    public getTileAtClientPosition(clientX: number, clientY: number): GridPoint | null {
-        const map = this.map;
+    private clientToCanvasPoint(clientX: number, clientY: number): GridPoint | null {
         const rect = this.canvas.getBoundingClientRect();
         const clientWidth = this.canvas.clientWidth;
         const clientHeight = this.canvas.clientHeight;
-        if (!map || clientWidth === 0 || clientHeight === 0) return null;
+        if (clientWidth === 0 || clientHeight === 0) return null;
 
         const canvasX = (clientX - rect.left - this.canvas.clientLeft) * this.canvas.width / clientWidth;
         const canvasY = (clientY - rect.top - this.canvas.clientTop) * this.canvas.height / clientHeight;
         if (canvasX < 0 || canvasX >= this.canvas.width || canvasY < 0 || canvasY >= this.canvas.height) {
             return null;
         }
+        return { x: canvasX, y: canvasY };
+    }
 
-        const x = Math.floor((canvasX + this.cameraX) / map.tileSize);
-        const y = Math.floor((canvasY + this.cameraY) / map.tileSize);
+    public getTileAtClientPosition(clientX: number, clientY: number): GridPoint | null {
+        const map = this.map;
+        if (!map) return null;
+
+        const canvasPoint = this.clientToCanvasPoint(clientX, clientY);
+        if (!canvasPoint) return null;
+
+        const x = Math.floor((canvasPoint.x + this.cameraX) / map.tileSize);
+        const y = Math.floor((canvasPoint.y + this.cameraY) / map.tileSize);
         if (x < 0 || x >= map.width || y < 0 || y >= map.height) return null;
         return { x, y };
     }
@@ -90,6 +163,11 @@ export class CanvasRenderer {
     ): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (!map) return;
+
+        const deltaMs = this.lastRenderAt === null
+            ? 0
+            : Math.min(MAX_FRAME_DELTA_MS, Math.max(0, timestamp - this.lastRenderAt));
+        this.lastRenderAt = timestamp;
 
         if (this.map !== map) {
             this.map = map;
@@ -108,7 +186,12 @@ export class CanvasRenderer {
         });
 
         const myPosition = myId ? this.renderPositions.get(myId) : undefined;
-        if (this.followPlayer) this.updateCamera(myPosition, map);
+        if (this.freeCamera) {
+            this.updateEdgePanCamera(deltaMs, map);
+        } else if (this.followPlayer) {
+            this.updateCamera(myPosition, map);
+        }
+
         this.ctx.fillStyle = '#17251b';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, false);
@@ -116,6 +199,51 @@ export class CanvasRenderer {
         this.drawPreview(previewPath, map, myPosition);
         this.drawPlayers(players, myId, map);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
+    }
+
+    private snapCameraToPlayer(myId: string | null): void {
+        if (!myId || !this.map) return;
+        const myPosition = this.renderPositions.get(myId);
+        if (myPosition) {
+            this.updateCamera(myPosition, this.map);
+        }
+    }
+
+    private setCameraClamped(targetX: number, targetY: number, map: MapData | null): void {
+        const worldWidthPx = map ? map.width * map.tileSize : WORLD.width * WORLD.tileSize;
+        const worldHeightPx = map ? map.height * map.tileSize : WORLD.height * WORLD.tileSize;
+        const maxX = Math.max(0, worldWidthPx - this.canvas.width);
+        const maxY = Math.max(0, worldHeightPx - this.canvas.height);
+        this.cameraX = Math.max(0, Math.min(targetX, maxX));
+        this.cameraY = Math.max(0, Math.min(targetY, maxY));
+    }
+
+    private updateEdgePanCamera(deltaMs: number, map: MapData): void {
+        if (deltaMs <= 0 || this.pointerCanvasX === null || this.pointerCanvasY === null) return;
+
+        const margin = Math.min(EDGE_PAN_MARGIN_PX, this.canvas.width / 2, this.canvas.height / 2);
+        if (margin <= 0) return;
+
+        let dirX = 0;
+        if (this.pointerCanvasX < margin) {
+            dirX = -(1 - this.pointerCanvasX / margin);
+        } else if (this.pointerCanvasX > this.canvas.width - margin) {
+            dirX = (this.pointerCanvasX - (this.canvas.width - margin)) / margin;
+        }
+
+        let dirY = 0;
+        if (this.pointerCanvasY < margin) {
+            dirY = -(1 - this.pointerCanvasY / margin);
+        } else if (this.pointerCanvasY > this.canvas.height - margin) {
+            dirY = (this.pointerCanvasY - (this.canvas.height - margin)) / margin;
+        }
+
+        if (dirX === 0 && dirY === 0) return;
+
+        const dtSeconds = deltaMs / 1000;
+        const nextX = this.cameraX + dirX * EDGE_PAN_SPEED_PX_PER_SEC * dtSeconds;
+        const nextY = this.cameraY + dirY * EDGE_PAN_SPEED_PX_PER_SEC * dtSeconds;
+        this.setCameraClamped(nextX, nextY, map);
     }
 
     private resolveDirection(dx: number, dy: number, fallback: DirectionColumn): DirectionColumn {
@@ -190,12 +318,9 @@ export class CanvasRenderer {
     private updateCamera(player: RenderPosition | undefined, map: MapData): void {
         if (!player) return;
 
-        const maxX = Math.max(0, map.width * map.tileSize - this.canvas.width);
-        const maxY = Math.max(0, map.height * map.tileSize - this.canvas.height);
         const centerX = (player.x + 0.5) * map.tileSize - this.canvas.width / 2;
         const centerY = (player.y + 0.5) * map.tileSize - this.canvas.height / 2;
-        this.cameraX = Math.max(0, Math.min(centerX, maxX));
-        this.cameraY = Math.max(0, Math.min(centerY, maxY));
+        this.setCameraClamped(centerX, centerY, map);
     }
 
     private drawGrid(map: MapData): void {
@@ -263,45 +388,29 @@ export class CanvasRenderer {
             const characterId = (player.characterId && player.characterId !== 'undefined')
                 ? player.characterId
                 : 'knight';
-            const character = getCharacter(characterId);
             const walkSheet = getCharacterWalkSheet(characterId);
             const isMoving = position.x !== position.targetX || position.y !== position.targetY;
-            const source = isMoving ? walkSheet.source : getCharacterSpriteSource(characterId);
-            const img = imageCache.get(source);
+            const img = imageCache.get(walkSheet.source);
             const pixelX = position.x * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
             const pixelY = position.y * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
 
             if (img.complete && img.naturalWidth !== 0) {
-                if (isMoving) {
-                    const frameWidth = img.naturalWidth / walkSheet.cols;
-                    const frameHeight = img.naturalHeight / walkSheet.rows;
-                    const sx = position.direction * frameWidth;
-                    const sy = position.animFrame * frameHeight;
-                    this.ctx.drawImage(
-                        img,
-                        sx,
-                        sy,
-                        frameWidth,
-                        frameHeight,
-                        pixelX,
-                        pixelY,
-                        SPRITE_SIZE,
-                        SPRITE_SIZE
-                    );
-                } else {
-                    const frame = character.spriteFrame;
-                    this.ctx.drawImage(
-                        img,
-                        frame.x,
-                        frame.y,
-                        frame.width,
-                        frame.height,
-                        pixelX,
-                        pixelY,
-                        SPRITE_SIZE,
-                        SPRITE_SIZE
-                    );
-                }
+                const frameWidth = img.naturalWidth / walkSheet.cols;
+                const frameHeight = img.naturalHeight / walkSheet.rows;
+                const frameIndex = isMoving ? position.animFrame : 0;
+                const sx = position.direction * frameWidth;
+                const sy = frameIndex * frameHeight;
+                this.ctx.drawImage(
+                    img,
+                    sx,
+                    sy,
+                    frameWidth,
+                    frameHeight,
+                    pixelX,
+                    pixelY,
+                    SPRITE_SIZE,
+                    SPRITE_SIZE
+                );
             } else {
                 this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
                 this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
