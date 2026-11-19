@@ -1,10 +1,11 @@
+> Bản thiết kế lịch sử. Ảnh phác và bộ dựng cũ đã được dọn; map đang chạy lấy từ `source/common/maps/world.tmj`.
+
 # Bố cục giao diện game
 
 Cập nhật 17/11/2026. Thiết kế theo yêu cầu người dùng; ảnh tham khảo chỉ định hướng, không sao chép nguyên giao diện. Đã triển khai khung UI client theo thiết kế; map, A* và các hệ gameplay chưa triển khai.
 
 UI hiện có: avatar/tên người chơi, trạng thái kết nối, nút rời game, khung mana/kỹ năng/trang bị, nhật ký tối đa 200 dòng có thời gian và giữ vị trí đọc, hướng dẫn dưới cùng. Danh sách online được giữ trong khung thu gọn dưới map. HP hiển thị `— / —` thay cho số minh họa trong ảnh vì server chưa có dữ liệu. Hội thoại không dùng avatar người chơi thay cho người đang nói. Màn hình hẹp đưa sidebar xuống dưới map. Ảnh bên dưới vẫn là mockup thiết kế, không phải ảnh chụp bản chạy.
 
-![Bản xem trước](../statics/map-design/ben-co-ui-preview.png)
 
 ## Bố cục đã yêu cầu
 

@@ -49,7 +49,7 @@ Thư viện không chạy lần lượt các hàm theo vị trí trong file. Sau
 
 | Hàm server | Khi được gọi | Xử lý trong game |
 | --- | --- | --- |
-| `onStart()` | Server khởi động thành công | Ghi log cổng lắng nghe |
+| `onStart()` | Server khởi động thành công | Ghi log cổng lắng nghe và bật movement tick |
 | `onOpen(conn, handshake)` | Một client hoàn tất kết nối WebSocket | Ghi log địa chỉ client |
 | `onMessage(conn, message)` | Nhận một tin nhắn text | Đọc JSON bằng Gson, phân loại theo `type` |
 | `onClose(conn, ...)` | Kết nối đóng | Dọn phiên và thông báo người chơi rời game |
@@ -87,34 +87,7 @@ NetworkMessage input = gson.fromJson(message, NetworkMessage.class);
 gửi. Gửi tin tới một client không cần chờ client gửi yêu cầu trước đó: sau khi
 kết nối mở, cả server và client đều có thể chủ động gửi tin.
 
-## 4. Ping/Pong kiểm tra mất kết nối
-
-Constructor của `GameServer` cấu hình:
-
-```java
-setConnectionLostTimeout(CONNECTION_LOST_TIMEOUT_SECONDS);
-```
-
-Giá trị hiện tại là `10`, đơn vị giây. Java-WebSocket quản lý việc kiểm tra và
-gửi khung Ping tới các kết nối đang mở, kể cả kết nối chưa gửi `JOIN`.
-
-```text
-Server ── khung Ping ──→ Trình duyệt
-Server ←─ khung Pong ─── Trình duyệt tự trả lời
-```
-
-Ping/Pong đi trên chính kết nối WebSocket hiện có. Đây là khung điều khiển của
-giao thức, không phải JSON `PING`/`PONG`, nên không đi vào nhánh xử lý JSON trong
-`onMessage()` của game. JavaScript trình duyệt không cần tự trả Pong.
-
-Trong Java-WebSocket 1.5.6, bộ kiểm tra chạy theo chu kỳ cấu hình và đối chiếu
-thời điểm Pong cuối với ngưỡng 1,5 lần chu kỳ. Do đó cấu hình `10` không có nghĩa
-là luôn ngắt đúng 10 giây sau khi mất mạng. Khi phát hiện không còn phản hồi,
-thư viện đóng kết nối và `onClose()` thực hiện dọn phiên.
-
-Tham khảo: [mã kiểm tra kết nối của Java-WebSocket 1.5.6](https://github.com/TooTallNate/Java-WebSocket/blob/v1.5.6/src/main/java/org/java_websocket/AbstractWebSocket.java).
-
-## 5. Dọn phiên khi rời game
+## 4. Dọn phiên khi rời game
 
 `cleanupSession(conn)` xóa người chơi khỏi Map:
 
@@ -132,3 +105,7 @@ Các file liên quan:
 - [GameServer.java](../source/server/src/main/java/com/game/GameServer.java): callback, xử lý lệnh và quản lý phiên.
 - [NetworkMessage.java](../source/server/src/main/java/com/game/model/NetworkMessage.java): dữ liệu message.
 - [WebSocketClient.ts](../source/client/src/network/WebSocketClient.ts): kết nối và xử lý tin phía trình duyệt.
+
+Server tắt heartbeat Ping/Pong của Java-WebSocket. Phiên chỉ được dọn khi thư
+viện báo `onClose()` hoặc `onError()`; mất mạng im lặng có thể không được phát
+hiện ngay.

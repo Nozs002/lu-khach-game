@@ -1,3 +1,5 @@
+> Bản thiết kế lịch sử. Ảnh phác và bộ dựng cũ đã được dọn; map đang chạy lấy từ `source/common/maps/world.tmj`.
+
 # Lớp nền thế giới — ground
 
 Kích thước 172 cột × 314 hàng, 54.008 ô; gốc trên trái, `ground[y][x]`, tile logic 24 px. Chỉ chứa hình nền, không có nhà, NPC, mái/tán cây, collision hoặc điểm spawn. Nước trong ground chưa quyết định đi được/bơi được; luật đó thuộc collision và gameplay.
@@ -21,7 +23,6 @@ Kích thước 172 cột × 314 hàng, 54.008 ô; gốc trên trái, `ground[y][
 
 Các ID thuộc tileset `world-ground`, không dùng lẫn với mã gameplay của `m0-layout.json` v1. Ví dụ ID 3 ở đây là đường đất, không phải quán trọ. Các khu M0/M1 ở phía nam, M2 đông nam, M3 phía bắc M2, M5 miền trung, M6 bờ tây và M7 miền bắc. M4 là nội thất riêng, không tạo nền hang bên trong ground ngoài trời.
 
-![Lớp nền](../statics/map-design/world-ground-small.png)
 
 ## Dựng và vẽ
 

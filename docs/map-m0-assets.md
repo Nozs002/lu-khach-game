@@ -1,8 +1,9 @@
+> Bản thiết kế lịch sử. Ảnh phác và bộ dựng cũ đã được dọn; map đang chạy lấy từ `source/common/maps/world.tmj`.
+
 # M0 — Asset đề xuất và ảnh xem trước Bến Cỏ
 
 Ngày: 17/11/2026. Bản ghép hình để review theo [bản phác M0](map-m0-village.md), chưa phải dữ liệu runtime hoặc ảnh chụp game.
 
-![Bến Cỏ](../statics/map-design/ben-co-preview.png)
 
 ## Asset đề xuất
 
@@ -23,7 +24,6 @@ Nguồn: thư mục Ninja Adventure - Asset Pack cục bộ, tác giả Pixel-bo
 | Kiện hàng | Backgrounds/Tilesets/TilesetElement.png | (0,0,16,16) | Trang trí cạnh tạp hóa |
 | NPC và người chơi mẫu | Actor/Character/{Master,ManGreen,Boy}/SpriteSheet.png | (0,0,16,16) | Nhân vật minh họa, chưa chốt danh tính |
 
-![Asset được chọn](../statics/map-design/ben-co-assets.png)
 
 ## Giới hạn của ảnh xem trước
 

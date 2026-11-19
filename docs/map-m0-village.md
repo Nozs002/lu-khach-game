@@ -8,7 +8,7 @@ Ngày: 13/11/2026. Bản phác đề xuất, chỉ là tài liệu; chưa tạo 
 
 ## 1. Quy ước và lưới
 
-32 × 24 ô, tile logic 24 px. Gốc (0,0) ở trên trái; x tăng sang phải, y tăng xuống. Số đầu hàng là y, không phải ô. Toàn bộ map an toàn, không có quái hoặc nguồn sát thương.
+Map M0 rộng 172 × 314 ô, tile logic 24 px. Sơ đồ dưới đây chỉ phác khu vực lõi 32 × 24 ô, không phải toàn bộ map; các tọa độ trong sơ đồ và bảng bên dưới là tọa độ cục bộ của khu vực này, vị trí của khu vực trên map đầy đủ chưa chốt. Gốc tọa độ cục bộ (0,0) ở trên trái; x tăng sang phải, y tăng xuống. Số đầu hàng là y, không phải ô. Khu vực được phác hoàn toàn an toàn, không có quái hoặc nguồn sát thương.
 
 ```text
    00000000001111111111222222222233

@@ -24,7 +24,7 @@ Tài liệu này thay thế mục tiêu/phạm vi tương lai của scope.md và
 
 ## Phạm vi nghiệm thu
 
-1. Một bản đồ nhỏ khoảng 32 × 24 ô, có vật cản; hình ảnh đơn giản đủ nhận diện.
+1. Một map 172 × 314 ô, có vật cản; dùng camera để hiển thị khung nhìn thay vì mở rộng Canvas theo toàn bộ map. Hình ảnh đơn giản đủ nhận diện.
 2. Nhập tên, nhiều người cùng tham gia. Mục tiêu demo 4 client, không phải cam kết tải lớn.
 3. Click-to-move và A* bốn hướng; server kiểm tra đường đi và tiến vị trí theo thời gian.
 4. Chat chung, hiển thị kết nối và xử lý người chơi rời game.
@@ -74,7 +74,7 @@ Mỗi ô là đầu việc chính của một người trong ngày, bao gồm ki
 ## Hợp đồng phải chốt ngày 1
 
 - Tọa độ: ô nguyên, gốc trên trái, x sang phải, y xuống dưới; tileSize nhất quán. Phân biệt grid position và render position.
-- Schema MapData: width, height, tileSize, collisions, spawnPoints. Một nguồn map chuẩn cho hai bên.
+- Schema MapData: width, height, tileSize, ma trận `tiles[y][x]` (chỉ `0` đi được), spawnPoints. Một nguồn map chuẩn cho hai bên.
 - Schema Entity: id, kind, x, y, hp, maxHp, state; trường tùy chọn có quy ước rõ.
 - Client command: JOIN, MOVE_TO, CHAT, ATTACK, LOOT, RESPAWN; kèm requestId khi cần đối chiếu.
 - Server event: WELCOME, WORLD_STATE, CHAT, DAMAGE, ENTITY_SPAWN, ENTITY_DESPAWN, ERROR. Snapshot có tick tăng dần; chốt full snapshot trước, chưa tối ưu delta sớm.

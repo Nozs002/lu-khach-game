@@ -1,10 +1,11 @@
+> Bản thiết kế lịch sử. Ảnh phác và bộ dựng cũ đã được dọn; map đang chạy lấy từ `source/common/maps/world.tmj`.
+
 # Bố cục thế giới liền vùng — bản xem trước
 
 ## Bản hiện hành: 172 × 314 ô, tám khu M0–M7
 
 Theo yêu cầu mới, thế giới ngoài trời dùng đúng 172 cột × 314 hàng, cùng kích thước ô với thế giới BrowserQuest về số lượng ô, không sao chép địa hình. Tile logic dự án vẫn 24 px; kích thước logic toàn thế giới tương ứng 4128 × 7536 px. M4 là nội thất riêng nên không phải toàn bộ 172 × 314 đều là các vùng chơi hoặc cùng một không gian nội thất.
 
-![Thế giới mở rộng](../statics/map-design/world-172x314-small.png)
 
 Thêm M5 — Rừng Sâu (khác M2 — Rừng Qua Suối), M6 — Bờ Biển và M7 — Sa Mạc. Ba loại vùng được người dùng yêu cầu; tên chi tiết, vị trí và đường nối mới là đề xuất review. Tuyến ban đầu M0–M1–M2, nhánh M2–M3/M4 được giữ ở phía nam. Từ M2 đi bắc tới M5; M5 đi tây tới M6 hoặc đi bắc qua vùng cây thưa tới M7. Một nhánh M1–M6 tạo vòng quay về, tránh buộc mọi chuyến đi lặp toàn bộ một đường.
 
@@ -20,7 +21,6 @@ Metadata review tại `statics/map-design/world-172x314.design.json`, ảnh gố
 
 Ngày: 17/11/2026. Phác thảo để review, chưa thay runtime M0 hoặc tạo collision cho thế giới. Tiếp nối [map v2](map-system-v2.md).
 
-![Bố cục thế giới](../statics/map-design/world-overview.png)
 
 Đề xuất miền ngoài trời 112 × 72 ô: M0 ở phía tây, M1 nối sang phía đông, M2 là rừng ở phía đông đồng cỏ, M3 phía bắc rừng. M4 có cửa ở phía nam rừng nhưng nội thất là không gian riêng. Kích thước và vị trí là đề xuất mới, không phải thông số đã chốt hoặc đã kiểm thử gameplay.
 

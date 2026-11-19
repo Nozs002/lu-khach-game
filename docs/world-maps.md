@@ -24,15 +24,15 @@ flowchart LR
 
 Mỗi cạnh là một cặp lối đi hai chiều. Không có dịch chuyển nhanh, cửa một chiều hoặc đường tắt phải mở bằng nhiệm vụ trong đề xuất ban đầu. Người chơi luôn có thể quay về làng theo đường đã đi.
 
-| ID | Tên tạm | Kích thước đề xuất | Nhịp trải nghiệm | Mốc nhận diện |
+| ID | Tên tạm | Kích thước | Nhịp trải nghiệm | Mốc nhận diện |
 | --- | --- | --- | --- | --- |
-| M0 | Làng Bến Cỏ | 32 × 24 ô | An toàn, chuẩn bị, gặp nhau | Quảng trường và bảng tin |
-| M1 | Đồng Cỏ Ven Đường | 40 × 28 ô | Thoáng, dễ định hướng | Cối xay gió và xe hàng dừng bên đường |
-| M2 | Rừng Qua Suối | 40 × 32 ô | Nhiều lối, khám phá thận trọng | Cầu gỗ và cây cổ thụ |
-| M3 | Trạm Gác Cũ | 32 × 28 ô | Tiếp cận mục tiêu, giao tranh tập trung | Tháp canh và sân trạm |
-| M4 | Hang Đá | 32 × 24 ô | Tùy chọn, đường hẹp xen phòng rộng | Cửa hang và khoang đá lớn |
+| M0 | Làng Bến Cỏ | 172 × 314 ô | An toàn, chuẩn bị, gặp nhau | Quảng trường và bảng tin |
+| M1 | Đồng Cỏ Ven Đường | 172 × 314 ô | Thoáng, dễ định hướng | Cối xay gió và xe hàng dừng bên đường |
+| M2 | Rừng Qua Suối | 172 × 314 ô | Nhiều lối, khám phá thận trọng | Cầu gỗ và cây cổ thụ |
+| M3 | Trạm Gác Cũ | 172 × 314 ô | Tiếp cận mục tiêu, giao tranh tập trung | Tháp canh và sân trạm |
+| M4 | Hang Đá | 172 × 314 ô | Tùy chọn, đường hẹp xen phòng rộng | Cửa hang và khoang đá lớn |
 
-Đề xuất giữ tileSize logic 24. Những map lớn hơn khung nhìn cần camera; chưa thay đổi kích thước canvas hay yêu cầu kỹ thuật hiện hành. Kích thước sẽ được điều chỉnh sau bản phác từng ô và chơi thử.
+Mỗi map dùng tileSize logic 24, tương ứng 4128 × 7536 pixel trong thế giới logic. Canvas hiển thị một khung nhìn có camera, không render toàn bộ map cùng lúc. Các map là khu vực riêng nối với nhau theo sơ đồ phía trên.
 
 ## 2. Cốt truyện nối các map
 
@@ -44,7 +44,7 @@ Mạch nhiệm vụ gợi ý: làm quen làng → khảo sát đường đồng 
 
 ## 3. M0 — Làng Bến Cỏ
 
-Bản phác lưới 32 × 24 ô, footprint công trình, vị trí NPC và cổng nằm tại [map-m0-village.md](map-m0-village.md).
+Bản phác lưới khu vực lõi 32 × 24 ô, footprint công trình, vị trí NPC và cổng nằm tại [map-m0-village.md](map-m0-village.md); đây là một phần của map M0 172 × 314 ô, không phải toàn bộ map.
 
 **Vai trò:** map xuất hiện và trở về, toàn bộ an toàn. Bố cục chi tiết đang nằm tại [story-and-map.md](story-and-map.md).
 
