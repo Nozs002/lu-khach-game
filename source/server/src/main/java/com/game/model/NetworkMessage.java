@@ -1,12 +1,16 @@
 package com.game.model;
 
+import com.game.world.WorldMap;
+
 public class NetworkMessage {
     public String type;
     public String id;
     public String name;
     public String characterId;
-    public float dx;
-    public float dy;
+    public String code;
+    public Integer x;
+    public Integer y;
+    public WorldMap.MapData map;
     public Object payload;
 
     public NetworkMessage(String type) {

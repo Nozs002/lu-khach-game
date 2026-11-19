@@ -1,110 +1,250 @@
-import { getCharacter, getCharacterSpriteSource } from '../data/characters';
-import type { Player } from '../data/player';
-import { imageCache } from './ImageCache';
-import { WORLD as WORLD_GROUND, WORLD_VIEWS } from '../data/tiledWorld';
+import { WORLD, WORLD_VIEWS } from '../data/tiledWorld';
 import { drawWorld } from './TiledWorldRenderer';
+import { getCharacter, getCharacterSpriteSource } from '../data/characters';
+import type { MapData } from '../data/maps';
+import type { Player } from '../data/player';
+import type { GridPoint } from '../pathfinding/AStarPathfinder';
+import { imageCache } from './ImageCache';
+
+const SPRITE_SIZE = 16; //Kích thước sprite của nhân vật, có thể thay đổi nếu cần thiết
+
+interface RenderPosition {
+    x: number;
+    y: number;
+    fromX: number;
+    fromY: number;
+    targetX: number;
+    targetY: number;
+    startedAt: number;
+}
 
 export class CanvasRenderer {
     private ctx: CanvasRenderingContext2D;
     private gridVisible = true;
     private followPlayer = true;
-    private cameraX = WORLD_GROUND.spawns[0].x * WORLD_GROUND.tileSize;
-    private cameraY = WORLD_GROUND.spawns[0].y * WORLD_GROUND.tileSize;
+    private cameraX = 0;
+    private cameraY = 0;
+    private map: MapData | null = null;
+    private readonly renderPositions = new Map<string, RenderPosition>();
 
     constructor(private canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
-        canvas.width = 32 * WORLD_GROUND.tileSize;
-        canvas.height = 24 * WORLD_GROUND.tileSize;
+        canvas.width = 32 * WORLD.tileSize;
+        canvas.height = 24 * WORLD.tileSize;
         this.ctx.imageSmoothingEnabled = false;
-        WORLD_GROUND.tilesets.forEach(t => imageCache.get(t.image));
+        WORLD.tilesets.forEach(t => imageCache.get(t.image));
     }
 
-    setGridVisible(visible: boolean) {
-        this.gridVisible = visible;
-    }
+    setGridVisible(visible: boolean): void { this.gridVisible = visible; }
 
-    setGroundView(id: string) {
+    setGroundView(id: string): void {
         this.followPlayer = id === 'spawn';
         const view = WORLD_VIEWS.find(view => view.id === id);
         if (!view) return;
-        const size = WORLD_GROUND.tileSize;
-        this.cameraX = Math.max(0, Math.min(view.x * size, WORLD_GROUND.width * size - this.canvas.width));
-        this.cameraY = Math.max(0, Math.min(view.y * size, WORLD_GROUND.height * size - this.canvas.height));
+        this.cameraX = Math.max(0, Math.min(view.x * WORLD.tileSize, WORLD.width * WORLD.tileSize - this.canvas.width));
+        this.cameraY = Math.max(0, Math.min(view.y * WORLD.tileSize, WORLD.height * WORLD.tileSize - this.canvas.height));
     }
 
-    private drawMap() {
+    public getCanvas(): HTMLCanvasElement {
+        return this.canvas;
+    }
+
+    private getSource(characterId: string): string {
+        const name = (characterId && characterId !== 'undefined') ? characterId : 'knight';
+        return getCharacterSpriteSource(name);
+    }
+
+    public getTileAtClientPosition(clientX: number, clientY: number): GridPoint | null {
+        const map = this.map;
+        const rect = this.canvas.getBoundingClientRect();
+        const clientWidth = this.canvas.clientWidth;
+        const clientHeight = this.canvas.clientHeight;
+        if (!map || clientWidth === 0 || clientHeight === 0) return null;
+
+        const canvasX = (clientX - rect.left - this.canvas.clientLeft) * this.canvas.width / clientWidth;
+        const canvasY = (clientY - rect.top - this.canvas.clientTop) * this.canvas.height / clientHeight;
+        if (canvasX < 0 || canvasX >= this.canvas.width || canvasY < 0 || canvasY >= this.canvas.height) {
+            return null;
+        }
+
+        const x = Math.floor((canvasX + this.cameraX) / map.tileSize);
+        const y = Math.floor((canvasY + this.cameraY) / map.tileSize);
+        if (x < 0 || x >= map.width || y < 0 || y >= map.height) return null;
+        return { x, y };
+    }
+
+    render(
+        players: Map<string, Player>,
+        myId: string | null,
+        previewPath: readonly GridPoint[] = [],
+        map: MapData | null = null
+    ): void {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (!map) return;
+
+        if (this.map !== map) {
+            this.map = map;
+            this.renderPositions.clear();
+            this.cameraX = 0;
+            this.cameraY = 0;
+        }
+        const now = performance.now();
+        const activeIds = new Set<string>();
+        players.forEach(player => {
+            activeIds.add(player.id);
+            this.updateRenderPosition(player, now);
+        });
+        this.renderPositions.forEach((_position, id) => {
+            if (!activeIds.has(id)) this.renderPositions.delete(id);
+        });
+
+        const myPosition = myId ? this.renderPositions.get(myId) : undefined;
+        if (this.followPlayer) this.updateCamera(myPosition, map);
         this.ctx.fillStyle = '#17251b';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, false);
-        if (this.gridVisible) {
-            const size = WORLD_GROUND.tileSize;
-            this.ctx.strokeStyle = 'rgba(10, 25, 10, 0.22)';
-            this.ctx.lineWidth = 1;
+        if (this.gridVisible) this.drawGrid(map);
+        this.drawPreview(previewPath, map, myPosition);
+        this.drawPlayers(players, myId, map);
+        drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
+    }
+
+    private updateRenderPosition(player: Player, now: number): void {
+        let position = this.renderPositions.get(player.id);
+        if (!position) {
+            position = {
+                x: player.x,
+                y: player.y,
+                fromX: player.x,
+                fromY: player.y,
+                targetX: player.x,
+                targetY: player.y,
+                startedAt: now
+            };
+            this.renderPositions.set(player.id, position);
+            return;
+        }
+
+        this.interpolate(position, now);
+        if (position.targetX !== player.x || position.targetY !== player.y) {
+            position.fromX = position.x;
+            position.fromY = position.y;
+            position.targetX = player.x;
+            position.targetY = player.y;
+            position.startedAt = now;
+        }
+    }
+
+    private interpolate(position: RenderPosition, now: number): void {
+        const progress = Math.min(1, Math.max(0, (now - position.startedAt) / 200));
+        position.x = position.fromX + (position.targetX - position.fromX) * progress;
+        position.y = position.fromY + (position.targetY - position.fromY) * progress;
+        if (progress === 1) {
+            position.fromX = position.targetX;
+            position.fromY = position.targetY;
+        }
+    }
+
+    private updateCamera(player: RenderPosition | undefined, map: MapData): void {
+        if (!player) return;
+
+        const maxX = Math.max(0, map.width * map.tileSize - this.canvas.width);
+        const maxY = Math.max(0, map.height * map.tileSize - this.canvas.height);
+        const centerX = (player.x + 0.5) * map.tileSize - this.canvas.width / 2;
+        const centerY = (player.y + 0.5) * map.tileSize - this.canvas.height / 2;
+        this.cameraX = Math.max(0, Math.min(centerX, maxX));
+        this.cameraY = Math.max(0, Math.min(centerY, maxY));
+    }
+
+    private drawGrid(map: MapData): void {
+        const tileSize = map.tileSize;
+        const firstX = Math.floor(this.cameraX / tileSize) * tileSize - this.cameraX;
+        const firstY = Math.floor(this.cameraY / tileSize) * tileSize - this.cameraY;
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        this.ctx.lineWidth = 1;
+        for (let x = firstX; x <= this.canvas.width; x += tileSize) {
             this.ctx.beginPath();
-            for (let x = -(this.cameraX % size); x < this.canvas.width; x += size) {
-                this.ctx.moveTo(x + 0.5, 0);
-                this.ctx.lineTo(x + 0.5, this.canvas.height);
-            }
-            for (let y = -(this.cameraY % size); y < this.canvas.height; y += size) {
-                this.ctx.moveTo(0, y + 0.5);
-                this.ctx.lineTo(this.canvas.width, y + 0.5);
-            }
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.canvas.height);
+            this.ctx.stroke();
+        }
+        for (let y = firstY; y <= this.canvas.height; y += tileSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.canvas.width, y);
             this.ctx.stroke();
         }
     }
 
-    render(players: Map<string, Player>, myId: string | null) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    private drawPreview(path: readonly GridPoint[], map: MapData, player?: RenderPosition): void {
+        if (path.length === 0) return;
+        const tileSize = map.tileSize;
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(46, 204, 113, 0.28)';
+        this.ctx.strokeStyle = '#2ecc71';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([4, 4]);
+        this.ctx.beginPath();
 
-        const me = myId ? players.get(myId) : undefined;
-        if (me && this.followPlayer) {
-            this.cameraX = Math.max(0, Math.min(me.x - this.canvas.width / 2, WORLD_GROUND.width * WORLD_GROUND.tileSize - this.canvas.width));
-            this.cameraY = Math.max(0, Math.min(me.y - this.canvas.height / 2, WORLD_GROUND.height * WORLD_GROUND.tileSize - this.canvas.height));
+        if (player) {
+            this.ctx.moveTo(
+                (player.x + 0.5) * tileSize - this.cameraX,
+                (player.y + 0.5) * tileSize - this.cameraY
+            );
         }
-        this.drawMap();
+        path.forEach((point, index) => {
+            const centerX = (point.x + 0.5) * tileSize - this.cameraX;
+            const centerY = (point.y + 0.5) * tileSize - this.cameraY;
+            this.ctx.fillRect(point.x * tileSize - this.cameraX, point.y * tileSize - this.cameraY, tileSize, tileSize);
+            if (!player && index === 0) this.ctx.moveTo(centerX, centerY);
+            else this.ctx.lineTo(centerX, centerY);
+        });
+        this.ctx.stroke();
 
-        // Vẽ từng người chơi
-        players.forEach((player) => {
+        const destination = path[path.length - 1];
+        this.ctx.setLineDash([]);
+        this.ctx.strokeStyle = '#f1c40f';
+        this.ctx.strokeRect(
+            destination.x * tileSize - this.cameraX + 2,
+            destination.y * tileSize - this.cameraY + 2,
+            tileSize - 4,
+            tileSize - 4
+        );
+        this.ctx.restore();
+    }
+
+    private drawPlayers(players: Map<string, Player>, myId: string | null, map: MapData): void {
+        players.forEach(player => {
+            const position = this.renderPositions.get(player.id);
+            if (!position) return;
             const isMe = player.id === myId;
-            const character = getCharacter(player.characterId);
-            const source = getCharacterSpriteSource(player.characterId);
+            const source = this.getSource(player.characterId);
             const img = imageCache.get(source);
-            const size = WORLD_GROUND.tileSize;
-            // Server coordinates are world pixels from the Tiled map.
-            const screenX = player.x - this.cameraX;
-            const screenY = player.y - this.cameraY;
-            if (screenX + size < 0 || screenY + size < 0
-                || screenX >= this.canvas.width || screenY >= this.canvas.height) return;
+            const pixelX = position.x * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
+            const pixelY = position.y * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
 
-            // Draw a character in one map cell.
             if (img.complete && img.naturalWidth !== 0) {
-                const frame = character.spriteFrame;
-                this.ctx.drawImage(img, frame.x, frame.y, frame.width, frame.height,
-                    screenX, screenY, size, size);
+                const frame = getCharacter(player.characterId).spriteFrame;
+                this.ctx.drawImage(img, frame.x, frame.y, frame.width, frame.height, pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
             } else {
-                // Ô màu dự phòng trong lúc ảnh đang nạp
                 this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
-                this.ctx.fillRect(screenX, screenY, size, size);
+                this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
             }
 
-            // Viền vàng quanh nhân vật của bản thân
             if (isMe) {
                 this.ctx.strokeStyle = '#f1c40f';
                 this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(screenX, screenY, size, size);
+                this.ctx.strokeRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
             }
 
-            // Vẽ Username ngay chính giữa trên đầu nhân vật
             this.ctx.fillStyle = isMe ? '#f1c40f' : '#ffffff';
             this.ctx.font = 'bold 12px "Courier New", monospace';
             this.ctx.textAlign = 'center';
             this.ctx.shadowColor = '#000000';
             this.ctx.shadowBlur = 4;
-
             const displayName = player.name + (isMe ? ' (Bạn)' : '');
-            this.ctx.fillText(displayName, screenX + size / 2, screenY - 6);
+            this.ctx.fillText(displayName, pixelX + SPRITE_SIZE / 2, pixelY - 8);
             this.ctx.shadowBlur = 0;
         });
-        drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
     }
 }

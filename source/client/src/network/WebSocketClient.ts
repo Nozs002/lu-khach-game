@@ -1,3 +1,4 @@
+import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import type { HandlerContext } from './handlers/HandlerContext';
 import { WelcomeHandler } from './handlers/WelcomeHandler';
@@ -12,9 +13,15 @@ export class WebSocketClient {
     public myId: string | null = null;
     public players: Map<string, Player> = new Map();
 
-    move(dx: number, dy: number) {
-        if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify({ type: 'MOVE', dx, dy }));
+    public map: MapData | null = null;
+
+    sendMoveTo(x: number, y: number): boolean {
+        if (this.ws?.readyState !== WebSocket.OPEN) return false;
+        this.ws.send(JSON.stringify({ type: 'MOVE_TO', x, y }));
+        return true;
     }
+
+    disconnect(): void { this.ws?.close(); }
 
     connect(
         name: string,
@@ -24,8 +31,12 @@ export class WebSocketClient {
 
         onPlayersUpdate: (players: Map<string, Player>, myId: string | null) => void,
         onStatusChange: (online: boolean, text: string) => void,
-        onError: (message: string) => void
+        onError: (message: string) => void,
+        onCommandError?: () => void
     ) {
+        this.myId = null;
+        this.players.clear();
+        this.map = null;
         // mở cổng kết nối
         this.ws = new WebSocket('ws://localhost:8080');
 
@@ -38,6 +49,7 @@ export class WebSocketClient {
 
             onPlayersUpdate,
             onError,
+            onCommandError,
             close: () => this.ws.close()
         };
 

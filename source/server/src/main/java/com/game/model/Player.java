@@ -1,34 +1,24 @@
 package com.game.model;
 
+import java.awt.Point;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Queue;
+
 public class Player {
     private String id;
     private String name;
     private String characterId;
-    private float x;
-    private float y;
-    private float speed = 4.0f;
+    private int x;
+    private int y;
+    private transient Queue<Point> path = new ArrayDeque<>();
 
-    public Player(String id, String name, String characterId, float x, float y) {
+    public Player(String id, String name, String characterId, int x, int y) {
         this.id = id;
         this.name = name;
         this.characterId = characterId;
         this.x = x;
         this.y = y;
-    }
-
-    private transient long lastMoveNanos;
-
-    public synchronized boolean move(float dx, float dy) {
-        if (!((Math.abs(dx) == 1 && dy == 0) || (dx == 0 && Math.abs(dy) == 1))) return false;
-        long now = System.nanoTime();
-        if (now - lastMoveNanos < 120_000_000L) return false;
-        int nextX = Math.round(x / StartMap.TILE_SIZE) + (int) dx;
-        int nextY = Math.round(y / StartMap.TILE_SIZE) + (int) dy;
-        if (!StartMap.isWalkable(nextX, nextY)) return false;
-        x = nextX * StartMap.TILE_SIZE;
-        y = nextY * StartMap.TILE_SIZE;
-        lastMoveNanos = now;
-        return true;
     }
 
     public String getId() {
@@ -43,11 +33,26 @@ public class Player {
         return characterId;
     }
 
-    public float getX() {
+    public int getX() {
         return x;
     }
 
-    public float getY() {
+    public int getY() {
         return y;
+    }
+
+    public synchronized void setPath(Collection<Point> points) {
+        path.clear();
+        for (Point point : points) {
+            path.add(new Point(point));
+        }
+    }
+
+    public synchronized boolean advanceOneStep() {
+        Point next = path.poll();
+        if (next == null) return false;
+        x = next.x;
+        y = next.y;
+        return true;
     }
 }

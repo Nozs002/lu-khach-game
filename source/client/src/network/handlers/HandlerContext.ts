@@ -1,8 +1,10 @@
+import type { MapData } from '../../data/maps';
 import type { Player } from '../../data/player';
 
 export interface PlayerState {
     myId: string | null;
     players: Map<string, Player>;
+    map: MapData | null;
 }
 
 export interface HandlerContext {
@@ -13,5 +15,6 @@ export interface HandlerContext {
 
     onPlayersUpdate: (players: Map<string, Player>, myId: string | null) => void;
     onError: (message: string) => void;
+    onCommandError?: () => void;
     close: () => void;
 }

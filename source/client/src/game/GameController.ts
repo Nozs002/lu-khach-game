@@ -1,25 +1,13 @@
 import { WebSocketClient } from '../network/WebSocketClient';
 import { CanvasRenderer } from '../render/CanvasRenderer';
+import { MovementController } from '../input/MovementController';
 import { selectedCharacterId } from '../ui/CharacterSelection';
 import { WORLD_VIEWS } from '../data/tiledWorld';
-import { bindJoin, getPlayerName, showError, showGame, addLog, updatePlayers, updateStatus } from '../ui/GameUI';
+import { bindJoin, getPlayerName, showError, showInfo, showGame, addLog, updatePlayers, updateStatus } from '../ui/GameUI';
 
 export function initGameController(net: WebSocketClient, renderer: CanvasRenderer) {
+    const movement = new MovementController(renderer, net, showInfo);
     bindJoin(connectGame);
-    window.addEventListener('keydown', event => {
-        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
-        const directions: Record<string, [number, number]> = {
-            ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1],
-            ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0],
-        };
-        const direction = directions[event.key];
-        if (direction && net.myId) {
-            event.preventDefault();
-            renderer.setGroundView('spawn');
-            groundView.value = 'spawn';
-            net.move(...direction);
-        }
-    });
     const groundView = document.getElementById('ground-view') as HTMLSelectElement;
     WORLD_VIEWS.forEach(view => {
         const option = document.createElement('option');
@@ -49,11 +37,20 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
 
             updatePlayers,
             updateStatus,
-            showError
+            showError,
+            () => movement.clearPreview()
         );
     }
 
     function onGameReady() {
+        if (!net.map) return showError('Máy chủ chưa gửi dữ liệu bản đồ.');
+        try {
+            movement.setMap(net.map);
+        } catch (error) {
+            showError(error instanceof Error ? error.message : 'Dữ liệu bản đồ không hợp lệ.');
+            net.disconnect();
+            return;
+        }
         showGame();
         start();
     }
@@ -66,7 +63,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
     }
 
     function gameLoop() {
-        renderer.render(net.players, net.myId);
+        renderer.render(net.players, net.myId, movement.getPreviewPath(), net.map);
         requestAnimationFrame(gameLoop);
     }
 }
