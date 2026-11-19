@@ -1,10 +1,8 @@
-# Dữ liệu cố định của client
+# Dữ liệu client
 
-- `characters.ts`: danh mục nhân vật và đường dẫn ảnh dùng chung.
-- `maps.ts`: kiểu dữ liệu map nhận từ server và metadata danh mục map.
-- `items.ts`: định nghĩa vật phẩm.
-- `skills.ts`: định nghĩa kỹ năng.
+- `maps.ts`: kiểu MapData của WELCOME, tiles là ma trận collision từ server, chỉ 0 đi được.
+- `tiledWorld.ts`, `world.generated.json`: các lớp hình ảnh Tiled, tileset và vùng camera.
+- `characters.ts`: sprite và avatar nhân vật.
+- items/skills chưa có dữ liệu gameplay.
 
-Danh mục map, vật phẩm và kỹ năng đang để trống, sẽ bổ sung theo tính năng thực tế. `MapData` mô tả dữ liệu runtime nhận từ WELCOME; server gửi ma trận `tiles` chuẩn, trong đó chỉ giá trị `0` là đi được. Client không tự tạo bản map runtime khác.
-Chỉ khai báo dữ liệu và hàm tra cứu tại đây. Không xử lý DOM, WebSocket hay vòng lặp game.
-Trạng thái thay đổi khi chơi như vị trí, máu, túi đồ và hồi chiêu không đặt trong thư mục này.
+`world.tmj` là nguồn map hiện tại; chạy npm run import-map để xuất lại. File generated không sửa tay. Dữ liệu và bộ dựng map cũ đã được dọn; chỉ dùng nguồn Tiled.

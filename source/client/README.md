@@ -1,16 +1,9 @@
-# Client web
+# Client web — Lữ khách
 
-Client TypeScript dùng Vite và Canvas 2D.
+Client TypeScript/Vite. Chạy `npm install` rồi `npm run dev` trong `source/client`; kiểm tra production bằng `npm run build`. Cả dev và build tự import `source/common/maps/world.tmj` trước khi chạy (cần Python 3). WebSocket tại `ws://localhost:8080`.
 
-## Chạy và kiểm tra
+Map runtime giữ nguyên bố cục Tiled, nhiều tileset, GID và hướng lật. Tile logic 16 px; viewport 32 × 24 ô. Camera theo người chơi tại spawn; mục “Xem bản đồ” cho phép xem vùng khác, chọn “Điểm xuất hiện” để camera theo nhân vật. Click ô trống để đi theo A*, click đích mới để đổi đường. Client xem trước đường, server tính đường và tiến một ô mỗi 200ms; client nội suy vị trí. Không còn điều khiển bàn phím. Chưa có animation bước chân và tương tác NPC. Collision chỉ lấy từ lớp collision, không tự chặn theo ảnh nhà/cây/nước.
 
-```powershell
-npm run dev
-npm run build
-npm test
-```
+Sau khi chỉnh Tiled, lưu rồi chạy `npm run import-map`, build/khởi động lại server để cập nhật dữ liệu. Xem [hướng dẫn map](../common/maps/README.md).
 
-Click lên bản đồ để xem đường A* và gửi ô đích `MOVE_TO` tới server. Server
-tự tính lại đường, di chuyển theo từng ô và gửi trạng thái cho các client.
-
-Xem [thiết kế game](../../docs/game-design.md) và [kế hoạch 10 ngày](../../docs/plan-10-days.md).
+Giao diện gồm chọn nhân vật, canvas, bảng nhân vật, vùng kỹ năng/trang bị, nhật ký và danh sách online. Máu, mana, kỹ năng và trang bị chưa có dữ liệu gameplay. “Rời game” tải lại trang. Chưa có chat.

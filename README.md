@@ -4,7 +4,7 @@ Dự án bài tập lớn Lập trình mạng. Nhóm tự xây game tương tự
 
 ## Trạng thái hiện tại
 
-Đang triển khai client TypeScript/Vite và server Java/WebSocket. Client có click-to-move với A*; server kiểm tra đường đi và cập nhật vị trí theo từng ô. Map runtime thật chưa được thêm; server cần `source/server/src/main/resources/maps/world-map.json` để chạy gameplay.
+Đang triển khai client TypeScript/Vite và server Java/WebSocket. Client có click-to-move với A*; server kiểm tra đường đi và cập nhật vị trí theo từng ô. Map runtime được xuất từ `source/common/maps/world.tmj`, giữ nguyên bố cục Tiled và dùng collision/spawn trong map. Chạy `python statics/map-design/import_tiled_world.py` trước khi build server.
 
 ## Tài liệu hiện hành
 

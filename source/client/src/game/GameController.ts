@@ -2,11 +2,29 @@ import { WebSocketClient } from '../network/WebSocketClient';
 import { CanvasRenderer } from '../render/CanvasRenderer';
 import { MovementController } from '../input/MovementController';
 import { selectedCharacterId } from '../ui/CharacterSelection';
-import { bindJoin, getPlayerName, showError, showGame, showInfo, addLog, updateDialogue, updatePlayers, updateStatus } from '../ui/GameUI';
+import { WORLD_VIEWS } from '../data/tiledWorld';
+import { bindJoin, getPlayerName, showError, showInfo, showGame, addLog, updatePlayers, updateStatus } from '../ui/GameUI';
 
 export function initGameController(net: WebSocketClient, renderer: CanvasRenderer) {
     const movement = new MovementController(renderer, net, showInfo);
-    bindJoin(connectGame); // khi người chơi nhấn nút "Join", gọi hàm connectGame ở dưới
+    bindJoin(connectGame);
+    const groundView = document.getElementById('ground-view') as HTMLSelectElement;
+    WORLD_VIEWS.forEach(view => {
+        const option = document.createElement('option');
+        option.value = view.id;
+        option.textContent = view.name;
+        groundView.appendChild(option);
+    });
+    groundView.addEventListener('change', () => {
+        renderer.setGroundView(groundView.value);
+    });
+    document.getElementById('grid-toggle')?.addEventListener('click', event => {
+        const button = event.currentTarget as HTMLButtonElement;
+        const visible = button.getAttribute('aria-pressed') !== 'true';
+        button.setAttribute('aria-pressed', String(visible));
+        button.textContent = visible ? 'Ẩn lưới ô' : 'Hiện lưới ô';
+        renderer.setGridVisible(visible);
+    });
 
     function connectGame() {
         const name = getPlayerName();
@@ -16,7 +34,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             selectedCharacterId,
             onGameReady,
             addLog,
-            updateDialogue,
+
             updatePlayers,
             updateStatus,
             showError,
@@ -25,10 +43,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
     }
 
     function onGameReady() {
-        if (!net.map) {
-            showError('Máy chủ chưa gửi dữ liệu bản đồ.');
-            return;
-        }
+        if (!net.map) return showError('Máy chủ chưa gửi dữ liệu bản đồ.');
         try {
             movement.setMap(net.map);
         } catch (error) {

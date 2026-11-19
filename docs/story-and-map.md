@@ -1,5 +1,7 @@
 # Cốt truyện cơ bản và bản đồ — Lữ khách
 
+Cập nhật 17/11/2026: đã xác nhận tên làng **Bến Cỏ**, **đài phun nước** làm điểm nhấn quảng trường, không khí **ban ngày, sáng và yên bình**. Các kích thước, tọa độ và nội dung chưa xác nhận vẫn là đề xuất. Chi tiết tại [bản phác M0](map-m0-village.md).
+
 Ngày: 13/11/2026. Trạng thái: bản đề xuất để trao đổi, chưa phải thiết kế đã chốt hoặc tính năng đã triển khai.
 
 ## 1. Hướng đã thống nhất
@@ -9,7 +11,7 @@ Ngày: 13/11/2026. Trạng thái: bản đề xuất để trao đổi, chưa ph
 - Cốt truyện mới hoàn toàn độc lập với bộ thiết kế **Miền Quên**. Không kế thừa thế giới, nhân vật, tổ chức, quy luật hoặc diễn biến của bộ đó.
 - Repo BrowserQuest bên ngoài chỉ được đọc để tham khảo, không chỉnh sửa.
 
-**Yêu cầu mới đã xác nhận:** thiết kế map nghỉ trước, không có quái, có người bán đồ; đặt các NPC hướng dẫn rải rác; dùng bảng tin để giao nhiệm vụ và xem thành tựu. Tên địa điểm, kích thước, danh tính NPC, nội dung nhiệm vụ, điều kiện thành tựu và cách mua bán dưới đây vẫn là đề xuất.
+**Yêu cầu mới đã xác nhận:** thiết kế map nghỉ trước, không có quái, có người bán đồ; đặt các NPC hướng dẫn rải rác; dùng bảng tin để giao nhiệm vụ và xem thành tựu. Tên các địa điểm khác, kích thước, danh tính NPC, nội dung nhiệm vụ, điều kiện thành tựu và cách mua bán dưới đây vẫn là đề xuất.
 
 Hướng này mở rộng so với phạm vi cũ trong `game-design.md` và `protocol-v1.md` (một map chiến đấu, chưa có cửa hàng, nhiệm vụ hoặc thành tựu). Trên nhánh này ưu tiên yêu cầu thiết kế mới; các hợp đồng triển khai cũ chưa được sửa và cần cập nhật trước khi lập trình NPC, mua bán, nhiệm vụ, thành tựu hoặc chuyển map.
 
@@ -36,7 +38,7 @@ Map đầu tiên là nơi người chơi xuất hiện, làm quen với thế gi
 
 **Bối cảnh đề xuất:** Bến Cỏ là một làng nhỏ nằm trên tuyến giao thương. Thương nhân ghé bán vật dụng, người đi đường nghỉ chân và các lữ khách gặp nhau trước khi khám phá vùng đất bên ngoài. Người chơi bắt đầu như một khách mới tới làng; chưa cần nhiệm vụ khẩn cấp hoặc một phản diện để thúc đẩy họ rời đi.
 
-Bến Cỏ là tên tạm. Chưa chốt cốt truyện ngoài làng, số map khám phá, loại quái hoặc boss. Đề xuất bãi slime và suối chiến đấu trước đây được rút khỏi map khởi đầu; không xem chúng là nội dung đã chốt cho map tiếp theo.
+Bến Cỏ là tên đã xác nhận. Chưa chốt cốt truyện ngoài làng, số map khám phá, loại quái hoặc boss. Đề xuất bãi slime và suối chiến đấu trước đây được rút khỏi map khởi đầu; không xem chúng là nội dung đã chốt cho map tiếp theo.
 
 Vòng hoạt động tại đây:
 

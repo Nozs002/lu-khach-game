@@ -1,13 +1,14 @@
 .toast-container {
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: max(12px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: min(360px, calc(100vw - 32px));
-    max-height: calc(100dvh - 32px);
+    gap: 6px;
+    width: min(380px, calc(100vw - 24px));
+    max-height: min(180px, calc(100dvh - 24px));
     overflow-y: auto;
     pointer-events: none;
 }
@@ -16,14 +17,14 @@
     --toast-color: #60a5fa;
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 12px;
-    background: #1c232b;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #141414f2;
     color: #fff;
-    border: 2px solid var(--toast-color);
-    border-left-width: 6px;
+    border: 1px solid #666;
+    border-left: 3px solid var(--toast-color);
     box-shadow: 4px 4px 0 #0008;
-    pointer-events: auto;
+    pointer-events: none;
     overflow-wrap: anywhere;
 }
 
@@ -31,10 +32,11 @@
 .toast--success { --toast-color: #4ade80; }
 .toast--info { --toast-color: #60a5fa; }
 .toast-content { flex: 1; min-width: 0; }
-.toast-content strong { color: var(--toast-color); font-size: 14px; }
-.toast-content p { margin: 6px 0 0; font-size: 13px; line-height: 1.5; }
+.toast-content strong { color: var(--toast-color); font-size: 11px; }
+.toast-content p { margin: 3px 0 0; font-size: 12px; line-height: 1.4; }
 
 .toast .toast-close {
+    pointer-events: auto;
     flex-shrink: 0;
     padding: 0 5px;
     background: transparent;
@@ -56,8 +58,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
 /* Khung viền pixel chung */
@@ -160,123 +162,71 @@ button:hover {
     background: #2ecc71;
 }
 
-/* Khung màn hình Game chính */
-#game-container {
-    width: 820px;
-    height: 560px;
-    background: #1e272e;
-    border: 4px solid #485460;
-    position: relative;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
+/* Game shell follows the character selection template. */
+* { box-sizing: border-box; }
+body { padding: 20px; }
+[hidden] { display: none !important; }
+button:focus-visible, summary:focus-visible, .log:focus-visible,
+input[type="text"]:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3px; }
+#gameUI { width: 100%; max-width: 1440px; }
+#game-container { width: 100%; }
+.top-bar, .game-heading, .connection-controls { display: flex; align-items: center; gap: 20px; }
+.top-bar { justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; }
+.game-heading h1 { margin: 0; color: #f1c40f; font-size: 24px; }
+.game-heading > span { color: #aaa; font-size: 13px; }
+.connection-controls { font-size: 12px; flex-wrap: wrap; }
+.status-online { color: #72d494; }
+.status-offline { color: #f49b8e; }
+#status { overflow-wrap: anywhere; }
+.secondary-button { background: #222; border-color: #666; }
+.secondary-button:hover { background: #333; }
+.main-body { display: grid; grid-template-columns: minmax(0, 1fr) 330px; align-items: start; gap: 18px; }
+.world-column, .sidebar { min-width: 0; }
+.world-column { display: flex; flex-direction: column; gap: 12px; }
+.canvas-frame { padding: 6px; background: #101010; }
+#gameCanvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; background: #161d18; image-rendering: pixelated; }
+.map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.map-toolbar button { padding: 6px 10px; font-size: 11px; }
+.ground-view-label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #ccc; font-size: 12px; }
+#ground-view { font: inherit; color: #eee; background: #141414; border: 2px solid #666; padding: 6px; max-width: 100%; }
+#ground-view:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3px; }
+.sidebar { display: flex; flex-direction: column; gap: 12px; }
+.panel { padding: 16px; }
+.panel h2 { color: #f1c40f; font-size: 13px; margin: 0 0 12px; }
+.panel h2 { padding-bottom: 10px; border-bottom: 1px solid #3e3e3e; }
+.character-profile { display: flex; gap: 14px; align-items: center; }
+.player-avatar { width: 72px; height: 72px; flex-shrink: 0; object-fit: contain; image-rendering: pixelated; background: #080808; border: 2px solid #f1c40f; padding: 4px; }
+.character-stats { min-width: 0; flex: 1; }
+.character-stats h3 { color: #f1c40f; font-size: 15px; margin: 0 0 12px; overflow-wrap: anywhere; }
+.stat-label { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin: 0 0 7px; color: #ccc; }
+.stat-track { height: 12px; border: 1px solid #555; background: #080808; }
+.stat-track.unavailable { background: repeating-linear-gradient(135deg, #202020, #202020 5px, #292929 5px, #292929 10px); }
+.mana-label { margin-top: 14px; }
+.placeholder-note { margin: 0; color: #999; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
+.journal-panel { display: flex; flex-direction: column; }
+.log { height: 210px; overflow-y: auto; overflow-wrap: anywhere; font-size: 12px; line-height: 1.65; scrollbar-color: #777 #111; }
+.log-entry { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 6px 0; border-bottom: 1px dashed #292929; }
+.log-entry time { color: #888; font-size: 10px; padding-top: 2px; }
+.log-entry span { color: #ccc; white-space: pre-wrap; }
+.new-log-button { margin-top: 8px; padding: 6px; font-size: 11px; }
+.help-list { list-style: none; margin: 0 0 10px; padding: 0; color: #ddd; font-size: 12px; line-height: 1.85; }
+.online-panel { padding: 14px 16px; }
+.online-panel summary { cursor: pointer; color: #f1c40f; font-size: 12px; }
+#player-count { color: #ccc; }
+.player-list { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; max-height: 160px; overflow-y: auto; }
+.player-list li { padding: 6px 0; border-top: 1px dashed #333; overflow-wrap: anywhere; }
+.player-list .is-me { color: #f1c40f; }
+@media (max-width: 900px) {
+    body { padding: 12px; }
+    .main-body { grid-template-columns: minmax(0, 1fr); }
+    .top-bar { gap: 14px; }
+    .game-heading { gap: 12px; }
+    .connection-controls { gap: 12px; }
 }
-
-/* Thanh trạng thái top bar */
-.top-bar {
-    padding: 8px 12px;
-    background: rgba(0,0,0,0.5);
-    font-size: 13px;
-    border-bottom: 2px solid #333;
-}
-
-.status-online { color: #2ecc71; font-weight: bold; }
-.status-offline { color: #e74c3c; font-weight: bold; }
-
-/* Phần thân chính (Canvas + Sidebar) */
-.main-body {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    height: 350px;
-}
-
-#gameCanvas {
-    background-color: #2c3e50;
-    border: 3px solid #485460;
-}
-
-/* Sidebar quản lý người chơi & Log */
-.sidebar {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 8px;
-}
-
-.panel h3 {
-    margin: 0 0 6px 0;
-    font-size: 13px;
-    color: #f39c12;
-    border-bottom: 1px solid #444;
-    padding-bottom: 4px;
-}
-
-.player-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-    flex: 1;
-    font-size: 12px;
-}
-
-.player-list li {
-    padding: 3px 0;
-    border-bottom: 1px dashed #333;
-}
-
-.log {
-    color: #bdc3c7;
-    font-size: 11px;
-    overflow-y: auto;
-    flex: 1;
-    word-break: break-word;
-    line-height: 1.4;
-}
-
-/* Hộp thoại Dialogue Box */
-.dialogue-box {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    height: 80px;
-    background-color: rgba(0, 0, 0, 0.9);
-    border: 3px solid #ecf0f1;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-sizing: border-box;
-}
-
-.avatar {
-    width: 56px;
-    height: 56px;
-    border: 2px solid #bdc3c7;
-    image-rendering: pixelated;
-    object-fit: cover;
-    background-color: #333;
-}
-
-.character-name {
-    color: #f1c40f;
-    margin: 0 0 4px 0;
-    font-size: 15px;
-}
-
-.dialogue-text {
-    color: #ffffff;
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.3;
+@media (max-width: 460px) {
+    .login-card { width: 100%; padding: 14px; }
+    .char-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .char-card { min-width: 0; }
+    .game-heading h1 { font-size: 20px; }
+    .panel { padding: 14px; }
 }

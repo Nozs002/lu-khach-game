@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public final class WorldMap {
     private final String id;
@@ -20,6 +19,18 @@ public final class WorldMap {
     private final List<Point> spawnTiles;
 
     private WorldMap(MapFile file) {
+        // Adapt the Tiled exporter contract to the A* grid contract.
+        if (file.tiles == null) file.tiles = file.collision;
+        if (file.playerSpawns == null) file.playerSpawns = file.spawns;
+        if (file.id == null) file.id = "world";
+        if (file.safeZone == null && file.playerSpawns != null && !file.playerSpawns.isEmpty()) {
+            SafeZone zone = new SafeZone();
+            zone.x = file.playerSpawns.stream().mapToInt(p -> p.x).min().orElseThrow();
+            zone.y = file.playerSpawns.stream().mapToInt(p -> p.y).min().orElseThrow();
+            zone.width = file.playerSpawns.stream().mapToInt(p -> p.x).max().orElseThrow() - zone.x + 1;
+            zone.height = file.playerSpawns.stream().mapToInt(p -> p.y).max().orElseThrow() - zone.y + 1;
+            file.safeZone = zone;
+        }
         if (file.id == null || file.id.isBlank()) {
             throw new IllegalArgumentException("Map phải có id.");
         }
@@ -96,9 +107,22 @@ public final class WorldMap {
         return new MapData(id, width, height, tileSize, tiles, safeZone);
     }
 
-    public Point randomSpawnTile(Random random) {
-        Point point = spawnTiles.get(random.nextInt(spawnTiles.size()));
-        return new Point(point);
+    public Point availableSpawnTile(java.util.Collection<com.game.model.Player> players) {
+        var queue = new java.util.ArrayDeque<Point>();
+        var visited = new java.util.HashSet<Point>();
+        for (Point spawn : spawnTiles) {
+            queue.add(new Point(spawn));
+            visited.add(new Point(spawn));
+        }
+        while (!queue.isEmpty()) {
+            Point cell = queue.remove();
+            if (players.stream().noneMatch(p -> p.getX() == cell.x && p.getY() == cell.y)) return cell;
+            for (int[] step : new int[][]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}) {
+                Point next = new Point(cell.x + step[0], cell.y + step[1]);
+                if (isWalkable(next.x, next.y) && visited.add(next)) queue.add(next);
+            }
+        }
+        throw new IllegalStateException("Không còn ô spawn trống.");
     }
 
     public String getId() {
@@ -141,6 +165,8 @@ public final class WorldMap {
         int height;
         int tileSize;
         List<List<Integer>> tiles;
+        List<List<Integer>> collision;
+        List<PointData> spawns;
         SafeZone safeZone;
         List<PointData> playerSpawns;
     }

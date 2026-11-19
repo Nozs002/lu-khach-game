@@ -40,6 +40,8 @@ export class MovementController {
     public getPreviewPath(): readonly GridPoint[] {
         const destination = this.previewPath[this.previewPath.length - 1];
         const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        const currentIndex = me ? this.previewPath.findIndex(point => point.x === me.x && point.y === me.y) : -1;
+        if (currentIndex >= 0) this.previewPath = this.previewPath.slice(currentIndex + 1);
         if (destination && me && me.x === destination.x && me.y === destination.y) {
             this.previewPath = [];
         }
@@ -72,19 +74,16 @@ export class MovementController {
             return;
         }
         if (!pathfinder.isWalkable(goal.x, goal.y)) {
+            this.onNotify?.('Ô đích bị chặn.');
             return;
         }
 
         const start: GridPoint = { x: me.x, y: me.y };
         const path = pathfinder.findPath(start, goal);
         if (path === null) {
+            this.onNotify?.('Không tìm thấy đường tới ô đã chọn.');
             return;
         }
-        if (path.length === 0) {
-            this.previewPath = [];
-            return;
-        }
-
         this.previewPath = path;
         if (!this.net.sendMoveTo(goal.x, goal.y)) {
             this.previewPath = [];

@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GameServer extends WebSocketServer {
     private static final int MAX_PLAYERS = 50; // 1. Giới hạn người chơi
-    private static final String MAP_RESOURCE = "/maps/world-map.json";
+    private static final String MAP_RESOURCE = "/maps/world.generated.json";
     private static final long MOVEMENT_TICK_MILLIS = 200;
 
     private final Map<WebSocket, Player> players = new ConcurrentHashMap<>();
@@ -39,7 +39,7 @@ public class GameServer extends WebSocketServer {
     public GameServer(int port) {
         super(new InetSocketAddress(port));
         // Java-WebSocket enables Ping/Pong connection checks by default.
-        setConnectionLostTimeout(0);
+        setConnectionLostTimeout(10);
     }
 
     @Override
@@ -72,21 +72,24 @@ public class GameServer extends WebSocketServer {
                 return;
             }
 
-            switch (input.type) {
-                case "JOIN":
-                    Player newPlayer = joinHandler.handle(conn, input);
-                    if (newPlayer != null) {
-                        NetworkMessage joinedMsg = new NetworkMessage("PLAYER_JOINED");
-                        joinedMsg.payload = newPlayer;
-                        broadcastMessage(gson.toJson(joinedMsg), conn);
-                    }
-                    break;
-                case "MOVE_TO":
-                    handleMoveTo(conn, input);
-                    break;
-                default:
-                    sendError(conn, "UNSUPPORTED_COMMAND", "Loại lệnh không được hỗ trợ.");
-                    break;
+            synchronized (players) {
+                switch (input.type) {
+                    case "JOIN":
+                        if (players.containsKey(conn)) break;
+                        Player newPlayer = joinHandler.handle(conn, input);
+                        if (newPlayer != null) {
+                            NetworkMessage joinedMsg = new NetworkMessage("PLAYER_JOINED");
+                            joinedMsg.payload = newPlayer;
+                            broadcastMessage(gson.toJson(joinedMsg), conn);
+                        }
+                        break;
+                    case "MOVE_TO":
+                        handleMoveTo(conn, input);
+                        break;
+                    default:
+                        sendError(conn, "UNSUPPORTED_COMMAND", "Loại lệnh không được hỗ trợ.");
+                        break;
+                }
             }
         } catch (Exception e) {
             System.err.println("Lỗi xử lý tin nhắn: " + e.getMessage());
@@ -96,6 +99,7 @@ public class GameServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
+        System.err.println("WebSocket error: " + ex.getMessage());
         if (conn != null) {
             cleanupSession(conn);
         }
@@ -126,8 +130,10 @@ public class GameServer extends WebSocketServer {
 
     private void tickMovement() {
         try {
-            if (movementSystem.advanceOneTick(new ArrayList<>(players.values()))) {
-                broadcastState();
+            synchronized (players) {
+                if (movementSystem.advanceOneTick(new ArrayList<>(players.values()))) {
+                    broadcastState();
+                }
             }
         } catch (RuntimeException e) {
             System.err.println("Lỗi cập nhật di chuyển: " + e.getMessage());

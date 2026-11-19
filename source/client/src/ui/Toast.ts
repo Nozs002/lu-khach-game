@@ -6,7 +6,9 @@ const titles: Record<ToastType, string> = {
     info: 'Thông tin'
 };
 
-export function showToast(message: string, type: ToastType = 'info', duration = 4000): void {
+const dismissToasts = new WeakMap<Element, () => void>();
+
+export function showToast(message: string, type: ToastType = 'info', duration = 3000): void {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
@@ -32,6 +34,7 @@ export function showToast(message: string, type: ToastType = 'info', duration = 
     let timer: number | undefined;
     const dismiss = () => {
         window.clearTimeout(timer);
+        dismissToasts.delete(toast);
         toast.remove();
     };
     const scheduleDismiss = () => {
@@ -49,6 +52,14 @@ export function showToast(message: string, type: ToastType = 'info', duration = 
     });
 
     toast.append(content, close);
+    // Keep notifications from covering the play area during a burst of events.
+    while (container.childElementCount >= 2) {
+        const oldest = container.firstElementChild!;
+        const dismissOldest = dismissToasts.get(oldest);
+        if (dismissOldest) dismissOldest();
+        else oldest.remove();
+    }
+    dismissToasts.set(toast, dismiss);
     container.appendChild(toast);
     scheduleDismiss();
 }

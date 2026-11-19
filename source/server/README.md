@@ -22,13 +22,7 @@ Dừng server bằng `Ctrl+C`.
 
 ## Map runtime
 
-Server nạp map từ `src/main/resources/maps/world-map.json`. Hiện chưa có map
-runtime trong repo; server sẽ báo lỗi rõ ràng lúc khởi động cho đến khi file này
-được cung cấp. Map cần có `id`, `width`, `height`, `tileSize`, ma trận `tiles`,
-`safeZone` và `playerSpawns`. `tiles` phải có `height` hàng, mỗi hàng có
-`width` số nguyên không âm. Chỉ `tiles[y][x] == 0` là đi được; mọi giá trị khác
-`0` là vật cản, kể cả các ô biên. Sau khi thêm map thật, không cần sửa thuật
-toán A* hoặc bộ xử lý di chuyển.
+Server nạp `src/main/resources/maps/world.generated.json`, được xuất từ `source/common/maps/world.tmj`. WorldMap ánh xạ collision sang tiles (0 đi được, 1 bị chặn) và spawns sang playerSpawns. Không tạo bản đồ thay thế. Nếu map chưa định nghĩa safeZone, metadata này chỉ bao các điểm spawn để tương thích contract client; chưa có luật chiến đấu vùng an toàn.
 
 Trong prototype hiện tại, client gửi `{"type":"MOVE_TO","x":12,"y":8}`.
 Server gửi map ở trường `map` của WELCOME và gửi vị trí ô trong
@@ -48,3 +42,15 @@ Giá trị cổng phải là số nguyên từ `1` đến `65535`.
 Mở thư mục `source\server` như một dự án Maven, sau đó chạy `com.game.Main`.
 Không cần truyền tham số để dùng cổng `8080`; có thể đặt một tham số như `8081`
 trong cấu hình chạy để chọn cổng khác.
+
+## Map Tiled và kiểm tra chạy thử
+
+Trước khi build server, chạy từ gốc repo:
+
+```powershell
+python statics/map-design/import_tiled_world.py
+```
+
+Server đọc collision và spawn trong `src/main/resources/maps/world.generated.json`. Khởi động lại sau khi cập nhật map. Tọa độ mạng dùng ô thế giới, render 16 px/ô. MOVE_TO nhận ô đích, server tính A* bốn hướng và tiến một ô mỗi 200ms. Lệnh MOVE cũ không còn được hỗ trợ. Người chơi hiện có thể đi xuyên nhau; chỉ spawn tránh trùng ô.
+
+Có thể kiểm tra end-to-end trên server thử nghiệm riêng cổng 8081 (không có người chơi khác): `node statics/map-design/check_world_socket.mjs ws://localhost:8081` từ gốc repo. Yêu cầu Node.js có WebSocket toàn cục. Script kiểm tra spawn từ map, đi đến gần vật cản, bước bị chặn và bước hợp lệ tiếp theo.

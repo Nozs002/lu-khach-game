@@ -8,7 +8,6 @@ import org.java_websocket.WebSocket;
 
 import java.awt.Point;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 public class JoinHandler {
@@ -16,7 +15,6 @@ public class JoinHandler {
     private final Gson gson;
     private final int maxPlayers;
     private final WorldMap worldMap;
-    private final Random random = new Random();
 
     public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers, WorldMap worldMap) {
         this.players = players;
@@ -41,7 +39,7 @@ public class JoinHandler {
                 ? input.characterId
                 : "knight";
 
-        Point spawn = worldMap.randomSpawnTile(random);
+        Point spawn = worldMap.availableSpawnTile(players.values());
 
         Player newPlayer = new Player(playerId, playerName, playerCharacterId, spawn.x, spawn.y);
         players.put(conn, newPlayer);

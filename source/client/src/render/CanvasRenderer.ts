@@ -1,10 +1,12 @@
-import { getCharacterWalkSheet } from '../data/characters';
+import { WORLD, WORLD_VIEWS } from '../data/tiledWorld';
+import { drawWorld } from './TiledWorldRenderer';
+import { getCharacter, getCharacterSpriteSource, getCharacterWalkSheet } from '../data/characters';
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import type { GridPoint } from '../pathfinding/AStarPathfinder';
 import { imageCache } from './ImageCache';
 
-const SPRITE_SIZE = 48; // Kích thước hiển thị trên canvas (pixel)
+const SPRITE_SIZE = 16;
 const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
 
 // Cột 0: xuống, Cột 1: lên, Cột 2: trái, Cột 3: phải
@@ -31,6 +33,8 @@ interface RenderPosition {
 
 export class CanvasRenderer {
     private ctx: CanvasRenderingContext2D;
+    private gridVisible = true;
+    private followPlayer = true;
     private cameraX = 0;
     private cameraY = 0;
     private map: MapData | null = null;
@@ -38,6 +42,20 @@ export class CanvasRenderer {
 
     constructor(private canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
+        canvas.width = 32 * WORLD.tileSize;
+        canvas.height = 24 * WORLD.tileSize;
+        this.ctx.imageSmoothingEnabled = false;
+        WORLD.tilesets.forEach(t => imageCache.get(t.image));
+    }
+
+    setGridVisible(visible: boolean): void { this.gridVisible = visible; }
+
+    setGroundView(id: string): void {
+        this.followPlayer = id === 'spawn';
+        const view = WORLD_VIEWS.find(view => view.id === id);
+        if (!view) return;
+        this.cameraX = Math.max(0, Math.min(view.x * WORLD.tileSize, WORLD.width * WORLD.tileSize - this.canvas.width));
+        this.cameraY = Math.max(0, Math.min(view.y * WORLD.tileSize, WORLD.height * WORLD.tileSize - this.canvas.height));
     }
 
     public getCanvas(): HTMLCanvasElement {
@@ -90,11 +108,14 @@ export class CanvasRenderer {
         });
 
         const myPosition = myId ? this.renderPositions.get(myId) : undefined;
-        this.updateCamera(myPosition, map);
-        this.drawGrid(map);
-        this.drawBlockedTiles(map);
+        if (this.followPlayer) this.updateCamera(myPosition, map);
+        this.ctx.fillStyle = '#17251b';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, false);
+        if (this.gridVisible) this.drawGrid(map);
         this.drawPreview(previewPath, map, myPosition);
         this.drawPlayers(players, myId, map);
+        drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
     }
 
     private resolveDirection(dx: number, dy: number, fallback: DirectionColumn): DirectionColumn {
@@ -197,27 +218,6 @@ export class CanvasRenderer {
         }
     }
 
-    private drawBlockedTiles(map: MapData): void {
-        const tileSize = map.tileSize;
-        const firstX = Math.floor(this.cameraX / tileSize);
-        const firstY = Math.floor(this.cameraY / tileSize);
-        const lastX = Math.min(map.width - 1, Math.ceil((this.cameraX + this.canvas.width) / tileSize));
-        const lastY = Math.min(map.height - 1, Math.ceil((this.cameraY + this.canvas.height) / tileSize));
-
-        this.ctx.fillStyle = 'rgba(127, 140, 141, 0.45)';
-        for (let y = firstY; y <= lastY; y++) {
-            for (let x = firstX; x <= lastX; x++) {
-                if (map.tiles[y][x] === 0) continue;
-                this.ctx.fillRect(
-                    x * tileSize - this.cameraX,
-                    y * tileSize - this.cameraY,
-                    tileSize,
-                    tileSize
-                );
-            }
-        }
-    }
-
     private drawPreview(path: readonly GridPoint[], map: MapData, player?: RenderPosition): void {
         if (path.length === 0) return;
         const tileSize = map.tileSize;
@@ -263,32 +263,45 @@ export class CanvasRenderer {
             const characterId = (player.characterId && player.characterId !== 'undefined')
                 ? player.characterId
                 : 'knight';
+            const character = getCharacter(characterId);
             const walkSheet = getCharacterWalkSheet(characterId);
-            const img = imageCache.get(walkSheet.source);
+            const isMoving = position.x !== position.targetX || position.y !== position.targetY;
+            const source = isMoving ? walkSheet.source : getCharacterSpriteSource(characterId);
+            const img = imageCache.get(source);
             const pixelX = position.x * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
             const pixelY = position.y * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
 
             if (img.complete && img.naturalWidth !== 0) {
-                // Kích thước frame lấy trực tiếp từ kích thước thực tế của sprite sheet (không dùng SPRITE_SIZE)
-                const frameWidth = img.naturalWidth / walkSheet.cols;
-                const frameHeight = img.naturalHeight / walkSheet.rows;
-                const sx = position.direction * frameWidth;
-                const sy = position.animFrame * frameHeight;
-
-                const prevSmoothing = this.ctx.imageSmoothingEnabled;
-                this.ctx.imageSmoothingEnabled = false;
-                this.ctx.drawImage(
-                    img,
-                    sx,
-                    sy,
-                    frameWidth,
-                    frameHeight,
-                    pixelX,
-                    pixelY,
-                    SPRITE_SIZE,
-                    SPRITE_SIZE
-                );
-                this.ctx.imageSmoothingEnabled = prevSmoothing;
+                if (isMoving) {
+                    const frameWidth = img.naturalWidth / walkSheet.cols;
+                    const frameHeight = img.naturalHeight / walkSheet.rows;
+                    const sx = position.direction * frameWidth;
+                    const sy = position.animFrame * frameHeight;
+                    this.ctx.drawImage(
+                        img,
+                        sx,
+                        sy,
+                        frameWidth,
+                        frameHeight,
+                        pixelX,
+                        pixelY,
+                        SPRITE_SIZE,
+                        SPRITE_SIZE
+                    );
+                } else {
+                    const frame = character.spriteFrame;
+                    this.ctx.drawImage(
+                        img,
+                        frame.x,
+                        frame.y,
+                        frame.width,
+                        frame.height,
+                        pixelX,
+                        pixelY,
+                        SPRITE_SIZE,
+                        SPRITE_SIZE
+                    );
+                }
             } else {
                 this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
                 this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
