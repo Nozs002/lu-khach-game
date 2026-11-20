@@ -1,7 +1,8 @@
 package com.game.model;
 
 public final class Mob extends CombatEntity {
-    private String kind;
+    public static final int DEFAULT_SLIME_HP = 40;
+    private final String kind;
     private int spawnGeneration = 1;
 
     private final transient String spawnZoneId;
@@ -12,6 +13,7 @@ public final class Mob extends CombatEntity {
     private final transient int respawnSeconds;
 
     private transient long nextMoveTick;
+    private transient Long respawnReadyTick;
 
     public Mob(
             String id,
@@ -23,8 +25,7 @@ public final class Mob extends CombatEntity {
             int leashRadius,
             int respawnSeconds
     ) {
-        super(id, x, y, 40);
-
+        super(id, x, y, DEFAULT_SLIME_HP);
         this.kind = kind;
         this.spawnZoneId = spawnZoneId;
         this.homeX = x;
@@ -34,11 +35,26 @@ public final class Mob extends CombatEntity {
         this.respawnSeconds = respawnSeconds;
     }
 
+    public Mob(String id, String kind, String zoneId, int x, int y, int maxHp) {
+        super(id, x, y, maxHp);
+        this.kind = kind;
+        this.spawnZoneId = zoneId;
+        this.homeX = x;
+        this.homeY = y;
+        this.aggroRadius = 0;
+        this.leashRadius = 0;
+        this.respawnSeconds = 15;
+    }
+
     public String getKind() {
         return kind;
     }
 
     public String getSpawnZoneId() {
+        return spawnZoneId;
+    }
+
+    public String getZoneId() {
         return spawnZoneId;
     }
 
@@ -66,6 +82,22 @@ public final class Mob extends CombatEntity {
         return spawnGeneration;
     }
 
+    public void incrementSpawnGeneration() {
+        spawnGeneration++;
+    }
+
+    public Long getRespawnReadyTick() {
+        return respawnReadyTick;
+    }
+
+    public void setRespawnReadyTick(Long respawnReadyTick) {
+        this.respawnReadyTick = respawnReadyTick;
+    }
+
+    public boolean isDead() {
+        return !isAlive();
+    }
+
     public boolean canMove(long tick) {
         return tick >= nextMoveTick;
     }
@@ -79,16 +111,13 @@ public final class Mob extends CombatEntity {
         // Quái tính bước kế tiếp trong MobAISystem.
     }
 
-    /**
-     * P4 quyết định thời điểm gọi và phát ENTITY_SPAWN.
-     */
     public void respawn() {
         if (isAlive()) {
             throw new IllegalStateException("Quái đang sống.");
         }
-
         resetLife(homeX, homeY);
         nextMoveTick = 0;
+        respawnReadyTick = null;
         spawnGeneration++;
     }
 }

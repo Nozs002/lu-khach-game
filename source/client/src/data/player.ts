@@ -1,3 +1,5 @@
+export type PlayerStateKind = 'IDLE' | 'MOVING' | 'ATTACKING' | 'DEAD';
+
 export interface Player {
     id: string;
     name: string;
@@ -10,4 +12,5 @@ export interface Player {
     armor: number;
     state: 'IDLE' | 'MOVING' | 'ATTACKING' | 'DEAD';
     targetId?: string | null;
+    respawnReadyTick?: number | null;
 }

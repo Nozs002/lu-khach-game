@@ -49,6 +49,13 @@
                 <section class="world-column" aria-label="Thế giới game">
                     <div class="canvas-frame pixel-box">
                         <canvas id="gameCanvas" width="768" height="576" aria-label="Thế giới Tiled — Bến Cỏ"></canvas>
+                        <div id="deathOverlay" class="death-overlay" hidden role="alertdialog" aria-labelledby="death-title" aria-describedby="deathCountdown">
+                            <div class="pixel-box death-card">
+                                <h2 id="death-title">BẠN ĐÃ TỬ TRẬN</h2>
+                                <p id="deathCountdown" class="death-countdown">Có thể hồi sinh sau 3.0 giây...</p>
+                                <button id="respawnBtn" type="button" disabled>CHỜ (3s)</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="map-toolbar">
                         <label class="ground-view-label">Xem bản đồ
@@ -56,6 +63,14 @@
                         </label>
                         <button id="grid-toggle" class="secondary-button" type="button" aria-pressed="true">Ẩn lưới ô</button>
                     </div>
+                    <section class="pixel-box panel chat-panel" aria-labelledby="chat-title">
+                        <h2 id="chat-title">TRÒ CHUYỆN THẾ GIỚI</h2>
+                        <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Tin nhắn trò chuyện"></div>
+                        <div class="chat-form">
+                            <input type="text" id="chatInput" maxlength="120" placeholder="Nhấn Enter để chat (tối đa 120 ký tự, 1 tin/giây)..." aria-label="Nhập tin nhắn chat" />
+                            <button id="chatSendBtn" type="button">GỬI</button>
+                        </div>
+                    </section>
                     <details class="pixel-box online-panel">
                         <summary>LỮ KHÁCH ONLINE <span id="player-count">0</span></summary>
                         <ul id="players" class="player-list"></ul>
@@ -95,6 +110,15 @@
                         <h2 id="equipment-title">TRANG BỊ</h2>
                         <p class="placeholder-note">Chưa thiết kế hệ thống trang bị.</p>
                     </section>
+                    <details class="pixel-box test-panel">
+                        <summary>KIỂM THỬ VẬT PHẨM &amp; HỒI SINH</summary>
+                        <div class="test-actions">
+                            <button id="testSpawnPotionBtn" class="secondary-button" type="button">Thả bình máu (+30 HP)</button>
+                            <button id="testDamage40Btn" class="secondary-button" type="button">Nhận 40 sát thương</button>
+                            <button id="testSuicideBtn" class="danger-button" type="button">Tự sát (Test hồi sinh)</button>
+                        </div>
+                        <p class="placeholder-note">Dùng để kiểm thử nhanh nhặt đồ atomic, hồi máu và đếm ngược 3 giây hồi sinh.</p>
+                    </details>
                     <section class="pixel-box panel journal-panel" aria-labelledby="journal-title">
                         <h2 id="journal-title">NHẬT KÝ</h2>
                         <div id="systemLog" class="log" role="log" aria-label="Nhật ký sự kiện" tabindex="0"></div>
@@ -107,6 +131,9 @@
                             <li>Click quái: chọn mục tiêu, tự đánh khi đứng kề. Esc để dừng.</li>
                             <li>Vật cản được đánh dấu trong bản đồ sẽ chặn đường.</li>
                             <li>Chọn vùng để xem các khu vực khác.</li>
+                            <li>Click bình máu hoặc nhấn E để nhặt; bình hồi tối đa 30 HP.</li>
+                            <li>Nhấn Enter để chat; nhấn M/Y để điều khiển bản đồ/camera.</li>
+                            <li>Khi hết máu, chờ 3 giây rồi bấm Hồi sinh hoặc nhấn R.</li>
                         </ul>
                         <p class="placeholder-note">Click đích mới để đổi đường đi. Đến gần NPC trong 2 ô rồi click nhân vật để trò chuyện.</p>
                     </section>

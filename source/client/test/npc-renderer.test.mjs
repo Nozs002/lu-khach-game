@@ -52,10 +52,12 @@ test('NPC names and fallback markers remain visible while images load', () => {
 test('main game renderer draws NPCs without waiting for an NPC network message', async () => {
     const drawUrl = moduleUrl('export const drawWorld = () => {};');
     const charactersUrl = moduleUrl('export const getCharacterWalkSheet = () => ({source:"player.png", cols:4, rows:4});');
+    const itemsUrl = moduleUrl('export const getItemDefinition = () => undefined;');
     const source = fs.readFileSync(new URL('../src/render/CanvasRenderer.ts', import.meta.url), 'utf8')
         .replace('../data/tiledWorld', worldUrl)
         .replace('./TiledWorldRenderer', drawUrl)
         .replace('../data/characters', charactersUrl)
+        .replace('../data/items', itemsUrl)
         .replace('./ImageCache', imagesUrl)
         .replace('./NpcRenderer', npcUrl);
     const { CanvasRenderer } = await import(moduleUrl(source));

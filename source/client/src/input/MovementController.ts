@@ -9,6 +9,8 @@ export class MovementController {
     private previewPath: GridPoint[] = [];
     private readonly canvas: HTMLCanvasElement;
     private readonly handleCanvasClick: (event: MouseEvent) => void;
+    private onBeforeTileClick?: (tile: GridPoint) => boolean;
+    private onMoveDispatched?: (goal: GridPoint) => void;
 
     constructor(
         private readonly renderer: CanvasRenderer,
@@ -18,6 +20,14 @@ export class MovementController {
         this.canvas = renderer.getCanvas();
         this.handleCanvasClick = event => this.onClick(event);
         this.canvas.addEventListener('click', this.handleCanvasClick);
+    }
+
+    public setTileClickInterceptor(handler?: (tile: GridPoint) => boolean): void {
+        this.onBeforeTileClick = handler;
+    }
+
+    public setMoveDispatchedListener(listener?: (goal: GridPoint) => void): void {
+        this.onMoveDispatched = listener;
     }
 
     public setMap(map: MapData): void {
@@ -40,16 +50,59 @@ export class MovementController {
     public getPreviewPath(): readonly GridPoint[] {
         const destination = this.previewPath[this.previewPath.length - 1];
         const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        if (me?.state === 'DEAD') {
+            this.previewPath = [];
+            return this.previewPath;
+        }
         const currentIndex = me ? this.previewPath.findIndex(point => point.x === me.x && point.y === me.y) : -1;
         if (currentIndex >= 0) this.previewPath = this.previewPath.slice(currentIndex + 1);
         if (destination && me && me.x === destination.x && me.y === destination.y) {
             this.previewPath = [];
         }
         return this.previewPath;
-    } // trả về đường đi dự kiến, nếu người chơi đã đến đích thì xóa đường đi dự kiến
+    }
 
     public clearPreview(): void {
         this.previewPath = [];
+    }
+
+    /**
+     * Điều hướng nhân vật tới ô đích bằng A* và gửi MOVE_TO (dùng được cho cả click-to-move lẫn tự đi tới nhặt bình máu).
+     */
+    public moveToTile(goal: GridPoint, notifyOnBlocked = false): boolean {
+        if (!this.net.myId) return false;
+        const map = this.mapData;
+        const pathfinder = this.pathfinder;
+        if (!map || !pathfinder) {
+            this.onNotify?.('Chưa nhận được dữ liệu bản đồ.');
+            return false;
+        }
+        const me = this.net.players.get(this.net.myId);
+        if (!me) return false;
+        if (me.state === 'DEAD') {
+            this.previewPath = [];
+            this.onNotify?.('Bạn đã chết, hãy chờ hồi sinh.');
+            return false;
+        }
+        if (!pathfinder.isWalkable(goal.x, goal.y)) {
+            if (notifyOnBlocked) {
+                this.onNotify?.('Ô đích bị chặn.');
+            }
+            return false;
+        }
+        const start: GridPoint = { x: me.x, y: me.y };
+        const path = pathfinder.findPath(start, goal);
+        if (path === null) {
+            this.onNotify?.('Không tìm thấy đường tới ô đã chọn.');
+            return false;
+        }
+        this.previewPath = path;
+        if (!this.net.sendMoveTo(goal.x, goal.y)) {
+            this.previewPath = [];
+            this.onNotify?.('Chưa kết nối máy chủ; không thể gửi lệnh di chuyển.');
+            return false;
+        }
+        return true;
     }
 
     public destroy(): void {
@@ -67,26 +120,24 @@ export class MovementController {
 
         const me = this.net.players.get(this.net.myId);
         if (!me) return;
+        if (me.state === 'DEAD') {
+            this.previewPath = [];
+            this.onNotify?.('Bạn đã chết, hãy chờ hồi sinh.');
+            return;
+        }
 
-        const goal = this.renderer.getTileAtClientPosition(event.clientX, event.clientY); // xác định ô đích dựa trên vị trí click chuột
+        const goal = this.renderer.getTileAtClientPosition(event.clientX, event.clientY);
         if (!goal) {
             this.onNotify?.('Không thể xác định ô đích trên bản đồ.');
             return;
         }
-        if (!pathfinder.isWalkable(goal.x, goal.y)) {
+
+        if (this.onBeforeTileClick?.(goal)) {
             return;
         }
 
-        const start: GridPoint = { x: me.x, y: me.y };
-        const path = pathfinder.findPath(start, goal);
-        if (path === null) {
-            this.onNotify?.('Không tìm thấy đường tới ô đã chọn.');
-            return;
-        }
-        this.previewPath = path;
-        if (!this.net.sendMoveTo(goal.x, goal.y)) {
-            this.previewPath = [];
-            this.onNotify?.('Chưa kết nối máy chủ; không thể gửi lệnh di chuyển.');
+        if (this.moveToTile(goal, false)) {
+            this.onMoveDispatched?.(goal);
         }
     }
 }

@@ -1,12 +1,27 @@
 import { WORLD, WORLD_VIEWS } from '../data/tiledWorld';
 import { drawWorld } from './TiledWorldRenderer';
 import { getCharacterWalkSheet } from '../data/characters';
+import { getItemDefinition, type WorldItem } from '../data/items';
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import type { GridPoint } from '../pathfinding/AStarPathfinder';
 import { imageCache } from './ImageCache';
 import { drawNpcs, preloadNpcs } from './NpcRenderer';
 import type { CombatView } from '../features/combat/CombatView';
+
+interface ChatBubble {
+    text: string;
+    expiresAt: number;
+}
+
+interface FloatingText {
+    gridX: number;
+    gridY: number;
+    text: string;
+    color: string;
+    createdAt: number;
+    durationMs: number;
+}
 
 const SPRITE_SIZE = 16;
 const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
@@ -49,21 +64,17 @@ export class CanvasRenderer {
     private pointerCanvasY: number | null = null;
     private onCameraModeChange?: (freeCamera: boolean) => void;
     private readonly renderPositions = new Map<string, RenderPosition>();
+    private readonly chatBubbles = new Map<string, ChatBubble>();
+    private floatingTexts: FloatingText[] = [];
     private combatView: CombatView | null = null;
 
-    public setCombatView(view: CombatView | null): void { this.combatView = view; }
+    public setCombatView(view: CombatView | null): void {
+        this.combatView = view;
+    }
 
     public getRenderedPlayerPosition(id: string): GridPoint | undefined {
         const position = this.renderPositions.get(id);
         return position ? { x: position.x, y: position.y } : undefined;
-    }
-
-    public centerOnWorldTile(x: number, y: number): void {
-        if (!this.map) return;
-        this.setFreeCamera(true);
-        this.setCameraClamped((x + 0.5) * this.map.tileSize - this.canvas.width / 2,
-            (y + 0.5) * this.map.tileSize - this.canvas.height / 2, this.map);
-        this.clearPointerPosition();
     }
 
     public getWorldPointAtClientPosition(clientX: number, clientY: number): GridPoint | null {
@@ -81,7 +92,31 @@ export class CanvasRenderer {
         canvas.height = 24 * WORLD.tileSize;
         this.ctx.imageSmoothingEnabled = false;
         WORLD.tilesets.forEach(t => imageCache.get(t.image));
+        imageCache.get('/assets/items/health-potion.png');
         preloadNpcs();
+    }
+
+    public addChatBubble(playerId: string, text: string, durationMs = 4500): void {
+        this.chatBubbles.set(playerId, {
+            text,
+            expiresAt: performance.now() + durationMs
+        });
+    }
+
+    public addFloatingText(gridX: number, gridY: number, text: string, color = '#4ade80', durationMs = 1400): void {
+        this.floatingTexts.push({
+            gridX,
+            gridY,
+            text,
+            color,
+            createdAt: performance.now(),
+            durationMs
+        });
+    }
+
+    public clearEffects(): void {
+        this.chatBubbles.clear();
+        this.floatingTexts = [];
     }
 
     setGridVisible(visible: boolean): void { this.gridVisible = visible; }
@@ -118,6 +153,14 @@ export class CanvasRenderer {
 
     public centerOnPlayer(myId: string | null): void {
         this.snapCameraToPlayer(myId);
+    }
+
+    public centerOnWorldTile(x: number, y: number): void {
+        if (!this.map) return;
+        this.setFreeCamera(true);
+        this.setCameraClamped((x + 0.5) * this.map.tileSize - this.canvas.width / 2,
+            (y + 0.5) * this.map.tileSize - this.canvas.height / 2, this.map);
+        this.clearPointerPosition();
     }
 
     public updatePointerClientPosition(clientX: number, clientY: number): void {
@@ -193,7 +236,8 @@ export class CanvasRenderer {
         myId: string | null,
         previewPath: readonly GridPoint[] = [],
         map: MapData | null = null,
-        timestamp: number = performance.now()
+        timestamp: number = performance.now(),
+        items?: Map<string, WorldItem>
     ): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (!map) return;
@@ -231,10 +275,15 @@ export class CanvasRenderer {
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, false);
         if (this.gridVisible) this.drawGrid(map);
         this.drawPreview(previewPath, map, myPosition);
+        if (items && items.size > 0) {
+            this.drawItems(items, map, timestamp);
+        }
         drawNpcs(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, map.tileSize);
         this.drawPlayers(players, myId, map, timestamp);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
         this.combatView?.drawOverlay(this.ctx, map, this.cameraX, this.cameraY, timestamp);
+        this.drawChatBubbles(players, map, timestamp);
+        this.drawFloatingTexts(map, timestamp);
     }
 
     private snapCameraToPlayer(myId: string | null): void {
@@ -318,12 +367,23 @@ export class CanvasRenderer {
         if (position.targetX !== player.x || position.targetY !== player.y) {
             const dx = player.x - position.x;
             const dy = player.y - position.y;
-            position.direction = this.resolveDirection(dx, dy, position.direction);
-            position.fromX = position.x;
-            position.fromY = position.y;
-            position.targetX = player.x;
-            position.targetY = player.y;
-            position.startedAt = now;
+            if (Math.abs(dx) + Math.abs(dy) > 2) {
+                // Dịch chuyển tức thời (ví dụ: hồi sinh về làng) -> snap trực tiếp không trượt dài trên bản đồ
+                position.x = player.x;
+                position.y = player.y;
+                position.fromX = player.x;
+                position.fromY = player.y;
+                position.targetX = player.x;
+                position.targetY = player.y;
+                position.startedAt = now;
+            } else {
+                position.direction = this.resolveDirection(dx, dy, position.direction);
+                position.fromX = position.x;
+                position.fromY = position.y;
+                position.targetX = player.x;
+                position.targetY = player.y;
+                position.startedAt = now;
+            }
         }
 
         const isMoving = position.x !== position.targetX || position.y !== position.targetY;
@@ -416,24 +476,69 @@ export class CanvasRenderer {
         this.ctx.restore();
     }
 
+    private drawItems(items: Map<string, WorldItem>, map: MapData, timestamp: number): void {
+        const tileSize = map.tileSize;
+        const bobOffset = Math.sin(timestamp / 240) * 2;
+        items.forEach(item => {
+            const worldX = item.x * tileSize - this.cameraX;
+            const worldY = item.y * tileSize - this.cameraY;
+            if (worldX < -tileSize || worldY < -tileSize || worldX > this.canvas.width + tileSize || worldY > this.canvas.height + tileSize) {
+                return;
+            }
+
+            const centerX = worldX + tileSize / 2;
+            const centerY = worldY + tileSize / 2;
+
+            this.ctx.save();
+            // Vòng sáng nền đỏ hồng giúp dễ nhận diện bình máu trên nền cỏ Tiled
+            this.ctx.fillStyle = 'rgba(231, 76, 60, 0.25)';
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY + 2, tileSize * 0.45, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            const def = getItemDefinition(item.kind);
+            const iconPath = def?.icon ?? '/assets/items/health-potion.png';
+            const img = imageCache.get(iconPath);
+            const drawSize = Math.max(14, Math.floor(tileSize * 0.85));
+            const drawX = Math.round(centerX - drawSize / 2);
+            const drawY = Math.round(centerY - drawSize / 2 + bobOffset);
+
+            if (img.complete && img.naturalWidth !== 0) {
+                this.ctx.drawImage(img, drawX, drawY, drawSize, drawSize);
+            } else {
+                this.ctx.fillStyle = '#e74c3c';
+                this.ctx.fillRect(drawX + 2, drawY + 2, drawSize - 4, drawSize - 4);
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 1.5;
+                this.ctx.strokeRect(drawX + 2, drawY + 2, drawSize - 4, drawSize - 4);
+            }
+            this.ctx.restore();
+        });
+    }
+
     private drawPlayers(players: Map<string, Player>, myId: string | null, map: MapData, timestamp: number): void {
-        const drawables = this.combatView?.getMobDrawables(this.ctx, map, this.cameraX, this.cameraY, timestamp) ?? [];
+        const drawables = this.combatView?.getMobDrawables(
+            this.ctx, map, this.cameraX, this.cameraY, timestamp
+        ) ?? [];
         players.forEach(player => {
             const position = this.renderPositions.get(player.id);
             if (!position) return;
+            const isDead = player.state === 'DEAD' || (typeof player.hp === 'number' && player.hp <= 0);
             drawables.push({ y: position.y, draw: () => {
                 this.ctx.save();
-                if (player.state === 'DEAD') this.ctx.globalAlpha = 0.35;
+                if (isDead) this.ctx.globalAlpha = 0.35;
                 const isMe = player.id === myId;
-                const characterId = (player.characterId && player.characterId !== 'undefined')
+                const characterId = player.characterId && player.characterId !== 'undefined'
                     ? player.characterId
                     : 'knight';
                 const walkSheet = getCharacterWalkSheet(characterId);
-                const isMoving = position.x !== position.targetX || position.y !== position.targetY;
+                const isMoving = !isDead && (position.x !== position.targetX || position.y !== position.targetY);
                 const img = imageCache.get(walkSheet.source);
                 const offset = this.combatView?.getAttackOffset(player.id, timestamp) ?? { x: 0, y: 0 };
-                const pixelX = (position.x + offset.x) * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
-                const pixelY = (position.y + offset.y) * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
+                const pixelX = (position.x + offset.x) * map.tileSize
+                    + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
+                const pixelY = (position.y + offset.y) * map.tileSize
+                    + map.tileSize - SPRITE_SIZE - this.cameraY;
 
                 if (img.complete && img.naturalWidth !== 0) {
                     const frameWidth = img.naturalWidth / walkSheet.cols;
@@ -441,39 +546,97 @@ export class CanvasRenderer {
                     const frameIndex = isMoving ? position.animFrame : 0;
                     const sx = position.direction * frameWidth;
                     const sy = frameIndex * frameHeight;
-                    this.ctx.drawImage(
-                        img,
-                        sx,
-                        sy,
-                        frameWidth,
-                        frameHeight,
-                        pixelX,
-                        pixelY,
-                        SPRITE_SIZE,
-                        SPRITE_SIZE
-                    );
+                    this.ctx.drawImage(img, sx, sy, frameWidth, frameHeight,
+                        pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
                 } else {
                     this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
                     this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
                 }
 
                 if (isMe) {
-                    this.ctx.strokeStyle = '#f1c40f';
+                    this.ctx.strokeStyle = isDead ? '#ef4444' : '#f1c40f';
                     this.ctx.lineWidth = 2;
                     this.ctx.strokeRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
                 }
 
-                this.ctx.fillStyle = isMe ? '#f1c40f' : '#ffffff';
+                this.ctx.fillStyle = isDead ? '#f87171' : isMe ? '#f1c40f' : '#ffffff';
                 this.ctx.font = 'bold 12px "Courier New", monospace';
                 this.ctx.textAlign = 'center';
                 this.ctx.shadowColor = '#000000';
                 this.ctx.shadowBlur = 4;
-                const displayName = player.name + (isMe ? ' (Bạn)' : '');
-                this.ctx.fillText(displayName, pixelX + SPRITE_SIZE / 2, pixelY - 8);
+                const suffix = isDead ? ' [CHẾT]' : isMe ? ' (Bạn)' : '';
+                this.ctx.fillText(player.name + suffix, pixelX + SPRITE_SIZE / 2, pixelY - 8);
                 this.ctx.shadowBlur = 0;
                 this.ctx.restore();
             }});
         });
         drawables.sort((a, b) => a.y - b.y).forEach(drawable => drawable.draw());
+    }
+
+    private drawChatBubbles(players: Map<string, Player>, map: MapData, timestamp: number): void {
+        if (this.chatBubbles.size === 0) return;
+
+        this.ctx.save();
+        this.ctx.font = '11px "Courier New", monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+
+        this.chatBubbles.forEach((bubble, playerId) => {
+            if (timestamp >= bubble.expiresAt) {
+                this.chatBubbles.delete(playerId);
+                return;
+            }
+            const player = players.get(playerId);
+            const position = this.renderPositions.get(playerId);
+            if (!player || !position) return;
+
+            const centerX = position.x * map.tileSize + map.tileSize / 2 - this.cameraX;
+            const baseY = position.y * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY - 26;
+            const displayText = bubble.text.length > 34 ? `${bubble.text.slice(0, 33)}…` : bubble.text;
+            const textWidth = this.ctx.measureText(displayText).width;
+            const padX = 8;
+            const boxW = Math.ceil(textWidth + padX * 2);
+            const boxH = 20;
+            const boxX = Math.max(4, Math.min(this.canvas.width - boxW - 4, Math.round(centerX - boxW / 2)));
+            const boxY = Math.max(4, Math.round(baseY - boxH));
+
+            this.ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            this.ctx.fillRect(boxX, boxY, boxW, boxH);
+            this.ctx.strokeStyle = '#f1c40f';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+            this.ctx.fillStyle = '#f8fafc';
+            this.ctx.fillText(displayText, boxX + boxW / 2, boxY + boxH / 2 + 0.5);
+        });
+        this.ctx.restore();
+    }
+
+    private drawFloatingTexts(map: MapData, timestamp: number): void {
+        if (this.floatingTexts.length === 0) return;
+
+        const remaining: FloatingText[] = [];
+        this.ctx.save();
+        this.ctx.font = 'bold 13px "Courier New", monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.shadowColor = '#000000';
+        this.ctx.shadowBlur = 4;
+
+        for (const effect of this.floatingTexts) {
+            const elapsed = timestamp - effect.createdAt;
+            if (elapsed >= effect.durationMs) continue;
+            remaining.push(effect);
+
+            const progress = Math.max(0, Math.min(1, elapsed / effect.durationMs));
+            const x = (effect.gridX + 0.5) * map.tileSize - this.cameraX;
+            const y = effect.gridY * map.tileSize - this.cameraY - 12 - progress * 24;
+
+            this.ctx.globalAlpha = 1 - progress * 0.85;
+            this.ctx.fillStyle = effect.color;
+            this.ctx.fillText(effect.text, x, y);
+        }
+
+        this.ctx.restore();
+        this.floatingTexts = remaining;
     }
 }

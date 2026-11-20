@@ -79,8 +79,15 @@ export function updatePlayers(players: Map<string, Player>, myId: string | null)
     players.forEach((player, id) => {
         const li = document.createElement('li');
         const isMe = id === myId;
-        li.innerText = `${player.name} ${isMe ? '(Bạn)' : ''}`;
-        if (isMe) li.className = 'is-me';
+        const isDead = player.state === 'DEAD' || (typeof player.hp === 'number' && player.hp <= 0);
+        const hpSuffix = isDead
+            ? ' [CHẾT]'
+            : typeof player.hp === 'number' && typeof player.maxHp === 'number'
+                ? ` (${player.hp}/${player.maxHp} HP)`
+                : '';
+        li.textContent = `${player.name}${isMe ? ' (Bạn)' : ''}${hpSuffix}`;
+        if (isDead) li.className = 'is-dead';
+        else if (isMe) li.className = 'is-me';
         list.appendChild(li);
     });
 }

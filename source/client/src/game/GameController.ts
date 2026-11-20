@@ -8,6 +8,7 @@ import { getOrCreatePlayerId } from '../data/PlayerIdentity';
 import { ExpandedMap } from '../ui/ExpandedMap';
 import { selectedCharacterId } from '../ui/CharacterSelection';
 import { WORLD_VIEWS } from '../data/tiledWorld';
+import { LootRespawnFeature } from '../features/loot-respawn/LootRespawnFeature';
 import { bindJoin, getPlayerName, showError, showInfo, showGame, addLog, updatePlayers, updateStatus } from '../ui/GameUI';
 
 function isEditableElement(target: EventTarget | null): boolean {
@@ -29,6 +30,11 @@ export interface GameControllerHandle {
 
 export function initGameController(net: WebSocketClient, renderer: CanvasRenderer): GameControllerHandle {
     const movement = new MovementController(renderer, net, showInfo);
+    const lootRespawn = new LootRespawnFeature(net, renderer, movement, addLog);
+
+    movement.setTileClickInterceptor(tile => lootRespawn.handleTileClick(tile));
+    movement.setMoveDispatchedListener(() => lootRespawn.cancelPendingLoot());
+
     const canvas = renderer.getCanvas();
     const minimapCanvas = document.getElementById('minimap') as HTMLCanvasElement;
     const minimap = new MinimapRenderer(minimapCanvas, document.getElementById('minimap-status')!);
@@ -116,6 +122,9 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             combat.stopAttack();
             return;
         }
+        if (lootRespawn.handleGlobalKeyDown(event)) {
+            return;
+        }
 
         if (event.code === 'KeyY' && !event.repeat) {
             const freeCamera = renderer.toggleFreeCamera(net.myId);
@@ -139,6 +148,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
     function connectGame() {
         const name = getPlayerName();
         if (!name) return showError('Vui lòng nhập tên!');
+        lootRespawn.reset();
         net.connect(
             name,
             selectedCharacterId,
@@ -150,7 +160,16 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
                 if (!online) npcInteraction.close();
             },
             showError,
-            () => { movement.clearPreview(); combat.clearSelection(); }
+            () => { movement.clearPreview(); combat.clearSelection(); },
+            {
+                onWorldUpdate: () => lootRespawn.syncState(),
+                onChat: event => lootRespawn.handleChatEvent(event),
+                onDamage: event => lootRespawn.handleDamageEvent(event),
+                onEntitySpawn: event => lootRespawn.handleEntitySpawn(event),
+                onEntityDespawn: event => lootRespawn.handleEntityDespawn(event),
+                onAck: commandType => lootRespawn.handleAck(commandType),
+                onErrorCode: code => lootRespawn.handleErrorCode(code)
+            }
         );
     }
 
@@ -166,6 +185,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
         renderer.setFreeCamera(false, net.myId);
         minimap.setMap(net.map, getOrCreatePlayerId());
         if (groundView) groundView.value = 'spawn';
+        lootRespawn.syncState();
         showGame();
         start();
     }
@@ -180,7 +200,8 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
 
     function gameLoop(timestamp: number) {
         if (!running) return;
-        renderer.render(net.players, net.myId, movement.getPreviewPath(), net.map, timestamp);
+        lootRespawn.onFrame(timestamp);
+        renderer.render(net.players, net.myId, movement.getPreviewPath(), net.map, timestamp, net.items);
         combat.update();
         minimap.render(net.myId ? net.players.get(net.myId) : undefined, renderer.getMapViewport(), timestamp);
         rafId = requestAnimationFrame(gameLoop);
@@ -194,6 +215,9 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
                 rafId = null;
             }
             combat.destroy();
+            lootRespawn.destroy();
+            movement.setTileClickInterceptor(undefined);
+            movement.setMoveDispatchedListener(undefined);
             movement.destroy();
             npcInteraction.destroy();
             minimap.destroy();

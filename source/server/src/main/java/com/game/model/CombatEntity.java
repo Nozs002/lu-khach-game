@@ -35,8 +35,17 @@ public abstract class CombatEntity {
         return hp;
     }
 
+    public void setHp(int hp) {
+        this.hp = Math.max(0, Math.min(maxHp, hp));
+    }
+
     public int getMaxHp() {
         return maxHp;
+    }
+
+    public void setMaxHp(int maxHp) {
+        this.maxHp = Math.max(1, maxHp);
+        hp = Math.min(hp, this.maxHp);
     }
 
     public String getState() {
@@ -57,7 +66,7 @@ public abstract class CombatEntity {
     }
 
     public void setState(String state) {
-        if (isAlive()) {
+        if (hp > 0 || "DEAD".equals(state)) {
             this.state = state;
         }
     }

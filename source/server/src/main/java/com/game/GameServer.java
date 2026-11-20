@@ -1,6 +1,5 @@
 package com.game;
 
-import com.game.handler.JoinHandler;
 import com.game.features.combat.AttackHandler;
 import com.game.features.combat.CombatConfig;
 import com.game.features.combat.CombatNavigation;
@@ -8,11 +7,15 @@ import com.game.features.combat.CombatSystem;
 import com.game.features.combat.EntityDeathEvent;
 import com.game.features.combat.MobAISystem;
 import com.game.features.combat.MobSpawnSystem;
-import com.game.model.Mob;
 import com.game.features.movement.MoveToHandler;
 import com.game.features.movement.MovementSystem;
+import com.game.handler.JoinHandler;
+import com.game.model.Mob;
 import com.game.model.NetworkMessage;
 import com.game.model.Player;
+import com.game.systems.CommandResult;
+import com.game.systems.LootRespawnSystem;
+import com.game.world.WorldContext;
 import com.game.world.WorldMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
@@ -21,9 +24,11 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -31,43 +36,52 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GameServer extends WebSocketServer {
-    private static final int MAX_PLAYERS = 50; // 1. Giới hạn người chơi
+    private static final int MAX_PLAYERS = 50;
+    private static final int MAX_MESSAGE_BYTES = 4096;
     private static final String MAP_RESOURCE = "/maps/world.generated.json";
-    private static final long MOVEMENT_TICK_MILLIS = 200;
+    private static final long WORLD_TICK_MILLIS = 100L;
+    private static final int MOVEMENT_STEP_EVERY_TICKS = 2;
 
     private final Map<WebSocket, Player> players = new ConcurrentHashMap<>();
     private final Gson gson = new Gson();
     private final WorldMap worldMap = WorldMap.loadFromResource(MAP_RESOURCE, gson);
+    private final WorldContext worldContext = new WorldContext(worldMap);
     private final Map<String, Mob> mobs = MobSpawnSystem.load(MAP_RESOURCE, worldMap, gson, new Random());
-    private final JoinHandler joinHandler = new JoinHandler(players, gson, MAX_PLAYERS, worldMap, mobs.values());
+    private final JoinHandler joinHandler = new JoinHandler(players, gson, MAX_PLAYERS, worldMap, worldContext);
     private final CombatNavigation navigation = new CombatNavigation(worldMap);
     private final AttackHandler attackHandler = new AttackHandler(mobs, navigation);
     private final MobAISystem mobAI = new MobAISystem(navigation);
     private final CombatSystem combat = new CombatSystem(navigation);
-    private long tick;
+    private final LootRespawnSystem lootRespawnSystem = new LootRespawnSystem(worldContext);
     private final MoveToHandler moveToHandler = new MoveToHandler(worldMap);
     private final MovementSystem movementSystem = new MovementSystem();
-    private final ScheduledExecutorService movementTicker = Executors.newSingleThreadScheduledExecutor(runnable -> {
-        Thread thread = new Thread(runnable, "game-movement-tick");
+    private final ScheduledExecutorService worldTicker = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "game-world-tick");
         thread.setDaemon(true);
         return thread;
     });
 
+    {
+        mobs.values().forEach(worldContext::addMob);
+    }
+
     public GameServer(int port) {
         super(new InetSocketAddress(port));
-        // Java-WebSocket enables Ping/Pong connection checks by default.
         setConnectionLostTimeout(10);
+    }
+
+    public WorldContext getWorldContext() {
+        return worldContext;
+    }
+
+    public LootRespawnSystem getLootRespawnSystem() {
+        return lootRespawnSystem;
     }
 
     @Override
     public void onStart() {
         System.out.println("Java GameServer đang lắng nghe tại cổng: " + getPort());
-        movementTicker.scheduleAtFixedRate(
-                this::tickMovement,
-                MOVEMENT_TICK_MILLIS,
-                MOVEMENT_TICK_MILLIS,
-                TimeUnit.MILLISECONDS
-        );
+        worldTicker.scheduleAtFixedRate(this::tickWorld, WORLD_TICK_MILLIS, WORLD_TICK_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -82,6 +96,12 @@ public class GameServer extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
+        if (message == null) return;
+        if (message.getBytes(StandardCharsets.UTF_8).length > MAX_MESSAGE_BYTES) {
+            conn.close(1009, "Message exceeds 4 KiB limit");
+            return;
+        }
+
         try {
             NetworkMessage input = gson.fromJson(message, NetworkMessage.class);
             if (input == null || input.type == null) {
@@ -96,6 +116,7 @@ public class GameServer extends WebSocketServer {
                         Player newPlayer = joinHandler.handle(conn, input);
                         if (newPlayer != null) {
                             NetworkMessage joinedMsg = new NetworkMessage("PLAYER_JOINED");
+                            joinedMsg.tick = worldContext.getCurrentTick();
                             joinedMsg.payload = newPlayer;
                             broadcastMessage(gson.toJson(joinedMsg), conn);
                         }
@@ -105,6 +126,21 @@ public class GameServer extends WebSocketServer {
                         break;
                     case "ATTACK":
                         handleAttack(conn, JsonParser.parseString(message).getAsJsonObject().get("payload"));
+                        break;
+                    case "CHAT":
+                        handleChat(conn, input);
+                        break;
+                    case "LOOT":
+                        handleLoot(conn, input);
+                        break;
+                    case "RESPAWN":
+                        handleRespawn(conn);
+                        break;
+                    case "SIMULATE_DAMAGE":
+                        handleSimulateDamage(conn, input);
+                        break;
+                    case "SIMULATE_SPAWN_POTION":
+                        handleSimulateSpawnPotion(conn);
                         break;
                     default:
                         sendError(conn, "UNSUPPORTED_COMMAND", "Loại lệnh không được hỗ trợ.");
@@ -120,14 +156,12 @@ public class GameServer extends WebSocketServer {
     @Override
     public void onError(WebSocket conn, Exception ex) {
         System.err.println("WebSocket error: " + ex.getMessage());
-        if (conn != null) {
-            cleanupSession(conn);
-        }
+        if (conn != null) cleanupSession(conn);
     }
 
     @Override
     public void stop(int timeout) throws InterruptedException {
-        movementTicker.shutdownNow();
+        worldTicker.shutdownNow();
         super.stop(timeout);
     }
 
@@ -141,11 +175,8 @@ public class GameServer extends WebSocketServer {
             sendError(conn, "INVALID_MESSAGE", "MOVE_TO yêu cầu tọa độ ô x và y.");
             return;
         }
-
         MoveToHandler.Result result = moveToHandler.handle(player, input.x, input.y);
-        if (!result.accepted()) {
-            sendError(conn, result.code(), result.message());
-        }
+        if (!result.accepted()) sendError(conn, result.code(), result.message());
     }
 
     private void handleAttack(WebSocket conn, com.google.gson.JsonElement payload) {
@@ -160,86 +191,140 @@ public class GameServer extends WebSocketServer {
             return;
         }
         if (conn.isOpen()) {
-            NetworkMessage msg = new NetworkMessage("ACK");
-            msg.tick = tick;
-            msg.payload = Map.of("commandType", "ATTACK");
+            NetworkMessage msg = NetworkMessage.ack(worldContext.getCurrentTick(), "ATTACK");
             conn.send(gson.toJson(msg));
         }
     }
 
+    private void handleChat(WebSocket conn, NetworkMessage input) {
+        Player player = players.get(conn);
+        String text = input.text;
+        if (text == null && input.payload instanceof String value) text = value;
+        CommandResult result = lootRespawnSystem.handleChat(player, text, System.currentTimeMillis());
+        conn.send(gson.toJson(result.toNetworkMessage(worldContext.getCurrentTick())));
+        flushAndBroadcastEvents();
+    }
+
+    private void handleLoot(WebSocket conn, NetworkMessage input) {
+        Player player = players.get(conn);
+        String itemId = input.itemId != null ? input.itemId : input.id;
+        CommandResult result = lootRespawnSystem.handleLoot(player, itemId);
+        conn.send(gson.toJson(result.toNetworkMessage(worldContext.getCurrentTick())));
+        flushAndBroadcastEvents();
+        if (result.isAccepted()) broadcastState();
+    }
+
+    private void handleRespawn(WebSocket conn) {
+        Player player = players.get(conn);
+        CommandResult result = lootRespawnSystem.handleRespawn(player);
+        conn.send(gson.toJson(result.toNetworkMessage(worldContext.getCurrentTick())));
+        flushAndBroadcastEvents();
+        if (result.isAccepted()) broadcastState();
+    }
+
+    private void handleSimulateDamage(WebSocket conn, NetworkMessage input) {
+        Player player = players.get(conn);
+        if (player == null) {
+            sendError(conn, "JOIN_REQUIRED", "Bạn cần vào game trước.");
+            return;
+        }
+        int amount = input.amount != null && input.amount > 0 ? input.amount : 40;
+        lootRespawnSystem.applyDamageToPlayer("env-test", player, amount);
+        conn.send(gson.toJson(NetworkMessage.ack(worldContext.getCurrentTick(), "SIMULATE_DAMAGE")));
+        flushAndBroadcastEvents();
+        broadcastState();
+    }
+
+    private void handleSimulateSpawnPotion(WebSocket conn) {
+        Player player = players.get(conn);
+        if (player == null) {
+            sendError(conn, "JOIN_REQUIRED", "Bạn cần vào game trước.");
+            return;
+        }
+        lootRespawnSystem.spawnPotionNear(player.getX(), player.getY());
+        conn.send(gson.toJson(NetworkMessage.ack(worldContext.getCurrentTick(), "SIMULATE_SPAWN_POTION")));
+        flushAndBroadcastEvents();
+        broadcastState();
+    }
+
     private void emit(String type, Object payload) {
-        NetworkMessage msg = new NetworkMessage(type);
-        msg.tick = tick;
-        msg.payload = payload;
+        NetworkMessage msg = NetworkMessage.event(type, worldContext.getCurrentTick(), payload);
         broadcastMessage(gson.toJson(msg), null);
     }
 
     private void onEntityDeath(EntityDeathEvent event) {
-        // P4 có thể nhận sự kiện này để xử lý loot/hồi sinh đúng một lần.
+        if ("MOB".equals(event.entityKind())) {
+            lootRespawnSystem.onCombatMobDeath(mobs.get(event.entityId()));
+        } else if ("PLAYER".equals(event.entityKind())) {
+            lootRespawnSystem.onCombatPlayerDeath(worldContext.getPlayer(event.entityId()));
+        }
         System.out.println("[DEAD] " + event.entityId() + " killer=" + event.killerId()
                 + " generation=" + event.spawnGeneration());
     }
 
-    private void tickMovement() {
+    private void tickWorld() {
         try {
             synchronized (players) {
-                // Giữ scheduler 200 ms; cooldown combat dùng đơn vị 100 ms.
-                tick += MOVEMENT_TICK_MILLIS / CombatConfig.TICK_MS;
+                long tick = worldContext.advanceTick();
                 Map<String, Player> playersById = new HashMap<>();
-                for (Player player : players.values()) {
-                    playersById.put(player.getId(), player);
-                }
+                for (Player player : players.values()) playersById.put(player.getId(), player);
+
                 combat.preparePlayers(players.values(), mobs);
-                movementSystem.advanceOneTick(new ArrayList<>(players.values()));
+                boolean moved = tick % MOVEMENT_STEP_EVERY_TICKS == 0
+                        && movementSystem.advanceOneTick(new ArrayList<>(players.values()));
                 mobAI.update(mobs.values(), playersById, tick);
                 combat.update(playersById, mobs, tick, this::emit, this::onEntityDeath);
-                // Quái và HP vẫn thay đổi ngay cả khi player không di chuyển.
-                broadcastState();
+                boolean itemsOrMobsChanged = lootRespawnSystem.updateTick();
+                flushAndBroadcastEvents();
+                if (moved || itemsOrMobsChanged || !players.isEmpty()) broadcastState();
             }
         } catch (RuntimeException e) {
-            System.err.println("Lỗi cập nhật di chuyển: " + e.getMessage());
+            System.err.println("Lỗi cập nhật thế giới: " + e.getMessage());
         }
     }
 
+    private void flushAndBroadcastEvents() {
+        List<NetworkMessage> events = worldContext.drainPendingEvents();
+        for (NetworkMessage event : events) broadcastMessage(gson.toJson(event), null);
+    }
+
     private void broadcastState() {
+        if (players.isEmpty()) return;
         NetworkMessage msg = new NetworkMessage("STATE_UPDATE");
+        msg.tick = worldContext.getCurrentTick();
         msg.payload = new ArrayList<>(players.values());
-        msg.tick = tick;
         msg.mobs = new ArrayList<>(mobs.values());
+        msg.items = worldContext.getItems();
         broadcastMessage(gson.toJson(msg), null);
     }
 
     private void sendError(WebSocket conn, String code, String message) {
         if (conn == null || !conn.isOpen()) return;
-        NetworkMessage error = new NetworkMessage("ERROR");
-        error.code = code;
-        error.payload = message;
-        conn.send(gson.toJson(error));
+        conn.send(gson.toJson(NetworkMessage.error(worldContext.getCurrentTick(), code, message)));
     }
 
     private void cleanupSession(WebSocket conn) {
         synchronized (players) {
             Player leaver = players.remove(conn);
-            if (leaver != null) {
-                System.out.println("[CLEANUP] Đã dọn dẹp phiên của: " + leaver.getName() + " (" + leaver.getId() + ")");
-                for (Mob mob : mobs.values()) {
-                    if (mob.isAlive() && leaver.getId().equals(mob.getTargetId())) {
-                        mob.setTargetId(null);
-                        mob.setState("RETURN");
-                    }
+            if (leaver == null) return;
+            worldContext.removePlayer(leaver.getId());
+            for (Mob mob : mobs.values()) {
+                if (mob.isAlive() && leaver.getId().equals(mob.getTargetId())) {
+                    mob.setTargetId(null);
+                    mob.setState("RETURN");
                 }
-                NetworkMessage msg = new NetworkMessage("PLAYER_LEFT");
-                msg.id = leaver.getId();
-                broadcastMessage(gson.toJson(msg), null);
             }
+            System.out.println("[CLEANUP] Đã dọn dẹp phiên của: " + leaver.getName() + " (" + leaver.getId() + ")");
+            NetworkMessage msg = new NetworkMessage("PLAYER_LEFT");
+            msg.tick = worldContext.getCurrentTick();
+            msg.id = leaver.getId();
+            broadcastMessage(gson.toJson(msg), null);
         }
     }
 
     private void broadcastMessage(String text, WebSocket exclude) {
         for (WebSocket client : players.keySet()) {
-            if (client != exclude && client.isOpen()) {
-                client.send(text);
-            }
+            if (client != exclude && client.isOpen()) client.send(text);
         }
     }
 }
