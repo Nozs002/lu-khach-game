@@ -205,6 +205,40 @@ class CombatTest {
     }
 
     @Test
+    void selectingDistantMobStopsMovementAndNeverAutoApproachesOrFollows() {
+        Player player = player("p-1", 1, 3);
+        Mob mob = mob(7, 3);
+        Map<String, Player> players = Map.of(player.getId(), player);
+        Map<String, Mob> mobs = Map.of(mob.getId(), mob);
+        AttackHandler handler = new AttackHandler(mobs, navigation);
+        player.setPath(List.of(new Point(2, 3)));
+        assertTrue(handler.handle(player, JsonParser.parseString("{\"targetId\":\"m-1\"}")).accepted());
+        for (long tick = 2; tick <= 10; tick += 2) {
+            combat.preparePlayers(players.values(), mobs);
+            assertFalse(player.advanceOneStep());
+            combat.update(players, mobs, tick, (type, payload) -> fail("No damage out of range"), event -> fail());
+            assertEquals(new Point(1, 3), new Point(player.getX(), player.getY()));
+            assertEquals("IDLE", player.getState());
+            assertEquals(mob.getId(), player.getTargetId());
+        }
+        // Khi quái đến kề player, tự đánh tại chỗ.
+        mob.setPosition(2, 3);
+        combat.preparePlayers(players.values(), mobs);
+        assertFalse(player.advanceOneStep());
+        assertEquals("ATTACKING", player.getState());
+        combat.update(players, mobs, 12, (type, payload) -> {}, event -> fail());
+        assertEquals(25, mob.getHp());
+        // Quái rời tầm: không đuổi theo và không gây thêm sát thương.
+        mob.setPosition(4, 3);
+        combat.preparePlayers(players.values(), mobs);
+        assertFalse(player.advanceOneStep());
+        combat.update(players, mobs, 20, (type, payload) -> fail("No damage out of range"), event -> fail());
+        assertEquals("IDLE", player.getState());
+        assertEquals(new Point(1, 3), new Point(player.getX(), player.getY()));
+        assertEquals(25, mob.getHp());
+    }
+
+    @Test
     void existingWorldMapMovementChecksStillPass() {
         com.game.model.WorldMapCheck.main(new String[0]);
     }

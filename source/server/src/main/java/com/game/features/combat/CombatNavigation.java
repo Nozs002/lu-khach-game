@@ -42,10 +42,6 @@ public final class CombatNavigation {
                 && distance(x, y, mob.getHomeX(), mob.getHomeY()) <= mob.getLeashRadius();
     }
 
-    public List<Point> playerApproach(CombatEntity player, CombatEntity target) {
-        return shortestApproach(new Point(player.getX(), player.getY()), target, point -> true);
-    }
-
     public List<Point> mobApproach(Mob mob, CombatEntity target) {
         if (isSafe(target)) return null;
         return shortestApproach(new Point(mob.getX(), mob.getY()), target,

@@ -5,8 +5,6 @@ import com.game.model.Player;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.awt.Point;
-import java.util.List;
 import java.util.Map;
 
 public final class AttackHandler {
@@ -40,12 +38,11 @@ public final class AttackHandler {
         if (target == null || !target.isAlive() || navigation.isSafe(target)) {
             return new Result("INVALID_TARGET", "Mục tiêu không hợp lệ.");
         }
-        List<Point> path = navigation.playerApproach(player, target);
-        if (path == null) return new Result("NO_PATH", "Không có đường tiếp cận quái.");
-
-        player.setPath(path);
+        // Chọn quái sẽ dừng đường đi hiện tại, không tự tìm đường tới mục tiêu.
+        player.clearPath();
         player.setTargetId(target.getId());
-        if (path.isEmpty()) player.setState("ATTACKING");
+        player.setState(CombatNavigation.distance(player, target) == 1 && !navigation.isSafe(player)
+                ? "ATTACKING" : "IDLE");
         return new Result(null, null);
     }
 

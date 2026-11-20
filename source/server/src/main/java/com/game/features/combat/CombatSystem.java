@@ -4,7 +4,6 @@ import com.game.model.CombatEntity;
 import com.game.model.Mob;
 import com.game.model.Player;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -28,14 +27,10 @@ public final class CombatSystem {
                 player.stopCombat();
                 continue;
             }
-            if (CombatNavigation.distance(player, target) == 1) {
-                player.clearPath();
-                player.setState("ATTACKING");
-                continue;
-            }
-            List<Point> path = navigation.playerApproach(player, target);
-            if (path == null) player.stopCombat();
-            else player.setPath(path);
+            // Chỉ cập nhật trạng thái; player phải tự click đất để di chuyển.
+            player.clearPath();
+            player.setState(CombatNavigation.distance(player, target) == 1 && !navigation.isSafe(player)
+                    ? "ATTACKING" : "IDLE");
         }
     }
 

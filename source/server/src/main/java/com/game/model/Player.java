@@ -63,7 +63,7 @@ public class Player extends CombatEntity {
         }
         Point next = path.poll();
         if (next == null) {
-            state = targetId == null ? "IDLE" : "ATTACKING";
+            if (targetId == null) state = "IDLE";
             return false;
         }
         x = next.x;
