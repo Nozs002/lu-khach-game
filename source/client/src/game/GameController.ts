@@ -33,7 +33,6 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
     const lootRespawn = new LootRespawnFeature(net, renderer, movement, addLog);
 
     movement.setTileClickInterceptor(tile => lootRespawn.handleTileClick(tile));
-    movement.setMoveDispatchedListener(() => lootRespawn.cancelPendingLoot());
 
     const canvas = renderer.getCanvas();
     const minimapCanvas = document.getElementById('minimap') as HTMLCanvasElement;
@@ -49,6 +48,10 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             renderer.clearPointerPosition();
         });
     const combat = new CombatController(renderer, net, showInfo, () => movement.clearPreview());
+    movement.setMoveDispatchedListener(() => {
+        lootRespawn.cancelPendingLoot();
+        combat.clearSelection();
+    });
     bindJoin(connectGame);
 
     const groundView = document.getElementById('ground-view') as HTMLSelectElement | null;

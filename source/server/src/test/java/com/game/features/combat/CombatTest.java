@@ -206,7 +206,7 @@ class CombatTest {
     }
 
     @Test
-    void selectingDistantMobStopsMovementAndNeverAutoApproachesOrFollows() {
+    void selectingDistantMobAutoApproachesAndFollowsItsNewPosition() {
         Player player = player("p-1", 1, 3);
         Mob mob = mob(7, 3);
         Map<String, Player> players = Map.of(player.getId(), player);
@@ -214,29 +214,46 @@ class CombatTest {
         AttackHandler handler = new AttackHandler(mobs, navigation);
         player.setPath(List.of(new Point(2, 3)));
         assertTrue(handler.handle(player, JsonParser.parseString("{\"targetId\":\"m-1\"}")).accepted());
-        for (long tick = 2; tick <= 10; tick += 2) {
+        List<CombatSystem.DamageEvent> damage = new ArrayList<>();
+        for (long tick = 2; tick <= 40; tick++) {
             combat.preparePlayers(players.values(), mobs);
-            assertFalse(player.advanceOneStep());
-            combat.update(players, mobs, tick, (type, payload) -> fail("No damage out of range"), event -> fail());
-            assertEquals(new Point(1, 3), new Point(player.getX(), player.getY()));
-            assertEquals("IDLE", player.getState());
-            assertEquals(mob.getId(), player.getTargetId());
+            if (tick % 2 == 0) player.advanceOneStep();
+            combat.update(players, mobs, tick, (type, payload) -> {
+                if (payload instanceof CombatSystem.DamageEvent event) damage.add(event);
+            }, event -> fail("Neither entity should die"));
+            if (!damage.isEmpty()) break;
         }
-        // Khi quái đến kề player, tự đánh tại chỗ.
-        mob.setPosition(2, 3);
-        combat.preparePlayers(players.values(), mobs);
-        assertFalse(player.advanceOneStep());
+        assertEquals(1, CombatNavigation.distance(player, mob));
+        assertNotEquals(new Point(1, 3), new Point(player.getX(), player.getY()));
         assertEquals("ATTACKING", player.getState());
-        combat.update(players, mobs, 12, (type, payload) -> {}, event -> fail());
-        assertEquals(40 - player.getDamage(), mob.getHp());
-        // Quái rời tầm: không đuổi theo và không gây thêm sát thương.
-        mob.setPosition(4, 3);
+        assertEquals(1, damage.size());
+        assertEquals(player.getId(), damage.get(0).attackerId());
+
+        Point beforeMobMoves = new Point(player.getX(), player.getY());
+        mob.setPosition(7, 5);
         combat.preparePlayers(players.values(), mobs);
-        assertFalse(player.advanceOneStep());
-        combat.update(players, mobs, 20, (type, payload) -> fail("No damage out of range"), event -> fail());
-        assertEquals("IDLE", player.getState());
-        assertEquals(new Point(1, 3), new Point(player.getX(), player.getY()));
-        assertEquals(40 - player.getDamage(), mob.getHp());
+        assertTrue(player.hasPath());
+        assertTrue(player.advanceOneStep());
+        assertNotEquals(beforeMobMoves, new Point(player.getX(), player.getY()));
+
+        // A manual move still cancels auto-chase and its selected target.
+        MoveToHandler moveToHandler = new MoveToHandler(map);
+        assertTrue(moveToHandler.handle(player, 1, 5).accepted());
+        combat.preparePlayers(players.values(), mobs);
+        assertNull(player.getTargetId());
+        assertTrue(player.hasPath());
+    }
+
+    @Test
+    void playerApproachNeverStopsInsideSafeZoneWhenTargetIsNearby() {
+        Player player = player("p-1", 3, 3);
+        Mob mob = mob(4, 3);
+        List<Point> path = navigation.playerApproach(player, mob);
+        assertNotNull(path);
+        assertFalse(path.isEmpty());
+        Point destination = path.get(path.size() - 1);
+        assertEquals(1, CombatNavigation.distance(destination.x, destination.y, mob.getX(), mob.getY()));
+        assertFalse(navigation.isSafe(destination.x, destination.y));
     }
 
     @Test

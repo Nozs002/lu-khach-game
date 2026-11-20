@@ -1,5 +1,6 @@
 package com.game.systems;
 
+import com.game.features.combat.CombatNavigation;
 import com.game.model.Item;
 import com.game.model.Mob;
 import com.game.model.Player;
@@ -18,6 +19,7 @@ import java.util.Random;
  */
 public class LootRespawnSystem {
     public static final int POTION_HEAL_AMOUNT = 30;
+    public static final int PASSIVE_REGEN_HP_PER_TICK = 1;    // 10 HP/s ở tick 100 ms
     public static final double DEFAULT_DROP_RATE = 0.50;
     public static final long ITEM_LIFETIME_TICKS = 200L;       // 20 giây (10 tick/giây)
     public static final long PLAYER_RESPAWN_WAIT_TICKS = 30L;  // 3 giây (10 tick/giây)
@@ -28,6 +30,7 @@ public class LootRespawnSystem {
 
     private final WorldContext world;
     private final Random random;
+    private final CombatNavigation combatNavigation;
     private double dropRate;
 
     public LootRespawnSystem(WorldContext world) {
@@ -37,6 +40,7 @@ public class LootRespawnSystem {
     public LootRespawnSystem(WorldContext world, Random random, double dropRate) {
         this.world = world;
         this.random = random != null ? random : new Random();
+        this.combatNavigation = new CombatNavigation(world.getWorldMap());
         this.dropRate = Math.max(0.0, Math.min(1.0, dropRate));
     }
 
@@ -272,7 +276,7 @@ public class LootRespawnSystem {
     }
 
     /**
-     * Cập nhật mỗi tick (100 ms): xóa bình máu hết hạn sau 200 ticks và hồi sinh quái chết sau 150 ticks.
+     * Cập nhật mỗi tick (100 ms): dọn vật phẩm, hồi sinh quái và hồi 1 HP nếu người chơi an toàn.
      * Trả về true nếu có thay đổi trạng thái cần broadcast STATE_UPDATE.
      */
     public boolean updateTick() {
@@ -308,8 +312,28 @@ public class LootRespawnSystem {
                 }
             }
 
+            for (Player player : world.getPlayers()) {
+                if (!player.isAlive() || player.getHp() >= player.getMaxHp() || isThreatened(player)) continue;
+                player.setHp(player.getHp() + PASSIVE_REGEN_HP_PER_TICK);
+                changed = true;
+            }
+
             return changed;
         }
+    }
+
+    private boolean isThreatened(Player player) {
+        if (combatNavigation.isSafe(player)) return false;
+        for (Mob mob : world.getMobs()) {
+            if (!mob.isAlive() || "RETURN".equals(mob.getState())) continue;
+
+            if (mob.getTargetId() != null) {
+                if (player.getId().equals(mob.getTargetId())) return true;
+                continue;
+            }
+            if (CombatNavigation.distance(player, mob) <= mob.getAggroRadius()) return true;
+        }
+        return false;
     }
 
     private void emitDamage(String attackerId, String targetId, int amount, int x, int y) {

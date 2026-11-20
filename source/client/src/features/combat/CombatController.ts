@@ -69,23 +69,28 @@ export class CombatController {
         if (!mob) return this.notify('Hiện không có quái còn sống.');
         this.renderer.centerOnWorldTile(mob.x, mob.y);
         this.view.selectedId = mob.id;
-        this.notify('Đang xem bãi quái. Tự di chuyển đến ô kề rồi click quái để đánh; Space để xem nhân vật.');
+        this.notify('Đang xem bãi quái. Click quái để tự đuổi theo và tấn công; Space để xem nhân vật.');
     };
 
     update(): void {
+        const player = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        if (player?.state === 'DEAD' || (typeof player?.hp === 'number' && player.hp <= 0)) {
+            this.view.selectedId = null;
+        }
         let target = this.view.selectedId ? this.net.mobs.get(this.view.selectedId) : undefined;
         if (target && target.hp <= 0) {
             this.view.selectedId = null;
             target = undefined;
         }
-        const player = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
         const nearest = this.nearestMob();
         const distance = nearest && player ? Math.abs(nearest.x - player.x) + Math.abs(nearest.y - player.y) : null;
         const targetDistance = target && player ? Math.abs(target.x - player.x) + Math.abs(target.y - player.y) : null;
         const hint = player?.state === 'DEAD' ? 'Nhân vật đã chết; chưa có hồi sinh.'
-            : target ? targetDistance === 1 ? 'Đứng kề quái để đánh · Click đất hoặc Esc để dừng.'
-                : 'Ngoài tầm đánh. Tự di chuyển đến ô kề rồi click quái để đánh.'
-            : nearest ? `Quái gần nhất cách ${distance} ô. Click quái để chọn; đứng kề để đánh.`
+            : target ? player?.targetId !== target.id ? 'Click quái để bắt đầu đuổi theo.'
+                : targetDistance === 1 && player?.state === 'ATTACKING'
+                    ? 'Đang tấn công · Click đất hoặc Esc để dừng.'
+                    : 'Đang đuổi theo quái; sẽ tự tấn công khi tới gần.'
+            : nearest ? `Quái gần nhất cách ${distance} ô. Click quái để tự đuổi theo và tấn công.`
             : 'Hiện không có quái còn sống.';
         const key = `${target?.id}|${target?.hp}|${target?.maxHp}|${hint}|${Boolean(player?.targetId)}`;
         if (key === this.lastPanel) return;

@@ -165,6 +165,52 @@ public class LootRespawnSystemTest {
     }
 
     @Test
+    public void testPassiveRegenIsTenHpPerSecondOnlyWhenNoMobThreatensPlayer() {
+        WorldMap map = WorldMap.loadFromResource("/maps/combat-test.json", new Gson());
+        WorldContext world = new WorldContext(map);
+        LootRespawnSystem sys = new LootRespawnSystem(world, new Random(1L), 1.0);
+        Player player = new Player("p-1", "An", "knight", 1, 3);
+        player.setHp(50);
+        world.addPlayer(player);
+        Mob mob = new Mob("m-1", "slime", "test-zone", 5, 3, 4, 6, 15);
+        world.addMob(mob);
+
+        for (long tick = 1; tick <= 10; tick++) {
+            world.setCurrentTick(tick);
+            sys.updateTick();
+        }
+        assertEquals(50, player.getHp(), "An idle mob within aggro range prevents regeneration");
+
+        mob.setPosition(7, 3);
+        mob.setTargetId(player.getId());
+        mob.setState("CHASE");
+        for (long tick = 11; tick <= 20; tick++) {
+            world.setCurrentTick(tick);
+            sys.updateTick();
+        }
+        assertEquals(50, player.getHp(), "A mob actively chasing the player remains a threat outside its radius");
+
+        mob.setTargetId(null);
+        mob.setState("RETURN");
+        for (long tick = 21; tick <= 30; tick++) {
+            world.setCurrentTick(tick);
+            assertTrue(sys.updateTick());
+        }
+        assertEquals(60, player.getHp(), "Safe ticks restore 1 HP each at the 100 ms server tick rate");
+
+        player.setHp(player.getMaxHp() - 1);
+        world.setCurrentTick(31);
+        sys.updateTick();
+        assertEquals(player.getMaxHp(), player.getHp());
+
+        player.setHp(0);
+        player.setState("DEAD");
+        world.setCurrentTick(32);
+        sys.updateTick();
+        assertEquals(0, player.getHp(), "Dead players do not regenerate");
+    }
+
+    @Test
     public void testItemExpiresAfter200Ticks() {
         WorldContext world = new WorldContext(loadRealWorldMap());
         LootRespawnSystem sys = new LootRespawnSystem(world, new Random(1L), 1.0);
@@ -191,8 +237,10 @@ public class LootRespawnSystemTest {
         System.out.println("[PASS] AC08 - Mob death drop once & respawn after 150 ticks");
         t.testPlayerDeathBlocksMovementAndRespawnsToTiledSpawnAfter30Ticks();
         System.out.println("[PASS] AC08 - Player death blocks move & respawns to Tiled spawn (53,233) after 30 ticks");
+        t.testPassiveRegenIsTenHpPerSecondOnlyWhenNoMobThreatensPlayer();
+        System.out.println("[PASS] Passive regen is 10 HP/s outside mob threat");
         t.testItemExpiresAfter200Ticks();
         System.out.println("[PASS] Item expires after 200 ticks");
-        System.out.println("ALL 6 PHAN-4 SERVER TEST SUITES PASSED ON TILED WORLD!");
+        System.out.println("ALL 7 PHAN-4 SERVER TEST SUITES PASSED ON TILED WORLD!");
     }
 }

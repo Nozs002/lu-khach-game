@@ -110,7 +110,7 @@ Player tự đánh tới khi mục tiêu chết/mất, người chơi chết, g�
 
 Khi quái chết: đánh dấu DEAD một lần, ngừng AI/combat, xét drop một lần, phát sự kiện và lên lịch hồi sinh. Nếu nhiều player cùng đánh, đòn làm HP về 0 được ghi nhận trong sự kiện, không có điểm thưởng hoặc quyền loot riêng. Không phát hai lần death/drop cho cùng vòng đời.
 
-Player chết: hủy đường/mục tiêu/pending loot, giữ phiên kết nối, phát trạng thái chết. Không rơi đồ hoặc mất tiến trình vì bản đầu không có inventory. Không tự hồi máu khi đang sống; nguồn hồi máu là bình máu và hồi sinh.
+Player chết: hủy đường/mục tiêu/pending loot, giữ phiên kết nối, phát trạng thái chết. Không rơi đồ hoặc mất tiến trình vì bản đầu không có inventory. Khi còn sống và không bị quái đe dọa, player hồi thụ động 1 HP mỗi tick (10 HP/giây ở tick 100 ms), tối đa bằng maxHp. Quái còn sống trong bán kính aggro hoặc đang chủ động đuổi player sẽ ngăn hồi máu; quái đang RETURN không tính là mối đe dọa.
 
 ## 7. Quái: sinh, AI và hồi sinh
 

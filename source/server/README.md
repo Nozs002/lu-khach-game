@@ -72,4 +72,4 @@ Player mới bắt đầu với `hp = maxHp`. Các trường `hp`, `maxHp`, `dam
 
 ## Tích hợp quái và chiến đấu
 
-Nhánh quai đã được tích hợp cùng NPC, minimap và UUID local. Server sinh quái từ monsterSpawns, điều khiển AI/chiến đấu; client click quái để chọn và đánh khi đứng kề, không tự chạy tới quái. Esc hoặc click đất để dừng đánh. Phần cấu hình nhân vật trong characters.json vẫn là nguồn chỉ số chính thức. Kiểm thử CombatTest có kiểm tra sát thương/giáp cho đủ bốn nhân vật; GameServerCombatTest kiểm tra WELCOME và di chuyển qua WebSocket thật.
+Nhánh quai đã được tích hợp cùng NPC, minimap và UUID local. Server sinh quái từ monsterSpawns, điều khiển AI/chiến đấu; click quái để nhân vật tự tìm đường đến ô kề và tấn công khi tới gần. Click đất hoặc nhấn Esc để dừng đánh. Người chơi hồi thụ động 10 HP/giây khi không còn quái đe dọa ở gần. Phần cấu hình nhân vật trong characters.json vẫn là nguồn chỉ số chính thức. Kiểm thử CombatTest có kiểm tra sát thương/giáp cho đủ bốn nhân vật; GameServerCombatTest kiểm tra WELCOME và di chuyển qua WebSocket thật.

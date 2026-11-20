@@ -38,7 +38,7 @@ public final class AttackHandler {
         if (target == null || !target.isAlive() || navigation.isSafe(target)) {
             return new Result("INVALID_TARGET", "Mục tiêu không hợp lệ.");
         }
-        // Chọn quái sẽ dừng đường đi hiện tại, không tự tìm đường tới mục tiêu.
+        // CombatSystem lập đường đến ô kề mục tiêu trong world tick kế tiếp.
         player.clearPath();
         player.setTargetId(target.getId());
         player.setState(CombatNavigation.distance(player, target) == 1 && !navigation.isSafe(player)

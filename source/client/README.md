@@ -18,4 +18,4 @@ Tiến trình khám phá dùng namespace `lu-khach:exploration:v2` theo UUID. D�
 
 Chỉ số nhân vật dùng các trường `hp`, `maxHp`, `damage`, `armor` trên player từ WELCOME/PLAYER_JOINED/STATE_UPDATE. Client không tự đặt chỉ số theo nhân vật; khi chưa có dữ liệu sẽ hiển thị dấu —. Cấu hình cân bằng nằm ở `../server/src/main/resources/config/characters.json`.
 
-Sau tích hợp chiến đấu: click quái để chọn, đứng kề để đánh; nhân vật không tự chạy tới mục tiêu. Esc hoặc click đất để dừng đánh. Thanh máu, sát thương và giáp tiếp tục nhận từ server; không dùng hằng số chỉ số của nhánh quái. Tương tác NPC được ưu tiên trước click chiến đấu/di chuyển khi click cùng ô.
+Sau tích hợp chiến đấu: click quái để nhân vật tự tìm đường đến ô kề và tấn công; click đất hoặc nhấn Esc để dừng. Người chơi tự hồi 10 HP/giây khi không còn quái đe dọa ở gần. Thanh máu, sát thương và giáp tiếp tục nhận từ server; không dùng hằng số chỉ số của nhánh quái. Tương tác NPC được ưu tiên trước click chiến đấu/di chuyển khi click cùng ô.

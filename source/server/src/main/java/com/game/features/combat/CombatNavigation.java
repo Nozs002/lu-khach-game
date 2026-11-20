@@ -3,6 +3,7 @@ package com.game.features.combat;
 import com.game.features.movement.AStarPathfinder;
 import com.game.model.CombatEntity;
 import com.game.model.Mob;
+import com.game.model.Player;
 import com.game.world.WorldMap;
 
 import java.awt.Point;
@@ -48,6 +49,12 @@ public final class CombatNavigation {
                 point -> canMobStand(mob, point.x, point.y));
     }
 
+    public List<Point> playerApproach(Player player, Mob target) {
+        if (isSafe(target)) return null;
+        return shortestApproach(new Point(player.getX(), player.getY()), target,
+                point -> map.isWalkable(point.x, point.y), point -> !isSafe(point.x, point.y));
+    }
+
     public List<Point> mobReturnHome(Mob mob) {
         return pathfinder.findPath(map,
                 new Point(mob.getX(), mob.getY()),
@@ -56,11 +63,16 @@ public final class CombatNavigation {
     }
 
     private List<Point> shortestApproach(Point start, CombatEntity target, Predicate<Point> allowed) {
+        return shortestApproach(start, target, allowed, allowed);
+    }
+
+    private List<Point> shortestApproach(Point start, CombatEntity target,
+                                         Predicate<Point> allowedPath, Predicate<Point> allowedGoal) {
         List<Point> shortest = null;
         for (int[] direction : DIRECTIONS) {
             Point goal = new Point(target.getX() + direction[0], target.getY() + direction[1]);
-            if (!map.isWalkable(goal.x, goal.y) || !allowed.test(goal)) continue;
-            List<Point> path = pathfinder.findPath(map, start, goal, allowed);
+            if (!map.isWalkable(goal.x, goal.y) || !allowedGoal.test(goal)) continue;
+            List<Point> path = pathfinder.findPath(map, start, goal, allowedPath);
             if (path != null && (shortest == null || path.size() < shortest.size())) {
                 shortest = path;
             }

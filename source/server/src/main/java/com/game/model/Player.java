@@ -81,6 +81,10 @@ public class Player extends CombatEntity {
         path.clear();
     }
 
+    public synchronized boolean hasPath() {
+        return !path.isEmpty();
+    }
+
     public void stopCombat() {
         targetId = null;
         clearPath();
