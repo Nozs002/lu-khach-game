@@ -2,6 +2,7 @@ import { WebSocketClient } from '../network/WebSocketClient';
 import { CanvasRenderer } from '../render/CanvasRenderer';
 import { MovementController } from '../input/MovementController';
 import { NpcInteractionController } from '../input/NpcInteractionController';
+import { CombatController } from '../features/combat/CombatController';
 import { MinimapRenderer } from '../render/MinimapRenderer';
 import { getOrCreatePlayerId } from '../data/PlayerIdentity';
 import { ExpandedMap } from '../ui/ExpandedMap';
@@ -41,6 +42,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             movement.clearPreview();
             renderer.clearPointerPosition();
         });
+    const combat = new CombatController(renderer, net, showInfo, () => movement.clearPreview());
     bindJoin(connectGame);
 
     const groundView = document.getElementById('ground-view') as HTMLSelectElement | null;
@@ -110,6 +112,11 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
         }
         if (expandedMap.isOpen) return;
 
+        if (event.code === 'Escape' && !event.repeat) {
+            combat.stopAttack();
+            return;
+        }
+
         if (event.code === 'KeyY' && !event.repeat) {
             const freeCamera = renderer.toggleFreeCamera(net.myId);
             showInfo(freeCamera
@@ -143,7 +150,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
                 if (!online) npcInteraction.close();
             },
             showError,
-            () => movement.clearPreview()
+            () => { movement.clearPreview(); combat.clearSelection(); }
         );
     }
 
@@ -174,6 +181,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
     function gameLoop(timestamp: number) {
         if (!running) return;
         renderer.render(net.players, net.myId, movement.getPreviewPath(), net.map, timestamp);
+        combat.update();
         minimap.render(net.myId ? net.players.get(net.myId) : undefined, renderer.getMapViewport(), timestamp);
         rafId = requestAnimationFrame(gameLoop);
     }
@@ -185,6 +193,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
                 cancelAnimationFrame(rafId);
                 rafId = null;
             }
+            combat.destroy();
             movement.destroy();
             npcInteraction.destroy();
             minimap.destroy();

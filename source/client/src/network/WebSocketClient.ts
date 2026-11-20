@@ -1,5 +1,6 @@
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
+import { replaceMobSnapshot, parseDamage, type Mob, type DamageEvent } from '../data/mob';
 import type { HandlerContext } from './handlers/HandlerContext';
 import { WelcomeHandler } from './handlers/WelcomeHandler';
 import { PlayerJoinedHandler } from './handlers/PlayerJoinedHandler';
@@ -12,6 +13,9 @@ export class WebSocketClient {
 
     public myId: string | null = null;
     public players: Map<string, Player> = new Map();
+    public mobs: Map<string, Mob> = new Map();
+    public readonly damageListeners = new Set<(event: DamageEvent) => void>();
+    public readonly resetListeners = new Set<() => void>();
 
     public map: MapData | null = null;
 
@@ -22,6 +26,12 @@ export class WebSocketClient {
     }
 
     disconnect(): void { this.ws?.close(); }
+
+    sendAttack(targetId: string | null): boolean {
+        if (this.ws?.readyState !== WebSocket.OPEN) return false;
+        this.ws.send(JSON.stringify({ type: 'ATTACK', payload: { targetId } }));
+        return true;
+    }
 
     connect(
         name: string,
@@ -36,6 +46,8 @@ export class WebSocketClient {
     ) {
         this.myId = null;
         this.players.clear();
+        this.mobs.clear();
+        this.resetListeners.forEach(listener => listener());
         this.map = null;
         // mở cổng kết nối
         this.ws = new WebSocket('ws://localhost:8080');
@@ -79,6 +91,7 @@ export class WebSocketClient {
 
             switch (data.type) {
                 case 'WELCOME':
+                    replaceMobSnapshot(this.mobs, data.mobs);
                     welcomeHandler.handle(data);
                     break;
 
@@ -91,8 +104,15 @@ export class WebSocketClient {
                     break;
 
                 case 'STATE_UPDATE':
+                    replaceMobSnapshot(this.mobs, data.mobs);
                     stateUpdateHandler.handle(data);
                     break;
+
+                case 'DAMAGE': {
+                    const damage = parseDamage(data.payload);
+                    if (damage) this.damageListeners.forEach(listener => listener(damage));
+                    break;
+                }
 
                 case 'ERROR':
                     errorHandler.handle(data);

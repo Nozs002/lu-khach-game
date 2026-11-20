@@ -3,11 +3,15 @@ package com.game.handler;
 import com.game.model.NetworkMessage;
 import com.game.model.Player;
 import com.game.model.CharacterCatalog;
+import com.game.model.Mob;
 import com.game.world.WorldMap;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,13 +20,20 @@ public class JoinHandler {
     private final Gson gson;
     private final int maxPlayers;
     private final WorldMap worldMap;
+    private final Collection<Mob> mobs;
 
     public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers, WorldMap worldMap) {
-        CharacterCatalog.forCharacter("knight"); // Validate config before accepting any connections.
+        this(players, gson, maxPlayers, worldMap, List.of());
+    }
+
+    public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers,
+                       WorldMap worldMap, Collection<Mob> mobs) {
+        CharacterCatalog.forCharacter("knight");
         this.players = players;
         this.gson = gson;
         this.maxPlayers = maxPlayers;
         this.worldMap = worldMap;
+        this.mobs = mobs;
     }
 
     // Trả về người chơi vừa tạo; null nếu yêu cầu bị từ chối.
@@ -50,6 +61,7 @@ public class JoinHandler {
         welcomeMsg.id = playerId;
         welcomeMsg.payload = players.values();
         welcomeMsg.map = worldMap.toClientData();
+        welcomeMsg.mobs = new ArrayList<>(mobs);
         conn.send(gson.toJson(welcomeMsg));
 
         return newPlayer;

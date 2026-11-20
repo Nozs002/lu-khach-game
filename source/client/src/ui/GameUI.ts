@@ -73,6 +73,8 @@ export function updatePlayers(players: Map<string, Player>, myId: string | null)
     if (me) {
         document.getElementById('player-name')!.textContent = `${me.name} (Bạn)`;
         (document.getElementById('player-avatar') as HTMLImageElement).src = getCharacterAvatarSource(me.characterId);
+        document.getElementById('player-combat-state')!.textContent = me.state === 'DEAD'
+            ? 'Nhân vật đã chết · Chờ tính năng hồi sinh.' : 'Mana chưa thiết kế';
     }
     players.forEach((player, id) => {
         const li = document.createElement('li');

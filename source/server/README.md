@@ -66,6 +66,10 @@ Cấu hình gốc nằm tại `src/main/resources/config/characters.json`, dùng
 | fighter | 130 | 30 | 7 |
 | lion | 145 | 26 | 8 |
 
-Player mới bắt đầu với `hp = maxHp`. Các trường `hp`, `maxHp`, `damage`, `armor` được serialize trong từng player ở `WELCOME.payload[]`, `PLAYER_JOINED.payload` và `STATE_UPDATE.payload[]`. JOIN chỉ chọn `characterId`; client không quyết định chỉ số. ID lạ/rỗng dùng `knight` và server trả lại ID đã chuẩn hóa. Đây là chỉ số cơ sở; chưa triển khai đánh, trừ máu, giảm sát thương theo giáp hoặc lưu HP qua lần đăng nhập.
+Player mới bắt đầu với `hp = maxHp`. Các trường `hp`, `maxHp`, `damage`, `armor` được serialize trong từng player ở `WELCOME.payload[]`, `PLAYER_JOINED.payload` và `STATE_UPDATE.payload[]`. JOIN chỉ chọn `characterId`; client không quyết định chỉ số. ID lạ/rỗng dùng `knight` và server trả lại ID đã chuẩn hóa. Hệ thống chiến đấu dùng damage riêng từng nhân vật thay cho hằng số chung. Sát thương thực nhận = max(1, sát thương gốc - giáp), giới hạn theo HP còn lại; quái hiện có giáp 0. HP được cập nhật qua STATE_UPDATE và sự kiện DAMAGE chỉ phục vụ hiệu ứng trên client. Chưa lưu HP qua lần đăng nhập.
 
 `com.game.model.CharacterStatsCheck` trong `src/test/java` chạy bằng Java với `-ea` và classpath có `src/main/resources`, kiểm tra cấu hình bốn nhân vật, gói WELCOME/JOINED/STATE và bỏ qua chỉ số client giả gửi. `WorldMapCheck` kiểm tra lại spawn/di chuyển.
+
+## Tích hợp quái và chiến đấu
+
+Nhánh quai đã được tích hợp cùng NPC, minimap và UUID local. Server sinh quái từ monsterSpawns, điều khiển AI/chiến đấu; client click quái để chọn và đánh khi đứng kề, không tự chạy tới quái. Esc hoặc click đất để dừng đánh. Phần cấu hình nhân vật trong characters.json vẫn là nguồn chỉ số chính thức. Kiểm thử CombatTest có kiểm tra sát thương/giáp cho đủ bốn nhân vật; GameServerCombatTest kiểm tra WELCOME và di chuyển qua WebSocket thật.

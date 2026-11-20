@@ -6,6 +6,7 @@ import type { Player } from '../data/player';
 import type { GridPoint } from '../pathfinding/AStarPathfinder';
 import { imageCache } from './ImageCache';
 import { drawNpcs, preloadNpcs } from './NpcRenderer';
+import type { CombatView } from '../features/combat/CombatView';
 
 const SPRITE_SIZE = 16;
 const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
@@ -48,6 +49,31 @@ export class CanvasRenderer {
     private pointerCanvasY: number | null = null;
     private onCameraModeChange?: (freeCamera: boolean) => void;
     private readonly renderPositions = new Map<string, RenderPosition>();
+    private combatView: CombatView | null = null;
+
+    public setCombatView(view: CombatView | null): void { this.combatView = view; }
+
+    public getRenderedPlayerPosition(id: string): GridPoint | undefined {
+        const position = this.renderPositions.get(id);
+        return position ? { x: position.x, y: position.y } : undefined;
+    }
+
+    public centerOnWorldTile(x: number, y: number): void {
+        if (!this.map) return;
+        this.setFreeCamera(true);
+        this.setCameraClamped((x + 0.5) * this.map.tileSize - this.canvas.width / 2,
+            (y + 0.5) * this.map.tileSize - this.canvas.height / 2, this.map);
+        this.clearPointerPosition();
+    }
+
+    public getWorldPointAtClientPosition(clientX: number, clientY: number): GridPoint | null {
+        if (!this.map) return null;
+        const point = this.clientToCanvasPoint(clientX, clientY);
+        if (!point) return null;
+        const x = (point.x + this.cameraX) / this.map.tileSize;
+        const y = (point.y + this.cameraY) / this.map.tileSize;
+        return x >= 0 && y >= 0 && x < this.map.width && y < this.map.height ? { x, y } : null;
+    }
 
     constructor(private canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
@@ -206,8 +232,9 @@ export class CanvasRenderer {
         if (this.gridVisible) this.drawGrid(map);
         this.drawPreview(previewPath, map, myPosition);
         drawNpcs(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, map.tileSize);
-        this.drawPlayers(players, myId, map);
+        this.drawPlayers(players, myId, map, timestamp);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
+        this.combatView?.drawOverlay(this.ctx, map, this.cameraX, this.cameraY, timestamp);
     }
 
     private snapCameraToPlayer(myId: string | null): void {
@@ -389,56 +416,64 @@ export class CanvasRenderer {
         this.ctx.restore();
     }
 
-    private drawPlayers(players: Map<string, Player>, myId: string | null, map: MapData): void {
+    private drawPlayers(players: Map<string, Player>, myId: string | null, map: MapData, timestamp: number): void {
+        const drawables = this.combatView?.getMobDrawables(this.ctx, map, this.cameraX, this.cameraY, timestamp) ?? [];
         players.forEach(player => {
             const position = this.renderPositions.get(player.id);
             if (!position) return;
-            const isMe = player.id === myId;
-            const characterId = (player.characterId && player.characterId !== 'undefined')
-                ? player.characterId
-                : 'knight';
-            const walkSheet = getCharacterWalkSheet(characterId);
-            const isMoving = position.x !== position.targetX || position.y !== position.targetY;
-            const img = imageCache.get(walkSheet.source);
-            const pixelX = position.x * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
-            const pixelY = position.y * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
+            drawables.push({ y: position.y, draw: () => {
+                this.ctx.save();
+                if (player.state === 'DEAD') this.ctx.globalAlpha = 0.35;
+                const isMe = player.id === myId;
+                const characterId = (player.characterId && player.characterId !== 'undefined')
+                    ? player.characterId
+                    : 'knight';
+                const walkSheet = getCharacterWalkSheet(characterId);
+                const isMoving = position.x !== position.targetX || position.y !== position.targetY;
+                const img = imageCache.get(walkSheet.source);
+                const offset = this.combatView?.getAttackOffset(player.id, timestamp) ?? { x: 0, y: 0 };
+                const pixelX = (position.x + offset.x) * map.tileSize + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
+                const pixelY = (position.y + offset.y) * map.tileSize + map.tileSize - SPRITE_SIZE - this.cameraY;
 
-            if (img.complete && img.naturalWidth !== 0) {
-                const frameWidth = img.naturalWidth / walkSheet.cols;
-                const frameHeight = img.naturalHeight / walkSheet.rows;
-                const frameIndex = isMoving ? position.animFrame : 0;
-                const sx = position.direction * frameWidth;
-                const sy = frameIndex * frameHeight;
-                this.ctx.drawImage(
-                    img,
-                    sx,
-                    sy,
-                    frameWidth,
-                    frameHeight,
-                    pixelX,
-                    pixelY,
-                    SPRITE_SIZE,
-                    SPRITE_SIZE
-                );
-            } else {
-                this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
-                this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
-            }
+                if (img.complete && img.naturalWidth !== 0) {
+                    const frameWidth = img.naturalWidth / walkSheet.cols;
+                    const frameHeight = img.naturalHeight / walkSheet.rows;
+                    const frameIndex = isMoving ? position.animFrame : 0;
+                    const sx = position.direction * frameWidth;
+                    const sy = frameIndex * frameHeight;
+                    this.ctx.drawImage(
+                        img,
+                        sx,
+                        sy,
+                        frameWidth,
+                        frameHeight,
+                        pixelX,
+                        pixelY,
+                        SPRITE_SIZE,
+                        SPRITE_SIZE
+                    );
+                } else {
+                    this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
+                    this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
+                }
 
-            if (isMe) {
-                this.ctx.strokeStyle = '#f1c40f';
-                this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
-            }
+                if (isMe) {
+                    this.ctx.strokeStyle = '#f1c40f';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
+                }
 
-            this.ctx.fillStyle = isMe ? '#f1c40f' : '#ffffff';
-            this.ctx.font = 'bold 12px "Courier New", monospace';
-            this.ctx.textAlign = 'center';
-            this.ctx.shadowColor = '#000000';
-            this.ctx.shadowBlur = 4;
-            const displayName = player.name + (isMe ? ' (Bạn)' : '');
-            this.ctx.fillText(displayName, pixelX + SPRITE_SIZE / 2, pixelY - 8);
-            this.ctx.shadowBlur = 0;
+                this.ctx.fillStyle = isMe ? '#f1c40f' : '#ffffff';
+                this.ctx.font = 'bold 12px "Courier New", monospace';
+                this.ctx.textAlign = 'center';
+                this.ctx.shadowColor = '#000000';
+                this.ctx.shadowBlur = 4;
+                const displayName = player.name + (isMe ? ' (Bạn)' : '');
+                this.ctx.fillText(displayName, pixelX + SPRITE_SIZE / 2, pixelY - 8);
+                this.ctx.shadowBlur = 0;
+                this.ctx.restore();
+            }});
         });
+        drawables.sort((a, b) => a.y - b.y).forEach(drawable => drawable.draw());
     }
 }

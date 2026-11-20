@@ -17,3 +17,5 @@ NPC được vẽ từ các điểm trong layer `npcs` đã import, dùng sprite
 Tiến trình khám phá dùng namespace `lu-khach:exploration:v2` theo UUID. Dữ liệu v1 theo tên không bị xóa và không tự nhập vào UUID mới vì không thể xác định chủ sở hữu từ tên trùng. Một hồ sơ trình duyệt hiện có một UUID; người dùng chung hồ sơ đó vẫn dùng chung tiến trình. UUID này chỉ nhận diện bản lưu local, không phải tài khoản hay bằng chứng xác thực server.
 
 Chỉ số nhân vật dùng các trường `hp`, `maxHp`, `damage`, `armor` trên player từ WELCOME/PLAYER_JOINED/STATE_UPDATE. Client không tự đặt chỉ số theo nhân vật; khi chưa có dữ liệu sẽ hiển thị dấu —. Cấu hình cân bằng nằm ở `../server/src/main/resources/config/characters.json`.
+
+Sau tích hợp chiến đấu: click quái để chọn, đứng kề để đánh; nhân vật không tự chạy tới mục tiêu. Esc hoặc click đất để dừng đánh. Thanh máu, sát thương và giáp tiếp tục nhận từ server; không dùng hằng số chỉ số của nhánh quái. Tương tác NPC được ưu tiên trước click chiến đấu/di chuyển khi click cùng ô.

@@ -8,4 +8,6 @@ export interface Player {
     maxHp: number;
     damage: number;
     armor: number;
+    state: 'IDLE' | 'MOVING' | 'ATTACKING' | 'DEAD';
+    targetId?: string | null;
 }
