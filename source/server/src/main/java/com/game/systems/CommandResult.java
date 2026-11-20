@@ -2,11 +2,6 @@ package com.game.systems;
 
 import com.game.model.NetworkMessage;
 
-/**
- * Kết quả xử lý một command từ client theo đúng hợp đồng Mục 3 & Mục 7 docs/protocol-v1.md:
- * - Hợp lệ -> trả ACK {commandType}
- * - Từ chối -> trả ERROR {code, message}
- */
 public class CommandResult {
     private final boolean accepted;
     private final String commandType;
@@ -24,8 +19,8 @@ public class CommandResult {
         return new CommandResult(true, commandType, null, null);
     }
 
-    public static CommandResult error(String errorCode, String errorMessage) {
-        return new CommandResult(false, null, errorCode, errorMessage);
+    public static CommandResult error(String code, String message) {
+        return new CommandResult(false, null, code, message);
     }
 
     public boolean isAccepted() {
@@ -44,10 +39,10 @@ public class CommandResult {
         return errorMessage;
     }
 
-    public NetworkMessage toNetworkMessage(Long requestId, long tick) {
+    public NetworkMessage toNetworkMessage(long tick) {
         if (accepted) {
-            return NetworkMessage.ack(requestId, tick, commandType);
+            return NetworkMessage.ack(tick, commandType);
         }
-        return NetworkMessage.error(requestId, tick, errorCode, errorMessage);
+        return NetworkMessage.error(tick, errorCode, errorMessage);
     }
 }

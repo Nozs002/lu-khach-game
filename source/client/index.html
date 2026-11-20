@@ -1,139 +1,137 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lữ Khách — Game Nhập Vai 2D Trực Tuyến</title>
+    <title>Lữ Khách — Bến Cỏ</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
+
 <body>
 
     <!-- Màn hình Đăng nhập -->
     <div id="loginUI" class="pixel-box login-card">
         <h2>CHỌN LỮ KHÁCH</h2>
 
-        <!-- Khu vực hiển thị danh sách nhân vật -->
+        <!-- Khu vực hiển thị danh sách nhân vật sẽ được JavaScript tự động điền -->
         <div id="character-list" class="char-list"></div>
 
         <!-- Khung mô tả nhân vật -->
         <div id="character-desc" class="char-desc-box"></div>
 
         <div class="input-group" style="margin-top: 15px;">
-            <input type="text" id="playerName" maxlength="15" value="Hoàng" placeholder="Nhập tên nhân vật (1–15 ký tự)..." />
-            <button id="joinBtn" class="btn-primary">VÀO GAME (KẾT NỐI SERVER 8080)</button>
-            <button id="mockJoinBtn" class="btn-secondary" title="Chạy ngay với dữ liệu giả định trong docs/protocol-v1.md mà không cần chờ Server hay phần của bạn khác">
-                CHƠI THỬ VỚI DỮ LIỆU GIẢ ĐỊNH (KHÔNG CẦN CHỜ)
-            </button>
+            <input type="text" id="playerName" placeholder="Nhập tên của bạn..." />
+            <button id="joinBtn">VÀO GAME</button>
         </div>
     </div>
 
-    <!-- Màn hình Game UI -->
-    <div id="gameUI" style="display: none;">
+    <!-- Game shell: canvas and sidebar remain separate input surfaces. -->
+    <main id="gameUI" style="display: none;" aria-label="Lữ khách">
         <div id="game-container">
-
-            <!-- Thanh trạng thái Top Bar -->
-            <div class="top-bar">
-                <div class="status-box">
-                    Trạng thái: <span id="status" class="status-online">Đã kết nối</span>
+            <header class="top-bar">
+                <div class="game-heading"><h1>LỮ KHÁCH</h1><span id="map-name">M0 · Bến Cỏ</span></div>
+                <div class="connection-controls">
+                    <span id="status" class="status-offline" role="status">Chưa kết nối</span>
+                    <button id="leaveBtn" class="secondary-button" type="button">Rời game</button>
                 </div>
-
-                <div class="hp-hud">
-                    <span>Máu: <strong id="hpValue">100/100</strong></span>
-                    <div class="hp-bar-track">
-                        <div id="hpBarFill" class="hp-bar-fill" style="width: 100%;"></div>
-                    </div>
-                </div>
-
-                <div class="world-meta">
-                    <span>Bình máu trên map: <strong id="itemCount">0</strong></span>
-                    <span>Tick: <strong id="tickCounter">0</strong></span>
-                    <button id="leaveBtn" class="btn-leave">Rời game</button>
-                </div>
-            </div>
-
-            <!-- Thanh phản hồi thao tác nhanh -->
-            <div id="feedbackBanner" class="feedback-banner info">
-                Hướng dẫn: Click ô trống để đi | Click Bình máu (hoặc phím E) để nhặt (+30 HP) | Click Slime để đánh | Nhấn Enter để Chat
-            </div>
-
-            <!-- Màn hình chơi chính (Canvas + Sidebar) -->
+            </header>
             <div class="main-body">
-                <!-- Khung chứa Canvas 32x24 ô (768x576) + Màn hình chết phủ lên trên -->
-                <div class="canvas-wrapper">
-                    <canvas id="gameCanvas" width="768" height="576"></canvas>
-
-                    <!-- MÀN HÌNH CHẾT & HỒI SINH (Phần 4 của Hoàng) -->
-                    <div id="deathOverlay" class="death-overlay" style="display: none;">
-                        <div class="death-modal pixel-box">
-                            <h2>BẠN ĐÃ GỤC NGÃ!</h2>
-                            <p class="death-desc">
-                                Trong lúc gục ngã, bạn không thể di chuyển, tấn công hoặc nhặt bình máu,
-                                nhưng <strong>vẫn có thể trò chuyện trong khung Chat</strong>.
-                            </p>
-                            <p id="deathCountdown" class="death-countdown">Có thể hồi sinh sau: 3.0 giây</p>
-                            <button id="respawnBtn" class="btn-respawn" disabled>CHỜ HỒI SINH (3.0s)...</button>
+                <aside class="exploration-sidebar" aria-label="Bản đồ khám phá">
+                    <section class="pixel-box panel minimap-panel" aria-labelledby="minimap-title">
+                        <h2 id="minimap-title">BẢN ĐỒ KHÁM PHÁ <span class="minimap-north" aria-label="Phía bắc">BẮC ↑</span></h2>
+                        <div class="minimap-scroll" tabindex="0" aria-label="Cuộn lên xuống để xem bản đồ">
+                        <canvas id="minimap" width="344" height="628" role="img" aria-label="Bản đồ nhỏ: vùng tối chưa khám phá, chấm vàng là bạn"></canvas>
+                        </div>
+                        <p id="minimap-status" class="minimap-status">Chưa khám phá</p>
+                    </section>
+                </aside>
+                <section class="world-column" aria-label="Thế giới game">
+                    <div class="canvas-frame pixel-box">
+                        <canvas id="gameCanvas" width="768" height="576" aria-label="Thế giới Tiled — Bến Cỏ"></canvas>
+                        <div id="deathOverlay" class="death-overlay" hidden role="alertdialog" aria-labelledby="death-title" aria-describedby="deathCountdown">
+                            <div class="pixel-box death-card">
+                                <h2 id="death-title">BẠN ĐÃ TỬ TRẬN</h2>
+                                <p id="deathCountdown" class="death-countdown">Có thể hồi sinh sau 3.0 giây...</p>
+                                <button id="respawnBtn" type="button" disabled>CHỜ (3s)</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Bảng thông tin Sidebar -->
-                <div class="sidebar">
-                    <div class="pixel-box panel">
-                        <h3>LỮ KHÁCH ONLINE</h3>
+                    <div class="map-toolbar">
+                        <label class="ground-view-label">Xem bản đồ
+                            <select id="ground-view" aria-label="Chọn vùng xem bản đồ"></select>
+                        </label>
+                        <button id="grid-toggle" class="secondary-button" type="button" aria-pressed="true">Ẩn lưới ô</button>
+                    </div>
+                    <section class="pixel-box panel chat-panel" aria-labelledby="chat-title">
+                        <h2 id="chat-title">TRÒ CHUYỆN THẾ GIỚI</h2>
+                        <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Tin nhắn trò chuyện"></div>
+                        <div class="chat-form">
+                            <input type="text" id="chatInput" maxlength="120" placeholder="Nhấn Enter để chat (tối đa 120 ký tự, 1 tin/giây)..." aria-label="Nhập tin nhắn chat" />
+                            <button id="chatSendBtn" type="button">GỬI</button>
+                        </div>
+                    </section>
+                    <details class="pixel-box online-panel">
+                        <summary>LỮ KHÁCH ONLINE <span id="player-count">0</span></summary>
                         <ul id="players" class="player-list"></ul>
-                    </div>
-
-                    <!-- Bảng Công cụ Test / Demo nhanh cho Phần 4 (Chat, Vật phẩm & Hồi sinh) -->
-                    <div class="pixel-box panel test-panel">
-                        <h3>TEST NHANH PHẦN 4 (VẬT PHẨM & HỒI SINH)</h3>
-                        <div class="test-btn-grid">
-                            <button id="btnLootNearest" class="btn-tool btn-loot">Nhặt bình máu gần nhất (E)</button>
-                            <button id="btnSimSpawnPotion" class="btn-tool">Tạo bình máu tại chỗ</button>
-                            <button id="btnSimDamage" class="btn-tool btn-warn">Giả lập mất 40 HP</button>
-                            <button id="btnSimDie" class="btn-tool btn-danger">Giả lập chết (0 HP)</button>
-                            <button id="btnSimKillMob" class="btn-tool btn-kill">Hạ Slime & Rơi bình máu</button>
+                    </details>
+                </section>
+                <aside class="sidebar" aria-label="Thông tin người chơi">
+                    <section class="pixel-box panel" aria-labelledby="character-title">
+                        <h2 id="character-title">NHÂN VẬT</h2>
+                        <div class="character-profile">
+                            <img id="player-avatar" class="player-avatar" src="/assets/characters/knight.png" alt="Nhân vật của bạn">
+                            <div class="character-stats">
+                                <h3 id="player-name">Lữ khách</h3>
+                                <p class="stat-label">Máu <span id="hp-value">100 / 100</span></p>
+                                <div id="hp-bar-track" class="stat-track" aria-label="Máu hiện tại 100 trên 100">
+                                    <div id="hp-bar-fill" class="hp-bar-fill" data-level="high" style="width: 100%;"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="pixel-box panel">
-                        <h3>NHẬT KÝ LÀNG</h3>
-                        <div id="systemLog" class="log"></div>
-                    </div>
-                </div>
+                        <p class="stat-label mana-label">Mana <span>— / —</span></p>
+                        <p id="hp-status-note" class="placeholder-note">Trạng thái: Sẵn sàng · Bình máu trên map: 0</p>
+                    </section>
+                    <details class="pixel-box test-panel">
+                        <summary>KIỂM THỬ VẬT PHẨM &amp; HỒI SINH</summary>
+                        <div class="test-actions">
+                            <button id="testSpawnPotionBtn" class="secondary-button" type="button">Thả bình máu (+30 HP)</button>
+                            <button id="testDamage40Btn" class="secondary-button" type="button">Nhận 40 sát thương</button>
+                            <button id="testSuicideBtn" class="danger-button" type="button">Tự sát (Test hồi sinh)</button>
+                        </div>
+                        <p class="placeholder-note">Dùng để kiểm thử nhanh nhặt đồ atomic, hồi máu và đếm ngược 3 giây hồi sinh.</p>
+                    </details>
+                    <section class="pixel-box panel journal-panel" aria-labelledby="journal-title">
+                        <h2 id="journal-title">NHẬT KÝ</h2>
+                        <div id="systemLog" class="log" role="log" aria-label="Nhật ký sự kiện" tabindex="0"></div>
+                        <button id="new-log-button" class="new-log-button" type="button" hidden>Có sự kiện mới ↓</button>
+                    </section>
+                    <section class="pixel-box panel help-panel" aria-labelledby="help-title">
+                        <h2 id="help-title">HƯỚNG DẪN CHƠI</h2>
+                        <ul class="help-list">
+                            <li>Click ô trống: tự tìm đường A* và di chuyển.</li>
+                            <li>Click bình máu hoặc nhấn <strong>E</strong>: nhặt hồi +30 HP.</li>
+                            <li>Nhấn <strong>Enter</strong>: mở khung chat (Esc để đóng).</li>
+                            <li>Nhấn <strong>M</strong>: mở rộng bản đồ · <strong>Y</strong>: camera tự do.</li>
+                        </ul>
+                        <p class="placeholder-note">Khi hết máu, chờ 3 giây rồi bấm Hồi sinh (hoặc phím R) để trở về Làng Bến Cỏ.</p>
+                    </section>
+                </aside>
             </div>
-
-            <!-- Khu vực dưới cùng: Khung Chat thời gian thực (Phần 4) + Hộp thoại nhân vật -->
-            <div class="bottom-bar">
-                <!-- Khung Chat thời gian thực (Phần 4 của Hoàng) -->
-                <div class="chat-panel pixel-box">
-                    <div class="chat-header">
-                        <span>KHUNG CHAT THỜI GIAN THỰC (Nhấn Enter để mở/gửi, Esc để đóng)</span>
-                    </div>
-                    <div id="chatMessages" class="chat-messages"></div>
-                    <div class="chat-input-row">
-                        <input
-                            type="text"
-                            id="chatInput"
-                            maxlength="120"
-                            placeholder="Nhập tin nhắn chat (1–120 ký tự, Enter để gửi)..."
-                        />
-                        <button id="chatSendBtn" class="btn-chat-send">Gửi</button>
-                    </div>
-                </div>
-
-                <!-- Hộp thoại Dialogue Box kiểu Pixel (tương thích P1) -->
-                <div class="dialogue-box">
-                    <img src="/assets/characters/knight.png" alt="Avatar" class="avatar" onerror="this.style.visibility='hidden'">
-                    <div class="dialogue-content">
-                        <h3 id="dialogue-name" class="character-name">Hệ Thống</h3>
-                        <p id="dialogue-text" class="dialogue-text">Sử dụng chuột click hoặc phím WASD để di chuyển!</p>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
+    </main>
+
+    <div id="toast-container" class="toast-container" aria-label="Thông báo game"></div>
+
+    <dialog id="expanded-map" class="expanded-map" aria-labelledby="expanded-map-title">
+        <header class="expanded-map-header">
+            <h2 id="expanded-map-title">BẢN ĐỒ KHÁM PHÁ</h2>
+            <button type="button" class="secondary-button" data-close-map autofocus>Đóng (M / Esc)</button>
+        </header>
+        <div data-map-content></div>
+    </dialog>
 
     <script type="module" src="/src/main.ts"></script>
 </body>
+
 </html>

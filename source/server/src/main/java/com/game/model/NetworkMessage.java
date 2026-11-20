@@ -1,33 +1,28 @@
 package com.game.model;
 
-/**
- * Phong bì gói tin mạng hỗ trợ đồng thời chuẩn protocol-v1.md ({v, type, requestId, tick, payload})
- * và định dạng phẳng trên nhánh P1 ({type, id, name, avatar, dx, dy, payload}).
- */
-public class NetworkMessage {
-    public int v = 1;
-    public String type;
-    public Long requestId;
-    public Long tick;
-    public Object payload;
+import com.game.world.WorldMap;
 
-    // Các trường cấp ngoài để tương thích ngược với code nhánh P1 (origin/tuan)
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class NetworkMessage {
+    public String type;
     public String id;
     public String name;
-    public String avatar;
-    public float dx;
-    public float dy;
-    public String text;
-    public String itemId;
-    public String targetId;
+    public String characterId;
+    public String code;
     public Integer x;
     public Integer y;
-
-    public NetworkMessage() {
-    }
+    public Long tick;
+    public Long tickDurationMs;
+    public String text;
+    public String itemId;
+    public Integer amount;
+    public WorldMap.MapData map;
+    public Object items;
+    public Object payload;
 
     public NetworkMessage(String type) {
-        this.v = 1;
         this.type = type;
     }
 
@@ -38,19 +33,20 @@ public class NetworkMessage {
         return msg;
     }
 
-    public static NetworkMessage ack(Long requestId, long tick, String commandType) {
+    public static NetworkMessage ack(long tick, String commandType) {
         NetworkMessage msg = new NetworkMessage("ACK");
-        msg.requestId = requestId;
         msg.tick = tick;
-        msg.payload = java.util.Map.of("commandType", commandType);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("commandType", commandType);
+        msg.payload = body;
         return msg;
     }
 
-    public static NetworkMessage error(Long requestId, long tick, String code, String message) {
+    public static NetworkMessage error(long tick, String code, String message) {
         NetworkMessage msg = new NetworkMessage("ERROR");
-        msg.requestId = requestId;
         msg.tick = tick;
-        msg.payload = java.util.Map.of("code", code, "message", message);
+        msg.code = code;
+        msg.payload = message;
         return msg;
     }
 }

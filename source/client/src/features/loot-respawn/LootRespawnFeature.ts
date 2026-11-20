@@ -1,408 +1,451 @@
-import { WebSocketClient } from '../../network/WebSocketClient';
-import { CanvasRenderer } from '../../render/CanvasRenderer';
-import {
-    AckPayload,
-    ChatEventPayload,
-    DamageEventPayload,
-    EntityDespawnPayload,
-    EntitySpawnPayload,
-    ErrorPayload,
-    ItemData
-} from '../../types/protocol';
+import type { WorldItem } from '../../data/items';
+import type { MovementController } from '../../input/MovementController';
+import type { WebSocketClient } from '../../network/WebSocketClient';
+import type {
+    ChatEvent,
+    DamageEvent,
+    EntityDespawnEvent,
+    EntitySpawnEvent
+} from '../../network/handlers/HandlerContext';
+import type { GridPoint } from '../../pathfinding/AStarPathfinder';
+import type { CanvasRenderer } from '../../render/CanvasRenderer';
+import { showError, showInfo, showSuccess } from '../../ui/Toast';
 
-/**
- * MODULE PHẦN 4 (Hoàng) — Chat, Vật phẩm (Hiển thị/Nhặt bình máu) và Hồi sinh (Màn chết & Respawn).
- *
- * Bám sát đặc tả docs/protocol-v1.md và docs/game-design.md:
- * 1. Chat thời gian thực:
- *    - Nhấn Enter mở ô chat, Enter lần nữa gửi lệnh CHAT, Escape đóng ô chat.
- *    - Khi focus ô chat, các phím WASD/phím tắt nhân vật bị khóa.
- *    - Dùng textContent 100% để chống thực thi HTML/XSS (AC10).
- * 2. Hiển thị & Nhặt bình máu (LOOT):
- *    - Click vào bình máu trên bản đồ hoặc nhấn phím E:
- *      + Nếu khoảng cách Manhattan <= 1 -> gửi LOOT {itemId} ngay.
- *      + Nếu ở xa (Manhattan > 1) -> lưu pendingLootId, gửi MOVE_TO tới ô bình máu và tự gửi LOOT khi tới gần.
- *      + Hủy pendingLootId khi người chơi đi hướng khác, đánh quái, chết hoặc bình máu biến mất.
- * 3. Màn hình chết & Hồi sinh (RESPAWN):
- *    - Khi player.state === 'DEAD', phủ màn hình chết đếm ngược từ respawnReadyTick của server (3 giây = 30 ticks).
- *    - Nút Hồi sinh chỉ bật khi đã hết thời gian chờ; bấm gửi RESPAWN {} để về Khu an toàn với 100/100 HP.
- */
+const MAX_CHAT_CODE_POINTS = 120;
+const AUTO_WALK_LOOT_MAX_DISTANCE = 12;
+
 export class LootRespawnFeature {
-    public pendingLootId: string | null = null;
+    private pendingLootId: string | null = null;
+    private lootRequestInFlight = false;
+    private respawnRequestInFlight = false;
+    private wasDead = false;
 
-    private chatMessagesEl: HTMLElement;
-    private chatInputEl: HTMLInputElement;
-    private chatSendBtn: HTMLButtonElement;
+    private readonly chatMessagesEl: HTMLElement | null;
+    private readonly chatInputEl: HTMLInputElement | null;
+    private readonly chatSendBtn: HTMLButtonElement | null;
+    private readonly hpValueEl: HTMLElement | null;
+    private readonly hpTrackEl: HTMLElement | null;
+    private readonly hpFillEl: HTMLElement | null;
+    private readonly hpNoteEl: HTMLElement | null;
+    private readonly deathOverlayEl: HTMLElement | null;
+    private readonly deathCountdownEl: HTMLElement | null;
+    private readonly respawnBtn: HTMLButtonElement | null;
+    private readonly testSpawnPotionBtn: HTMLButtonElement | null;
+    private readonly testDamage40Btn: HTMLButtonElement | null;
+    private readonly testSuicideBtn: HTMLButtonElement | null;
 
-    private deathOverlayEl: HTMLElement;
-    private deathCountdownEl: HTMLElement;
-    private respawnBtn: HTMLButtonElement;
-
-    private hpValueEl: HTMLElement;
-    private hpBarFillEl: HTMLElement;
-    private itemCountEl: HTMLElement;
-    private feedbackBannerEl: HTMLElement;
+    private readonly onChatSendClick = () => this.submitChat();
+    private readonly onChatInputKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            this.submitChat();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            this.chatInputEl?.blur();
+        }
+    };
+    private readonly onRespawnClick = () => this.requestRespawn();
+    private readonly onTestSpawnPotionClick = () => {
+        if (!this.net.sendSimulateSpawnPotion()) {
+            showError('Chưa kết nối máy chủ.');
+        }
+    };
+    private readonly onTestDamage40Click = () => {
+        if (!this.net.sendSimulateDamage(40)) {
+            showError('Chưa kết nối máy chủ.');
+        }
+    };
+    private readonly onTestSuicideClick = () => {
+        if (!this.net.sendSimulateDamage(100)) {
+            showError('Chưa kết nối máy chủ.');
+        }
+    };
 
     constructor(
-        private net: WebSocketClient,
-        private renderer: CanvasRenderer,
-        private onLog: (msg: string) => void
+        private readonly net: WebSocketClient,
+        private readonly renderer: CanvasRenderer,
+        private readonly movement: MovementController,
+        private readonly onLog: (message: string) => void
     ) {
-        this.chatMessagesEl = document.getElementById('chatMessages')!;
-        this.chatInputEl = document.getElementById('chatInput') as HTMLInputElement;
-        this.chatSendBtn = document.getElementById('chatSendBtn') as HTMLButtonElement;
+        this.chatMessagesEl = document.getElementById('chatMessages');
+        this.chatInputEl = document.getElementById('chatInput') as HTMLInputElement | null;
+        this.chatSendBtn = document.getElementById('chatSendBtn') as HTMLButtonElement | null;
+        this.hpValueEl = document.getElementById('hp-value');
+        this.hpTrackEl = document.getElementById('hp-bar-track');
+        this.hpFillEl = document.getElementById('hp-bar-fill');
+        this.hpNoteEl = document.getElementById('hp-status-note');
+        this.deathOverlayEl = document.getElementById('deathOverlay');
+        this.deathCountdownEl = document.getElementById('deathCountdown');
+        this.respawnBtn = document.getElementById('respawnBtn') as HTMLButtonElement | null;
+        this.testSpawnPotionBtn = document.getElementById('testSpawnPotionBtn') as HTMLButtonElement | null;
+        this.testDamage40Btn = document.getElementById('testDamage40Btn') as HTMLButtonElement | null;
+        this.testSuicideBtn = document.getElementById('testSuicideBtn') as HTMLButtonElement | null;
 
-        this.deathOverlayEl = document.getElementById('deathOverlay')!;
-        this.deathCountdownEl = document.getElementById('deathCountdown')!;
-        this.respawnBtn = document.getElementById('respawnBtn') as HTMLButtonElement;
-
-        this.hpValueEl = document.getElementById('hpValue')!;
-        this.hpBarFillEl = document.getElementById('hpBarFill')!;
-        this.itemCountEl = document.getElementById('itemCount')!;
-        this.feedbackBannerEl = document.getElementById('feedbackBanner')!;
-
-        this.bindEvents();
+        this.chatSendBtn?.addEventListener('click', this.onChatSendClick);
+        this.chatInputEl?.addEventListener('keydown', this.onChatInputKeyDown);
+        this.respawnBtn?.addEventListener('click', this.onRespawnClick);
+        this.testSpawnPotionBtn?.addEventListener('click', this.onTestSpawnPotionClick);
+        this.testDamage40Btn?.addEventListener('click', this.onTestDamage40Click);
+        this.testSuicideBtn?.addEventListener('click', this.onTestSuicideClick);
     }
 
-    public isChatInputFocused(): boolean {
-        return document.activeElement === this.chatInputEl;
+    public reset(): void {
+        this.pendingLootId = null;
+        this.lootRequestInFlight = false;
+        this.respawnRequestInFlight = false;
+        this.wasDead = false;
+        this.renderer.clearEffects();
+        if (this.chatMessagesEl) {
+            this.chatMessagesEl.replaceChildren();
+        }
+        if (this.deathOverlayEl) {
+            this.deathOverlayEl.hidden = true;
+        }
     }
 
-    public cancelPendingLoot() {
+    public cancelPendingLoot(): void {
         this.pendingLootId = null;
     }
 
-    private bindEvents() {
-        // 1. Sự kiện nút Gửi Chat
-        this.chatSendBtn?.addEventListener('click', () => {
-            this.submitChat();
-        });
+    public focusChatInput(): boolean {
+        if (!this.chatInputEl) return false;
+        this.chatInputEl.focus();
+        return true;
+    }
 
-        // 2. Phím tắt Enter / Escape cho khung Chat theo đúng bảng thao tác Mục 3 game-design.md
-        window.addEventListener('keydown', (e) => {
-            const gameUI = document.getElementById('gameUI');
-            if (!gameUI || gameUI.style.display === 'none') return;
-
-            if (e.key === 'Enter') {
-                if (this.isChatInputFocused()) {
-                    e.preventDefault();
-                    this.submitChat();
-                } else {
-                    e.preventDefault();
-                    this.chatInputEl.focus();
-                }
-                return;
-            }
-
-            if (e.key === 'Escape') {
-                if (this.isChatInputFocused()) {
-                    e.preventDefault();
-                    this.chatInputEl.blur();
-                } else {
-                    this.cancelPendingLoot();
-                    this.net.sendAttack(null);
-                }
-                return;
-            }
-
-            // Phím E để nhặt nhanh bình máu ở gần khi không gõ chat
-            if ((e.key === 'e' || e.key === 'E') && !this.isChatInputFocused()) {
-                e.preventDefault();
-                this.tryLootNearestPotion();
-            }
-        });
-
-        // 3. Sự kiện nút Hồi sinh trên Màn hình chết
-        this.respawnBtn?.addEventListener('click', () => {
-            const me = this.net.getMyPlayer();
-            if (!me || me.state !== 'DEAD') return;
-            this.net.sendRespawn();
-        });
-
-        // 4. Các nút trong Bảng công cụ Test / Demo Phần 4
-        document.getElementById('btnLootNearest')?.addEventListener('click', () => {
-            this.tryLootNearestPotion();
-        });
-
-        document.getElementById('btnSimDamage')?.addEventListener('click', () => {
-            this.net.sendCommand('SIMULATE_DAMAGE', { amount: 40 });
-        });
-
-        document.getElementById('btnSimDie')?.addEventListener('click', () => {
-            this.net.sendCommand('SIMULATE_DAMAGE', { amount: 100 });
-        });
-
-        document.getElementById('btnSimKillMob')?.addEventListener('click', () => {
-            this.net.sendCommand('SIMULATE_KILL_MOB', { forceDrop: true });
-        });
-
-        document.getElementById('btnSimSpawnPotion')?.addEventListener('click', () => {
-            this.net.sendCommand('SIMULATE_SPAWN_POTION', {});
-        });
+    public isChatFocused(): boolean {
+        return Boolean(this.chatInputEl && document.activeElement === this.chatInputEl);
     }
 
     /**
-     * Gửi tin nhắn chat lên Server.
+     * Xử lý phím tắt Phần 4 khi người chơi đang ở màn hình game và không gõ trong input:
+     * - Enter: mở/focus ô chat
+     * - E: nhặt bình máu gần nhất
+     * - R: bấm nhanh Hồi sinh khi đã hết đếm ngược
      */
-    public submitChat() {
+    public handleGlobalKeyDown(event: KeyboardEvent): boolean {
+        if (event.code === 'Enter' && !event.repeat) {
+            event.preventDefault();
+            return this.focusChatInput();
+        }
+        if (event.code === 'KeyE' && !event.repeat) {
+            event.preventDefault();
+            this.tryLootNearest();
+            return true;
+        }
+        if (event.code === 'KeyR' && !event.repeat) {
+            const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+            if (me?.state === 'DEAD' && this.respawnBtn && !this.respawnBtn.disabled) {
+                event.preventDefault();
+                this.requestRespawn();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Chặn click Canvas nếu người chơi click trúng ô có bình máu.
+     */
+    public handleTileClick(tile: GridPoint): boolean {
+        const clickedItem = this.findItemAt(tile.x, tile.y);
+        if (!clickedItem) {
+            return false;
+        }
+        this.interactWithItem(clickedItem);
+        return true;
+    }
+
+    public tryLootNearest(): void {
+        const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        if (!me) return;
+        if (me.state === 'DEAD') {
+            showInfo('Bạn đã chết, không thể nhặt vật phẩm.');
+            return;
+        }
+        let nearest: WorldItem | null = null;
+        let bestDist = Infinity;
+        this.net.items.forEach(item => {
+            const dist = Math.abs(me.x - item.x) + Math.abs(me.y - item.y);
+            if (dist < bestDist) {
+                bestDist = dist;
+                nearest = item;
+            }
+        });
+        if (!nearest) {
+            showInfo('Không có bình máu nào trên bản đồ.');
+            return;
+        }
+        if (bestDist > AUTO_WALK_LOOT_MAX_DISTANCE) {
+            showInfo('Bình máu gần nhất đang ở khá xa — hãy click trực tiếp vào bình máu để chạy tới.');
+            return;
+        }
+        this.interactWithItem(nearest);
+    }
+
+    private interactWithItem(item: WorldItem): void {
+        const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        if (!me) return;
+        if (me.state === 'DEAD') {
+            showInfo('Bạn đã chết, không thể nhặt bình máu.');
+            return;
+        }
+        const dist = Math.abs(me.x - item.x) + Math.abs(me.y - item.y);
+        if (dist <= 1) {
+            this.pendingLootId = null;
+            this.dispatchLoot(item.id);
+            return;
+        }
+        this.pendingLootId = item.id;
+        if (this.movement.moveToTile({ x: item.x, y: item.y }, true)) {
+            showInfo('Đang di chuyển tới bình máu để nhặt...');
+        } else {
+            this.pendingLootId = null;
+        }
+    }
+
+    private dispatchLoot(itemId: string): void {
+        if (this.lootRequestInFlight) return;
+        if (this.net.sendLoot(itemId)) {
+            this.lootRequestInFlight = true;
+        } else {
+            showError('Chưa kết nối máy chủ.');
+        }
+    }
+
+    private findItemAt(x: number, y: number): WorldItem | null {
+        for (const item of this.net.items.values()) {
+            if (item.x === x && item.y === y) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private submitChat(): void {
+        if (!this.chatInputEl) return;
         const raw = this.chatInputEl.value;
         const trimmed = raw.trim();
         if (!trimmed) {
             this.chatInputEl.blur();
             return;
         }
-        this.net.sendChat(trimmed);
-        this.chatInputEl.value = '';
-        this.chatInputEl.blur();
-    }
-
-    /**
-     * Xử lý khi người chơi click vào một bình máu trên Canvas:
-     * - Nếu khoảng cách Manhattan <= 1: gửi LOOT {itemId} ngay.
-     * - Nếu ở xa: đặt pendingLootId = item.id và gửi MOVE_TO tới ô bình máu.
-     */
-    public requestLootItem(item: ItemData) {
-        const me = this.net.getMyPlayer();
-        if (!me) return;
-        if (me.state === 'DEAD' || me.hp <= 0) {
-            this.showFeedback('Nhân vật đã chết, không thể nhặt bình máu!', true);
+        const codePoints = Array.from(trimmed).length;
+        if (codePoints > MAX_CHAT_CODE_POINTS) {
+            showError(`Tin nhắn tối đa ${MAX_CHAT_CODE_POINTS} ký tự.`);
             return;
         }
-
-        const dist = Math.abs(me.x - item.x) + Math.abs(me.y - item.y);
-        if (dist <= 1) {
-            this.pendingLootId = null;
-            this.net.sendLoot(item.id);
+        if (this.net.sendChat(trimmed)) {
+            this.chatInputEl.value = '';
+            this.chatInputEl.blur();
         } else {
-            this.pendingLootId = item.id;
-            this.showFeedback(`Đang di chuyển tới nhặt bình máu (${item.id})...`, false);
-            this.net.sendMoveTo(item.x, item.y);
+            showError('Chưa kết nối máy chủ; không thể gửi tin nhắn.');
         }
     }
 
-    /**
-     * Tìm và nhặt bình máu gần nhất trên bản đồ.
-     */
-    public tryLootNearestPotion() {
-        const me = this.net.getMyPlayer();
-        if (!me) return;
-        if (me.state === 'DEAD' || me.hp <= 0) {
-            this.showFeedback('Bạn đang chết, hãy chờ Hồi sinh trước!', true);
-            return;
-        }
-
-        let nearest: ItemData | null = null;
-        let bestDist = Number.MAX_SAFE_INTEGER;
-        this.net.items.forEach((item) => {
-            const d = Math.abs(me.x - item.x) + Math.abs(me.y - item.y);
-            if (d < bestDist) {
-                bestDist = d;
-                nearest = item;
+    private requestRespawn(): void {
+        if (this.respawnRequestInFlight) return;
+        if (this.net.sendRespawn()) {
+            this.respawnRequestInFlight = true;
+            if (this.respawnBtn) {
+                this.respawnBtn.disabled = true;
             }
-        });
-
-        if (!nearest) {
-            this.showFeedback('Hiện không có bình máu nào trên bản đồ!', true);
-            return;
+        } else {
+            showError('Chưa kết nối máy chủ.');
         }
-        this.requestLootItem(nearest);
     }
 
-    /**
-     * Nhận gói tin CHAT broadcast từ Server.
-     * Bắt buộc dùng textContent để chống XSS / HTML injection (AC10).
-     */
-    public handleChatEvent(chat: ChatEventPayload, _tick: number) {
+    public handleChatEvent(event: ChatEvent): void {
+        this.renderer.addChatBubble(event.playerId, event.text);
+        if (!this.chatMessagesEl) return;
+
         const row = document.createElement('div');
-        row.className = 'chat-item';
+        row.className = 'chat-entry' + (event.playerId === this.net.myId ? ' is-me' : '');
 
-        const authorSpan = document.createElement('span');
-        authorSpan.className = chat.playerId === this.net.myId ? 'chat-author me' : 'chat-author';
-        authorSpan.textContent = `${chat.name}: `;
+        const timeEl = document.createElement('time');
+        const now = new Date();
+        timeEl.dateTime = now.toISOString();
+        timeEl.textContent = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-        const textSpan = document.createElement('span');
-        textSpan.className = 'chat-text';
-        textSpan.textContent = chat.text; // An toàn 100% với HTML/script
+        const authorEl = document.createElement('strong');
+        authorEl.textContent = `${event.name}: `;
 
-        row.appendChild(authorSpan);
-        row.appendChild(textSpan);
+        const bodyEl = document.createElement('span');
+        // Bắt buộc dùng textContent để chống XSS (AC10)
+        bodyEl.textContent = event.text;
+
+        const contentWrap = document.createElement('div');
+        contentWrap.className = 'chat-text';
+        contentWrap.append(authorEl, bodyEl);
+
+        row.append(timeEl, contentWrap);
         this.chatMessagesEl.appendChild(row);
+        while (this.chatMessagesEl.childElementCount > 100) {
+            this.chatMessagesEl.firstElementChild?.remove();
+        }
         this.chatMessagesEl.scrollTop = this.chatMessagesEl.scrollHeight;
+    }
 
-        if (chat.playerId) {
-            this.renderer.addChatBubble(chat.playerId, chat.text);
+    public handleDamageEvent(event: DamageEvent): void {
+        const target = this.net.players.get(event.targetId);
+        const gx = typeof event.x === 'number' ? event.x : target?.x;
+        const gy = typeof event.y === 'number' ? event.y : target?.y;
+        if (typeof gx === 'number' && typeof gy === 'number') {
+            this.renderer.addFloatingText(gx, gy, `-${event.amount} HP`, '#f87171');
+        }
+        if (event.targetId === this.net.myId) {
+            this.onLog(`[Chiến đấu] Bạn nhận ${event.amount} sát thương.`);
         }
     }
 
-    /**
-     * Nhận gói tin ACK từ Server.
-     */
-    public handleAckEvent(ack: AckPayload, _requestId: number | null, _tick: number) {
-        const me = this.net.getMyPlayer();
-        switch (ack.commandType) {
-            case 'LOOT':
-                this.pendingLootId = null;
-                if (me) {
-                    this.renderer.addFloatingText(me.x, me.y, '+30 HP', '#2ecc71');
-                }
-                this.showFeedback('Đã nhặt và sử dụng Bình máu (+30 HP)!', false);
-                this.onLog('[Vật phẩm] Nhặt bình máu thành công (+30 HP).');
-                break;
-
-            case 'RESPAWN':
-                if (me) {
-                    this.renderer.addFloatingText(me.x, me.y, 'HỒI SINH (100 HP)', '#00d2d3');
-                }
-                this.showFeedback('Đã hồi sinh tại Khu an toàn (100/100 HP)!', false);
-                this.onLog('[Hồi sinh] Nhân vật đã hồi sinh tại Khu an toàn.');
-                break;
+    public handleEntitySpawn(event: EntitySpawnEvent): void {
+        if (event.kind === 'ITEM') {
+            this.onLog(`[Vật phẩm] Một bình máu xuất hiện tại (${event.x ?? '?'}, ${event.y ?? '?'}).`);
+        } else if (event.kind === 'PLAYER' && event.id === this.net.myId) {
+            this.respawnRequestInFlight = false;
+            this.renderer.centerOnPlayer(this.net.myId);
+            showSuccess('Bạn đã hồi sinh tại Làng Bến Cỏ (100/100 HP)!');
+            this.onLog('[Hồi sinh] Bạn đã hồi sinh đầy máu tại điểm xuất phát.');
         }
-        this.syncHudAndDeathOverlay();
     }
 
-    /**
-     * Nhận gói tin ERROR từ Server (HP_FULL, ITEM_UNAVAILABLE, OUT_OF_RANGE, RESPAWN_NOT_READY, RATE_LIMITED...).
-     */
-    public handleErrorEvent(err: ErrorPayload, _requestId: number | null, _tick: number) {
-        const me = this.net.getMyPlayer();
-        if (err.code === 'ITEM_UNAVAILABLE' || err.code === 'HP_FULL' || err.code === 'PLAYER_DEAD') {
+    public handleEntityDespawn(event: EntityDespawnEvent): void {
+        if (event.id === this.pendingLootId) {
             this.pendingLootId = null;
         }
-        if (me) {
-            const shortLabel = err.code === 'HP_FULL'
-                ? 'ĐẦY MÁU!'
-                : err.code === 'OUT_OF_RANGE'
-                    ? 'QUÁ XA!'
-                    : err.code === 'ITEM_UNAVAILABLE'
-                        ? 'ĐÃ MẤT!'
-                        : err.code;
-            this.renderer.addFloatingText(me.x, me.y, shortLabel, '#ff6b6b');
-        }
-        this.showFeedback(`[${err.code}] ${err.message}`, true);
-        this.onLog(`[Từ chối - ${err.code}] ${err.message}`);
-    }
-
-    /**
-     * Nhận sự kiện sát thương (DAMAGE).
-     */
-    public handleDamageEvent(dmg: DamageEventPayload, _tick: number) {
-        const targetPlayer = this.net.players.get(dmg.targetId);
-        if (targetPlayer) {
-            this.renderer.addFloatingText(targetPlayer.x, targetPlayer.y, `-${dmg.amount} HP`, '#ff4757');
-        } else {
-            const targetMob = this.net.mobs.get(dmg.targetId);
-            if (targetMob) {
-                this.renderer.addFloatingText(targetMob.x, targetMob.y, `-${dmg.amount}`, '#ffa502');
+        if (event.reason === 'LOOTED') {
+            const healed = typeof event.healedAmount === 'number' ? event.healedAmount : 30;
+            if (event.lootedBy === this.net.myId) {
+                this.lootRequestInFlight = false;
+                const me = this.net.players.get(this.net.myId);
+                const fx = me?.x ?? event.x ?? 0;
+                const fy = me?.y ?? event.y ?? 0;
+                this.renderer.addFloatingText(fx, fy, `+${healed} HP`, '#4ade80');
+                showSuccess(`Đã nhặt bình máu (+${healed} HP)!`);
+                this.onLog(`[Vật phẩm] Bạn nhặt bình máu và hồi +${healed} HP.`);
+            } else if (event.lootedByName) {
+                this.onLog(`[Vật phẩm] ${event.lootedByName} đã nhặt bình máu.`);
             }
+        } else if (event.reason === 'EXPIRED') {
+            this.onLog('[Vật phẩm] Một bình máu trên bản đồ đã hết hạn.');
+        } else if (event.reason === 'DEAD' && event.id === this.net.myId) {
+            this.pendingLootId = null;
+            this.movement.clearPreview();
+            this.onLog('[Tử trận] Bạn đã bị hạ gục! Chờ 3 giây để hồi sinh.');
         }
-        this.syncHudAndDeathOverlay();
     }
 
-    /**
-     * Nhận sự kiện xuất hiện thực thể (ENTITY_SPAWN: bình máu rơi, quái hồi sinh, player hồi sinh).
-     */
-    public handleEntitySpawn(spawn: EntitySpawnPayload, _tick: number) {
-        if (spawn.kind === 'ITEM') {
-            this.onLog(`[Rơi đồ] Bình máu (${spawn.id}) vừa xuất hiện trên bản đồ!`);
-            this.showFeedback(`Quái rơi Bình máu (${spawn.id})! Click vào bình máu hoặc nhấn E để nhặt.`, false);
-        } else if (spawn.kind === 'MOB') {
-            this.onLog(`[Hồi sinh Quái] Quái ${spawn.id} đã hồi sinh (thế hệ #${spawn.spawnGeneration ?? 1}).`);
+    public handleAck(commandType: string): void {
+        if (commandType === 'LOOT') {
+            this.lootRequestInFlight = false;
+        } else if (commandType === 'RESPAWN') {
+            this.respawnRequestInFlight = false;
+            this.renderer.centerOnPlayer(this.net.myId);
         }
-        this.syncHudAndDeathOverlay();
     }
 
-    /**
-     * Nhận sự kiện biến mất thực thể (ENTITY_DESPAWN: DEAD, LOOTED, EXPIRED, DISCONNECTED).
-     */
-    public handleEntityDespawn(despawn: EntityDespawnPayload, _tick: number) {
-        if (this.pendingLootId === despawn.id) {
+    public handleErrorCode(code: string | undefined): void {
+        this.lootRequestInFlight = false;
+        this.respawnRequestInFlight = false;
+        if (code === 'ITEM_UNAVAILABLE' || code === 'HP_FULL' || code === 'PLAYER_DEAD') {
             this.pendingLootId = null;
         }
-        if (despawn.reason === 'EXPIRED') {
-            this.onLog(`[Vật phẩm] Bình máu ${despawn.id} đã hết hạn sau 20 giây và biến mất.`);
-        } else if (despawn.reason === 'DEAD') {
-            if (despawn.id === this.net.myId) {
-                this.onLog('[Cảnh báo] Bạn đã hết máu! Chờ 3 giây để Hồi sinh về Khu an toàn.');
-            } else if (despawn.id.startsWith('m-')) {
-                this.onLog(`[Chiến đấu] Quái ${despawn.id} đã bị hạ gục (sẽ hồi sinh sau 15 giây).`);
-            }
-        }
-        this.syncHudAndDeathOverlay();
     }
 
-    /**
-     * Được gọi mỗi tick của thế giới (100ms):
-     * - Kiểm tra nếu đang có pendingLootId và đã đứng cạnh bình máu (Manhattan <= 1) thì tự gửi LOOT.
-     * - Cập nhật thanh máu HUD và đồng hồ đếm ngược trên Màn hình chết.
-     */
-    public onWorldTick(_tick: number) {
-        const me = this.net.getMyPlayer();
-        if (me) {
-            if (me.state === 'DEAD' || me.hp <= 0) {
+    public syncState(): void {
+        const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        this.updateHpHud(me);
+
+        // Kiểm tra auto-loot nếu người chơi đã chạy đủ gần bình máu đang chờ
+        if (me && me.state !== 'DEAD' && this.pendingLootId) {
+            const targetItem = this.net.items.get(this.pendingLootId);
+            if (!targetItem) {
                 this.pendingLootId = null;
-            } else if (this.pendingLootId) {
-                const item = this.net.items.get(this.pendingLootId);
-                if (!item) {
+            } else {
+                const dist = Math.abs(me.x - targetItem.x) + Math.abs(me.y - targetItem.y);
+                if (dist <= 1) {
+                    const idToLoot = targetItem.id;
                     this.pendingLootId = null;
-                } else {
-                    const dist = Math.abs(me.x - item.x) + Math.abs(me.y - item.y);
-                    if (dist <= 1) {
-                        const targetItemId = this.pendingLootId;
-                        this.pendingLootId = null;
-                        this.net.sendLoot(targetItemId);
-                    }
+                    this.dispatchLoot(idToLoot);
                 }
             }
         }
-        this.syncHudAndDeathOverlay();
+
+        const isDead = Boolean(me && (me.state === 'DEAD' || (typeof me.hp === 'number' && me.hp <= 0)));
+        if (isDead && !this.wasDead) {
+            this.pendingLootId = null;
+            this.movement.clearPreview();
+        }
+        this.wasDead = isDead;
+        this.updateDeathOverlay(performance.now());
     }
 
-    /**
-     * Đồng bộ thanh máu trên Top Bar và Màn hình chết (Death Overlay + nút Hồi sinh).
-     */
-    public syncHudAndDeathOverlay() {
-        const me = this.net.getMyPlayer();
-        if (this.itemCountEl) {
-            this.itemCountEl.textContent = String(this.net.items.size);
-        }
-        if (!me) return;
+    public onFrame(timestamp: number): void {
+        this.updateDeathOverlay(timestamp);
+    }
 
-        // Cập nhật thanh HP trên Top Bar
-        const hpPercent = Math.max(0, Math.min(100, Math.round((me.hp / me.maxHp) * 100)));
+    private updateHpHud(me?: { hp?: number; maxHp?: number; state?: string }): void {
+        const hp = typeof me?.hp === 'number' ? me.hp : null;
+        const maxHp = typeof me?.maxHp === 'number' ? me.maxHp : null;
+
         if (this.hpValueEl) {
-            this.hpValueEl.textContent = `${me.hp}/${me.maxHp}`;
+            this.hpValueEl.textContent = hp !== null && maxHp !== null ? `${hp} / ${maxHp}` : '— / —';
         }
-        if (this.hpBarFillEl) {
-            this.hpBarFillEl.style.width = `${hpPercent}%`;
-            this.hpBarFillEl.style.backgroundColor = hpPercent > 50 ? '#2ecc71' : hpPercent > 25 ? '#f39c12' : '#e74c3c';
+        if (this.hpTrackEl && this.hpFillEl) {
+            if (hp !== null && maxHp !== null && maxHp > 0) {
+                this.hpTrackEl.classList.remove('unavailable');
+                this.hpTrackEl.setAttribute('aria-label', `Máu hiện tại ${hp} trên ${maxHp}`);
+                const pct = Math.max(0, Math.min(100, Math.round((hp / maxHp) * 100)));
+                this.hpFillEl.style.width = `${pct}%`;
+                this.hpFillEl.dataset.level = pct > 50 ? 'high' : pct > 25 ? 'mid' : 'low';
+            } else {
+                this.hpTrackEl.classList.add('unavailable');
+                this.hpFillEl.style.width = '0%';
+            }
         }
+        if (this.hpNoteEl) {
+            const potionCount = this.net.items.size;
+            const statusText = me?.state === 'DEAD' ? 'Trạng thái: Đã tử trận' : 'Trạng thái: Sẵn sàng';
+            this.hpNoteEl.textContent = `${statusText} · Bình máu trên map: ${potionCount}`;
+        }
+    }
 
-        // Cập nhật Màn hình chết (Death Overlay)
-        const isDead = me.state === 'DEAD' || me.hp <= 0;
+    private updateDeathOverlay(timestamp: number): void {
+        if (!this.deathOverlayEl || !this.deathCountdownEl || !this.respawnBtn) return;
+
+        const me = this.net.myId ? this.net.players.get(this.net.myId) : undefined;
+        const isDead = Boolean(me && (me.state === 'DEAD' || (typeof me.hp === 'number' && me.hp <= 0)));
         if (!isDead) {
-            this.deathOverlayEl.style.display = 'none';
+            this.deathOverlayEl.hidden = true;
+            this.respawnRequestInFlight = false;
             return;
         }
 
-        this.deathOverlayEl.style.display = 'flex';
-        const readyTick = me.respawnReadyTick ?? this.net.currentTick;
-        const remainingTicks = Math.max(0, readyTick - this.net.currentTick);
-        const remainingSeconds = (remainingTicks * 0.1).toFixed(1);
+        this.deathOverlayEl.hidden = false;
+        const readyTick = typeof me?.respawnReadyTick === 'number' ? me.respawnReadyTick : this.net.currentTick;
+        const estimatedTick = this.net.getEstimatedTick(timestamp);
+        const remainingTicks = Math.max(0, readyTick - estimatedTick);
+        const remainingSec = (remainingTicks * this.net.tickDurationMs) / 1000;
 
-        if (remainingTicks > 0) {
-            this.deathCountdownEl.textContent = `Có thể hồi sinh sau: ${remainingSeconds} giây (${remainingTicks} tick)`;
+        if (remainingTicks > 0.05) {
+            this.deathCountdownEl.textContent = `Có thể hồi sinh sau ${remainingSec.toFixed(1)} giây...`;
             this.respawnBtn.disabled = true;
-            this.respawnBtn.textContent = `CHỜ HỒI SINH (${remainingSeconds}s)...`;
+            this.respawnBtn.textContent = `CHỜ (${Math.ceil(remainingSec)}s)`;
         } else {
-            this.deathCountdownEl.textContent = 'Đã đủ thời gian chờ! Bạn có thể hồi sinh về Khu an toàn.';
-            this.respawnBtn.disabled = false;
-            this.respawnBtn.textContent = 'HỒI SINH NGAY (Về Khu An Toàn - 100 HP)';
+            this.deathCountdownEl.textContent = 'Đã sẵn sàng trở về Làng Bến Cỏ (100/100 HP).';
+            this.respawnBtn.disabled = this.respawnRequestInFlight;
+            this.respawnBtn.textContent = this.respawnRequestInFlight ? 'ĐANG HỒI SINH...' : 'HỒI SINH (R)';
         }
     }
 
-    public showFeedback(text: string, isError: boolean) {
-        if (!this.feedbackBannerEl) return;
-        this.feedbackBannerEl.textContent = text;
-        this.feedbackBannerEl.className = isError ? 'feedback-banner error' : 'feedback-banner info';
+    public destroy(): void {
+        this.chatSendBtn?.removeEventListener('click', this.onChatSendClick);
+        this.chatInputEl?.removeEventListener('keydown', this.onChatInputKeyDown);
+        this.respawnBtn?.removeEventListener('click', this.onRespawnClick);
+        this.testSpawnPotionBtn?.removeEventListener('click', this.onTestSpawnPotionClick);
+        this.testDamage40Btn?.removeEventListener('click', this.onTestDamage40Click);
+        this.testSuicideBtn?.removeEventListener('click', this.onTestSuicideClick);
     }
 }

@@ -1,52 +1,13 @@
-# Chạy Client Web (Lữ Khách — TypeScript + Canvas 2D)
+# Client web — Lữ khách
 
-## Yêu cầu
+Client TypeScript/Vite. Chạy `npm install` rồi `npm run dev` trong `source/client`; kiểm tra production bằng `npm run build`. Cả dev và build tự import `source/common/maps/world.tmj` trước khi chạy (cần Python 3). WebSocket tại `ws://localhost:8080`.
 
-- Node.js 18+ và npm
+Map runtime giữ nguyên bố cục Tiled, nhiều tileset, GID và hướng lật. Tile logic 16 px; viewport 32 × 24 ô. Camera theo người chơi tại spawn; mục “Xem bản đồ” cho phép xem vùng khác, chọn “Điểm xuất hiện” để camera theo nhân vật. Click ô trống để đi theo A*, click đích mới để đổi đường. Client xem trước đường, server tính đường và tiến một ô mỗi 200ms; client nội suy vị trí. Không còn điều khiển bàn phím. Chưa có animation bước chân và tương tác NPC. Collision chỉ lấy từ lớp collision, không tự chặn theo ảnh nhà/cây/nước.
 
-## Cài đặt & Chạy phát triển (Vite)
+Sau khi chỉnh Tiled, lưu rồi chạy `npm run import-map`, build/khởi động lại server để cập nhật dữ liệu. Xem [hướng dẫn map](../common/maps/README.md).
 
-Từ thư mục gốc của dự án:
+Giao diện gồm chọn nhân vật, canvas, bảng nhân vật, vùng kỹ năng/trang bị, nhật ký và danh sách online. Máu, mana, kỹ năng và trang bị chưa có dữ liệu gameplay. “Rời game” tải lại trang. Chưa có chat.
 
-```powershell
-cd source\client
-npm install
-npm run dev
-```
+Minimap “BẢN ĐỒ KHÁM PHÁ” nằm ở cột bên trái màn hình game: vùng chưa đi tới bị che tối, chấm vàng là nhân vật và khung trắng là vùng camera đang xem. Vùng mở khóa khớp với khung hình đang hiển thị trên canvas (32 × 24 ô), kể cả khi lia camera; các ô chỉ hiện một phần ở mép màn hình cũng được mở. Vùng đã mở được giữ lại và tự lưu trên trình duyệt theo tên người chơi và bố cục collision của map. Đổi trình duyệt, tên hoặc bố cục collision sẽ có tiến trình riêng; đây chưa phải dữ liệu lưu trên tài khoản/server. Nếu trình duyệt chặn lưu trữ, khám phá vẫn hoạt động trong phiên hiện tại. Chạy `npm test` để kiểm tra khám phá, lưu/khôi phục và di chuyển.
 
-Sau đó mở trình duyệt tại địa chỉ Vite hiển thị (mặc định `http://localhost:5173`).
-
-## Hai chế độ chạy & kiểm thử
-
-1. **Kết nối Server Java thật (`VÀO GAME - KẾT NỐI SERVER 8080`)**:
-   - Chạy Server Java ở `source/server` trước (`mvn compile exec:java`), sau đó bấm **VÀO GAME**.
-   - Có thể mở 2–4 tab trình duyệt cùng lúc để kiểm thử:
-     - **Chat thời gian thực (`CHAT`)**: Nhấn `Enter` để mở ô chat, `Enter` lần nữa để gửi, `Esc` để đóng; chống XSS bằng `textContent` và hiện bong bóng chat trên đầu nhân vật.
-     - **Nhặt một lần (`LOOT` - AC06/AC07)**: Click vào bình máu (hoặc nhấn phím `E`) để tiếp cận và nhặt (`+30 HP`, tối đa `100 HP`; nếu đầy máu trả `HP_FULL` và giữ lại bình máu; 2 người cùng nhặt chỉ 1 người nhận được).
-     - **Màn hình chết & Hồi sinh (`RESPAWN` - AC08)**: Khi hết máu (`0 HP`), hiện màn hình chết đếm ngược 3 giây (`30 ticks`), khóa di chuyển/đánh/nhặt đồ (nhưng vẫn chat được), sau 3 giây bật nút **Hồi sinh** đưa nhân vật về Khu an toàn với `100/100 HP`.
-
-2. **Chế độ Dữ liệu giả định (`CHƠI THỬ VỚI DỮ LIỆU GIẢ ĐỊNH - KHÔNG CẦN CHỜ`)**:
-   - Nạp trực tiếp dữ liệu giả định (Fixtures theo Mục 6–8 `docs/protocol-v1.md`: bản đồ `32x24`, Khu an toàn, 5 quái Slime, 2 bình máu mẫu) để chạy và kiểm thử độc lập toàn bộ Phần 4 ngay cả khi chưa bật Server Java hoặc chưa ghép code với các thành viên khác.
-
-## Cấu trúc mã nguồn Client
-
-```text
-source/client/
-├── index.html                                  # Giao diện đăng nhập, Canvas 32x24, Khung Chat, Màn hình chết, Bảng test Phần 4
-├── package.json
-├── tsconfig.json
-└── src/
-    ├── main.ts                                 # Điểm vào: gắn kết UI, Input, Renderer và LootRespawnFeature
-    ├── style.css                               # Giao diện Pixel-Art
-    ├── types/
-    │   └── protocol.ts                         # Kiểu dữ liệu TypeScript cho Giao thức v1
-    ├── mock/
-    │   └── fixtures.ts                         # Dữ liệu giả định (Fixtures) theo docs/protocol-v1.md
-    ├── network/
-    │   └── WebSocketClient.ts                  # Giao tiếp WebSocket v1 + bộ mô phỏng Fixture Mode
-    ├── render/
-    │   └── CanvasRenderer.ts                   # Vẽ bản đồ, SafeZone, Slime, Bình máu, Nhân vật (sống/chết), Bong bóng Chat
-    └── features/
-        └── loot-respawn/
-            └── LootRespawnFeature.ts           # [PHẦN 4] Logic & UI Chat, Nhặt bình máu (pendingLootId), Màn hình chết & Hồi sinh
-```
+Minimap thu nhỏ bên trái hiển thị vùng 3 × 3 khung hình game (96 × 72 ô), khung hình hiện tại luôn ở giữa; ngoài biên map được đệm tối. Nhấn M trong game để mở/đóng bản đồ khám phá phóng to: khung xem khoảng 1/3 chiều cao bản đồ, giữ đúng tỷ lệ bản đồ dọc. Khi mở sẽ cuộn tới nhân vật; dùng con lăn, thanh cuộn hoặc thao tác vuốt để xem các phần phía trên/dưới. Esc, nút Đóng hoặc click nền tối cũng đóng bản đồ. Bản đồ lớn dùng cùng vùng đã khám phá với minimap; phím M không kích hoạt khi đang nhập văn bản.
