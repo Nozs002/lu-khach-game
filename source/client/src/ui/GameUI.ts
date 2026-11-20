@@ -71,6 +71,16 @@ export function updatePlayers(players: Map<string, Player>, myId: string | null)
     if (me) {
         document.getElementById('player-name')!.textContent = `${me.name} (Bạn)`;
         (document.getElementById('player-avatar') as HTMLImageElement).src = getCharacterAvatarSource(me.characterId);
+        const hp = document.getElementById('player-hp')!;
+        const track = document.getElementById('player-hp-track')!;
+        const fill = document.getElementById('player-hp-fill')!;
+        const hasHp = Number.isFinite(me.hp) && me.maxHp > 0;
+        hp.textContent = hasHp ? `${me.hp} / ${me.maxHp}` : '— / —';
+        fill.style.width = hasHp ? `${Math.max(0, Math.min(100, me.hp / me.maxHp * 100))}%` : '0%';
+        track.setAttribute('aria-valuemax', String(me.maxHp || 100));
+        track.setAttribute('aria-valuenow', String(me.hp || 0));
+        document.getElementById('player-combat-state')!.textContent = me.state === 'DEAD'
+            ? 'Nhân vật đã chết · Chờ tính năng hồi sinh.' : 'Mana chưa thiết kế';
     }
     players.forEach((player, id) => {
         const li = document.createElement('li');

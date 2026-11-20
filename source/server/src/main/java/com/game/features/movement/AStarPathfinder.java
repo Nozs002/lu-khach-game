@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public final class AStarPathfinder {
     private static final int[][] DIRECTIONS = {
@@ -21,7 +22,12 @@ public final class AStarPathfinder {
     };
 
     public List<Point> findPath(WorldMap map, Point start, Point goal) {
-        if (!map.isWalkable(start.x, start.y) || !map.isWalkable(goal.x, goal.y)) {
+        return findPath(map, start, goal, point -> true);
+    }
+
+    public List<Point> findPath(WorldMap map, Point start, Point goal, Predicate<Point> allowed) {
+        if (!map.isWalkable(start.x, start.y) || !map.isWalkable(goal.x, goal.y)
+                || !allowed.test(start) || !allowed.test(goal)) {
             return null;
         }
         if (start.equals(goal)) {
@@ -54,7 +60,7 @@ public final class AStarPathfinder {
 
             for (int[] direction : DIRECTIONS) {
                 Point next = new Point(current.point.x + direction[0], current.point.y + direction[1]);
-                if (!map.isWalkable(next.x, next.y)) {
+                if (!map.isWalkable(next.x, next.y) || !allowed.test(next)) {
                     continue;
                 }
 

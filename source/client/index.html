@@ -68,12 +68,22 @@
                             <img id="player-avatar" class="player-avatar" src="/assets/characters/knight.png" alt="Nhân vật của bạn">
                             <div class="character-stats">
                                 <h3 id="player-name">Lữ khách</h3>
-                                <p class="stat-label">Máu <span>— / —</span></p>
-                                <div class="stat-track unavailable" aria-label="Chưa có dữ liệu máu từ máy chủ"></div>
+                                <p class="stat-label">Máu <span id="player-hp">— / —</span></p>
+                                <div id="player-hp-track" class="stat-track" role="progressbar" aria-label="Máu nhân vật" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="player-hp-fill" class="hp-fill"></div></div>
                             </div>
                         </div>
                         <p class="stat-label mana-label">Mana <span>— / —</span></p>
-                        <p class="placeholder-note">Chưa có dữ liệu máu · Mana chưa thiết kế</p>
+                        <p id="player-combat-state" class="placeholder-note">Mana chưa thiết kế</p>
+                    </section>
+                    <section class="pixel-box panel" aria-labelledby="target-title">
+                        <h2 id="target-title">MỤC TIÊU</h2>
+                        <div id="combat-target" class="combat-target" hidden>
+                            <img id="target-avatar" width="38" height="38" alt="">
+                            <div><h3 id="target-name"></h3><p id="target-hp"></p></div>
+                        </div>
+                        <p id="combat-hint" class="placeholder-note">Click quái để tự tiếp cận và đánh.</p>
+                        <button id="view-nearest-mob" class="secondary-button" type="button">Xem quái gần nhất</button>
+                        <button id="stop-attack" class="secondary-button" type="button" hidden>Dừng đánh (Esc)</button>
                     </section>
                     <section class="pixel-box panel" aria-labelledby="skills-title">
                         <h2 id="skills-title">KỸ NĂNG</h2>
@@ -92,6 +102,7 @@
                         <h2 id="help-title">HƯỚNG DẪN CHƠI</h2>
                         <ul class="help-list">
                             <li>Click ô trống: tự tìm đường và di chuyển.</li>
+                            <li>Click quái: tự tiếp cận và đánh. Esc để dừng.</li>
                             <li>Vật cản được đánh dấu trong bản đồ sẽ chặn đường.</li>
                             <li>Chọn vùng để xem các khu vực khác.</li>
                         </ul>

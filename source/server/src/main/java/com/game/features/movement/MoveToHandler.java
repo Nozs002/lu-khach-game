@@ -15,6 +15,9 @@ public final class MoveToHandler {
     }
 
     public Result handle(Player player, int targetX, int targetY) {
+        if (!player.isAlive()) {
+            return new Result("PLAYER_DEAD", "Nhân vật đã chết.");
+        }
         if (!map.isInBounds(targetX, targetY)) {
             return new Result("INVALID_TARGET", "Ô đích nằm ngoài bản đồ.");
         }
@@ -30,6 +33,7 @@ public final class MoveToHandler {
         if (path == null) {
             return new Result("NO_PATH", "Không tìm thấy đường đi tới ô đã chọn.");
         }
+        player.stopCombat();
         player.setPath(path);
         return new Result(null, null);
     }

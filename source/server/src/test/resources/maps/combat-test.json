@@ -1,0 +1,22 @@
+{
+  "id": "combat-test",
+  "width": 9,
+  "height": 7,
+  "tileSize": 16,
+  "safeZone": {"x": 3, "y": 2, "width": 1, "height": 3},
+  "playerSpawns": [{"x": 3, "y": 3}],
+  "tiles": [
+    [1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1]
+  ],
+  "monsterSpawns": [{
+    "zoneId": "test-zone", "monsterType": "slime", "maxAlive": 3,
+    "aggroRadius": 4, "leashRadius": 6, "respawnSeconds": 15,
+    "geometry": {"type": "rectangle", "x": 1, "y": 1, "width": 7, "height": 5}
+  }]
+}

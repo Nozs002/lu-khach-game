@@ -200,6 +200,13 @@ input[type="text"]:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3
 .character-stats h3 { color: #f1c40f; font-size: 15px; margin: 0 0 12px; overflow-wrap: anywhere; }
 .stat-label { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin: 0 0 7px; color: #ccc; }
 .stat-track { height: 12px; border: 1px solid #555; background: #080808; }
+.hp-fill { height: 100%; width: 0; background: #db5c56; transition: width 150ms; }
+.combat-target { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.combat-target[hidden] { display: none; }
+.combat-target img { image-rendering: pixelated; }
+.combat-target h3 { margin: 0 0 7px; color: #f1c40f; font-size: 12px; }
+.combat-target p { margin: 0; font-size: 11px; }
+#view-nearest-mob, #stop-attack { margin-top: 10px; font-size: 10px; }
 .stat-track.unavailable { background: repeating-linear-gradient(135deg, #202020, #202020 5px, #292929 5px, #292929 10px); }
 .mana-label { margin-top: 14px; }
 .placeholder-note { margin: 0; color: #999; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
