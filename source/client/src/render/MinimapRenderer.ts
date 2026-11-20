@@ -29,11 +29,11 @@ export class MinimapRenderer {
         window.addEventListener('pagehide', this.onPageHide);
     }
 
-    setMap(map: MapData, playerName: string): void {
+    setMap(map: MapData, playerId: string): void {
         this.save();
         this.dirty = false;
         this.map = map;
-        this.storageKey = explorationStorageKey(map, playerName);
+        this.storageKey = explorationStorageKey(map, playerId);
         let saved: string | null = null;
         try { saved = localStorage.getItem(this.storageKey); } catch { /* Discovery still works without storage. */ }
         this.exploration = new ExplorationMap(map.width, map.height, saved);

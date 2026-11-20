@@ -1,7 +1,9 @@
 import { WebSocketClient } from '../network/WebSocketClient';
 import { CanvasRenderer } from '../render/CanvasRenderer';
 import { MovementController } from '../input/MovementController';
+import { NpcInteractionController } from '../input/NpcInteractionController';
 import { MinimapRenderer } from '../render/MinimapRenderer';
+import { getOrCreatePlayerId } from '../data/PlayerIdentity';
 import { ExpandedMap } from '../ui/ExpandedMap';
 import { selectedCharacterId } from '../ui/CharacterSelection';
 import { WORLD_VIEWS } from '../data/tiledWorld';
@@ -34,6 +36,11 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             const player = net.myId ? net.players.get(net.myId) : undefined;
             return player && net.map ? (player.y + 0.5) / net.map.height : 0.5;
         }, expanded => minimap.setExpanded(expanded));
+    const npcInteraction = new NpcInteractionController(renderer, net,
+        document.getElementById('npc-dialogue') as HTMLDialogElement, showInfo, () => {
+            movement.clearPreview();
+            renderer.clearPointerPosition();
+        });
     bindJoin(connectGame);
 
     const groundView = document.getElementById('ground-view') as HTMLSelectElement | null;
@@ -75,10 +82,12 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             return;
         }
         renderer.updatePointerClientPosition(event.clientX, event.clientY);
+        canvas.style.cursor = npcInteraction.getNpcAtClientPosition(event.clientX, event.clientY) ? 'pointer' : '';
     };
 
     const handleCanvasMouseLeave = () => {
         renderer.clearPointerPosition();
+        canvas.style.cursor = '';
     };
 
     const handleWindowBlur = () => {
@@ -89,6 +98,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
         if (!isGameScreenVisible()) return;
         if (event.ctrlKey || event.metaKey || event.altKey) return;
         if (isEditableElement(event.target)) return;
+        if (npcInteraction.isOpen) return;
 
         if (event.code === 'KeyM') {
             event.preventDefault();
@@ -128,7 +138,10 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             onGameReady,
             addLog,
             updatePlayers,
-            updateStatus,
+            (online, text) => {
+                updateStatus(online, text);
+                if (!online) npcInteraction.close();
+            },
             showError,
             () => movement.clearPreview()
         );
@@ -144,7 +157,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             return;
         }
         renderer.setFreeCamera(false, net.myId);
-        minimap.setMap(net.map, getPlayerName());
+        minimap.setMap(net.map, getOrCreatePlayerId());
         if (groundView) groundView.value = 'spawn';
         showGame();
         start();
@@ -173,6 +186,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
                 rafId = null;
             }
             movement.destroy();
+            npcInteraction.destroy();
             minimap.destroy();
             expandedMap.destroy();
             renderer.setCameraModeChangeListener(undefined);

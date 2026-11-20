@@ -44,9 +44,9 @@ export class ExplorationMap {
     serialize(): string { return this.explored.join(''); }
 }
 
-export function explorationStorageKey(map: MapData, playerName: string): string {
+export function explorationStorageKey(map: MapData, playerId: string): string {
     // A changed collision layout must not inherit discoveries from an old world.
     let hash = 2166136261;
     for (const row of map.tiles) for (const tile of row) hash = Math.imul(hash ^ tile, 16777619);
-    return `lu-khach:exploration:v1:${encodeURIComponent(playerName)}:${map.id}:${map.width}x${map.height}:${hash >>> 0}`;
+    return `lu-khach:exploration:v2:${encodeURIComponent(playerId)}:${map.id}:${map.width}x${map.height}:${hash >>> 0}`;
 }

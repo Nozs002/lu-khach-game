@@ -3976,9 +3976,620 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":8,
+         "name":"npcs",
+         "objects":[
+                {
+                    "height": 0,
+                    "id": 84,
+                    "name": "Người hướng dẫn",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "village_elder"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "village_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Trưởng làng"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Trưởng làng"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "village_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 793,
+                    "y": 3720.5
+                }, 
+                {
+                    "height": 0,
+                    "id": 86,
+                    "name": "Thợ rèn",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "blacksmith"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "blacksmith_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Thợ rèn"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Thợ rèn"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "blacksmith_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 551.5,
+                    "y": 3885
+                }, 
+                {
+                    "height": 0,
+                    "id": 88,
+                    "name": "Chủ trọ",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "innkeeper"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "innkeeper_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Chủ trọ"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Chủ trọ"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "innkeeper_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 649,
+                    "y": 3723
+                }, 
+                {
+                    "height": 0,
+                    "id": 89,
+                    "name": "Trưởng làng cát",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "desert_elder"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "sand_elder_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Trưởng làng cát"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Trưởng làng cát"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "sand_elder_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 152,
+                    "y": 4443.5
+                }, 
+                {
+                    "height": 0,
+                    "id": 90,
+                    "name": "Hội trưởng thương nhân",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "merchant_leader"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "merchant_leader_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Hội trưởng thương nhân"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Hội trưởng thương nhân"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "merchant_leader_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1930,
+                    "y": 3815
+                }, 
+                {
+                    "height": 0,
+                    "id": 91,
+                    "name": "Kiểm lâm",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "ranger"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "forest_ranger_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Kiểm lâm"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Kiểm lâm"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "forest_ranger_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1206.33333333333,
+                    "y": 2777.66666666667
+                }, 
+                {
+                    "height": 0,
+                    "id": 92,
+                    "name": "Kiểm lâm cũ",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "retired_ranger"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "retired_ranger_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Kiểm lâm cũ"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Kiểm lâm cũ"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "retired_ranger_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1415,
+                    "y": 1385.5
+                }, 
+                {
+                    "height": 0,
+                    "id": 93,
+                    "name": "Lữ khách",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "traveler"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "traveler_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Lữ khách"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Lữ khách"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "traveler_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1432.66666666667,
+                    "y": 4852
+                }, 
+                {
+                    "height": 0,
+                    "id": 94,
+                    "name": "Thợ câu cá",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "fisherman"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "fisherman_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "Thợ câu cá"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "Thợ câu cá"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "fisherman_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 184.666666666667,
+                    "y": 3717.33333333333
+                }, 
+                {
+                    "height": 0,
+                    "id": 95,
+                    "name": "?????",
+                    "opacity": 1,
+                    "point": true,
+                    "properties": [
+                        {
+                            "name": "characterId",
+                            "type": "string",
+                            "value": "mysterious_stranger"
+                        },
+                        {
+                            "name": "dialogueId",
+                            "type": "string",
+                            "value": "mysterious_stranger_01_intro"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "string",
+                            "value": "?????"
+                        },
+                        {
+                            "name": "enabled",
+                            "type": "bool",
+                            "value": true
+                        },
+                        {
+                            "name": "facing",
+                            "type": "string",
+                            "value": "down"
+                        },
+                        {
+                            "name": "interactionRadius",
+                            "type": "int",
+                            "value": 2
+                        },
+                        {
+                            "name": "interactionType",
+                            "type": "string",
+                            "value": "dialogue"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "value": "?????"
+                        },
+                        {
+                            "name": "npcId",
+                            "type": "string",
+                            "value": "mysterious_stranger_01"
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 152,
+                    "y": 4056.66666666667
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":8,
- "nextobjectid":83,
+ "nextlayerid":9,
+ "nextobjectid":96,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

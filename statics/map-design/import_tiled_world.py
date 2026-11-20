@@ -71,6 +71,50 @@ def monster_spawn_zones(layers, size):
     return zones
 
 
+def npc_spawns(layers, size, collision):
+    """Point objects use the containing tile, matching player spawn coordinates."""
+    npcs = []
+    seen = set()
+    for layer in layers:
+        if layer['name'] != 'npcs':
+            continue
+        if layer['type'] != 'objectgroup' or any(
+                layer.get(key, 0) for key in ('x', 'y', 'offsetx', 'offsety')):
+            raise ValueError('npcs must be an object layer without offsets')
+        for obj in layer.get('objects', []):
+            label = f'npcs object {obj.get("id")}'
+            props = {p['name']: p['value'] for p in obj.get('properties', [])}
+            if type(props.get('enabled', True)) is not bool:
+                raise ValueError(f'{label}: enabled must be a boolean')
+            if not props.get('enabled', True):
+                continue
+            if not obj.get('point'):
+                raise ValueError(f'{label}: NPC must be a point object')
+            for key in ('npcId', 'displayName', 'characterId', 'interactionType', 'dialogueId'):
+                if not isinstance(props.get(key), str) or not props[key].strip():
+                    raise ValueError(f'{label}: missing or invalid {key}')
+            if props['npcId'] in seen:
+                raise ValueError(f'{label}: duplicate npcId {props["npcId"]!r}')
+            if props['interactionType'] != 'dialogue':
+                raise ValueError(f'{label}: only dialogue interaction is configured')
+            radius = props.get('interactionRadius')
+            if type(radius) is not int or radius <= 0:
+                raise ValueError(f'{label}: interactionRadius must be a positive integer')
+            facing = props.get('facing', 'down')
+            if facing not in ('down', 'up', 'left', 'right'):
+                raise ValueError(f'{label}: invalid facing')
+            if any(type(obj.get(k)) not in (int, float) or not math.isfinite(obj[k]) for k in ('x', 'y')):
+                raise ValueError(f'{label}: invalid coordinates')
+            x, y = math.floor(obj['x'] / size), math.floor(obj['y'] / size)
+            if not (0 <= y < len(collision) and 0 <= x < len(collision[y])) or collision[y][x]:
+                raise ValueError(f'{label}: blocked or out-of-bounds NPC position')
+            seen.add(props['npcId'])
+            npcs.append(dict(objectId=obj['id'], npcId=props['npcId'], displayName=props['displayName'],
+                             characterId=props['characterId'], interactionType=props['interactionType'],
+                             dialogueId=props['dialogueId'], interactionRadius=radius, facing=facing, x=x, y=y))
+    return npcs
+
+
 def convert(world):
     if world.get('infinite') or world['orientation'] != 'orthogonal':
         raise ValueError('Expected a finite orthogonal map')
@@ -103,7 +147,7 @@ def convert(world):
     if not spawns:
         raise ValueError('Map must contain a spawn object')
     return dict(width=width, height=height, tileSize=size, collision=collision, spawns=spawns,
-                monsterSpawns=monster_spawn_zones(layers, size))
+                monsterSpawns=monster_spawn_zones(layers, size), npcs=npc_spawns(layers, size, collision))
 
 
 def main():
@@ -131,7 +175,8 @@ def main():
         compiled_map.parent.mkdir(parents=True, exist_ok=True)
         compiled_map.write_text(json.dumps(runtime, separators=(',', ':')), encoding='utf-8')
     print(f'Imported {runtime["width"]} x {runtime["height"]}; {len(runtime["spawns"])} spawn(s), '
-          f'{len(runtime["monsterSpawns"])} monster zone(s), {sum(map(sum, runtime["collision"]))} blocked cells')
+          f'{len(runtime["monsterSpawns"])} monster zone(s), {len(runtime["npcs"])} NPC(s), '
+          f'{sum(map(sum, runtime["collision"]))} blocked cells')
 
 
 if __name__ == '__main__':

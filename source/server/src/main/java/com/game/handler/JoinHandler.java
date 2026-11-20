@@ -2,6 +2,7 @@ package com.game.handler;
 
 import com.game.model.NetworkMessage;
 import com.game.model.Player;
+import com.game.model.CharacterCatalog;
 import com.game.world.WorldMap;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
@@ -17,6 +18,7 @@ public class JoinHandler {
     private final WorldMap worldMap;
 
     public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers, WorldMap worldMap) {
+        CharacterCatalog.forCharacter("knight"); // Validate config before accepting any connections.
         this.players = players;
         this.gson = gson;
         this.maxPlayers = maxPlayers;

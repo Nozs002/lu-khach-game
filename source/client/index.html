@@ -68,12 +68,14 @@
                             <img id="player-avatar" class="player-avatar" src="/assets/characters/knight.png" alt="Nhân vật của bạn">
                             <div class="character-stats">
                                 <h3 id="player-name">Lữ khách</h3>
-                                <p class="stat-label">Máu <span>— / —</span></p>
-                                <div class="stat-track unavailable" aria-label="Chưa có dữ liệu máu từ máy chủ"></div>
+                                <p class="stat-label">Máu <span id="player-hp">— / —</span></p>
+                                <div id="player-hp-bar" class="stat-track unavailable" role="progressbar" aria-label="Máu" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="player-hp-fill" class="stat-fill"></div></div>
                             </div>
                         </div>
+                        <p class="stat-label combat-stat">Sát thương <span id="player-damage">—</span></p>
+                        <p class="stat-label">Giáp <span id="player-armor">—</span></p>
                         <p class="stat-label mana-label">Mana <span>— / —</span></p>
-                        <p class="placeholder-note">Chưa có dữ liệu máu · Mana chưa thiết kế</p>
+                        <p class="placeholder-note">Mana chưa thiết kế</p>
                     </section>
                     <section class="pixel-box panel" aria-labelledby="skills-title">
                         <h2 id="skills-title">KỸ NĂNG</h2>
@@ -95,7 +97,7 @@
                             <li>Vật cản được đánh dấu trong bản đồ sẽ chặn đường.</li>
                             <li>Chọn vùng để xem các khu vực khác.</li>
                         </ul>
-                        <p class="placeholder-note">Click đích mới để đổi đường đi. Tương tác NPC chưa triển khai.</p>
+                        <p class="placeholder-note">Click đích mới để đổi đường đi. Đến gần NPC trong 2 ô rồi click nhân vật để trò chuyện.</p>
                     </section>
                 </aside>
             </div>
@@ -110,6 +112,21 @@
             <button type="button" class="secondary-button" data-close-map autofocus>Đóng (M / Esc)</button>
         </header>
         <div data-map-content></div>
+    </dialog>
+
+    <dialog id="npc-dialogue" class="npc-dialogue pixel-box" aria-labelledby="npc-dialogue-name" aria-describedby="npc-dialogue-line">
+        <header class="npc-dialogue-header">
+            <h2 id="npc-dialogue-name" data-npc-name></h2>
+            <button class="secondary-button" type="button" data-npc-dismiss aria-label="Đóng hội thoại">×</button>
+        </header>
+        <div class="npc-dialogue-body">
+            <img class="npc-dialogue-portrait" data-npc-portrait alt="">
+            <p id="npc-dialogue-line" data-npc-line aria-live="polite"></p>
+        </div>
+        <footer class="npc-dialogue-footer">
+            <span data-npc-progress aria-label="Tiến trình hội thoại"></span>
+            <button type="button" data-npc-next autofocus>Chuyển</button>
+        </footer>
     </dialog>
 
     <script type="module" src="/src/main.ts"></script>

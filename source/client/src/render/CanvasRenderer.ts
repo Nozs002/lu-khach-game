@@ -5,6 +5,7 @@ import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import type { GridPoint } from '../pathfinding/AStarPathfinder';
 import { imageCache } from './ImageCache';
+import { drawNpcs, preloadNpcs } from './NpcRenderer';
 
 const SPRITE_SIZE = 16;
 const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
@@ -54,6 +55,7 @@ export class CanvasRenderer {
         canvas.height = 24 * WORLD.tileSize;
         this.ctx.imageSmoothingEnabled = false;
         WORLD.tilesets.forEach(t => imageCache.get(t.image));
+        preloadNpcs();
     }
 
     setGridVisible(visible: boolean): void { this.gridVisible = visible; }
@@ -203,6 +205,7 @@ export class CanvasRenderer {
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, false);
         if (this.gridVisible) this.drawGrid(map);
         this.drawPreview(previewPath, map, myPosition);
+        drawNpcs(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, map.tileSize);
         this.drawPlayers(players, myId, map);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
     }

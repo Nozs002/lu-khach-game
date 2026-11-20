@@ -4,4 +4,8 @@ export interface Player {
     characterId: string;
     x: number;
     y: number;
+    hp: number;
+    maxHp: number;
+    damage: number;
+    armor: number;
 }

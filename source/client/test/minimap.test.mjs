@@ -48,10 +48,11 @@ test('saved discoveries round trip; corrupt and wrong-size saves are ignored', (
 
 test('saved exploration is isolated by player and world layout', () => {
     const map = { id: 'world', width: 2, height: 1, tiles: [[0, 0]] };
-    const key = explorationStorageKey(map, 'Lan');
-    assert.notEqual(key, explorationStorageKey(map, 'Nam'));
-    assert.notEqual(key, explorationStorageKey({ ...map, tiles: [[0, 1]] }, 'Lan'));
-    assert.equal(key, explorationStorageKey({ ...map }, 'Lan'));
+    const key = explorationStorageKey(map, '7202abb4-9a3b-4cef-8e13-00f544b1d44b');
+    assert.notEqual(key, explorationStorageKey(map, 'f0411102-21c9-49cd-9b1a-6d4ca7c34d8c'));
+    assert.notEqual(key, explorationStorageKey({ ...map, tiles: [[0, 1]] }, '7202abb4-9a3b-4cef-8e13-00f544b1d44b'));
+    assert.equal(key, explorationStorageKey({ ...map }, '7202abb4-9a3b-4cef-8e13-00f544b1d44b'));
+    assert.ok(key.startsWith('lu-khach:exploration:v2:'));
 });
 
 test('minimap discovers displayed camera regions without player movement and restores after reload', async () => {
@@ -77,7 +78,7 @@ test('minimap discovers displayed camera regions without player movement and res
     const status = {};
     const canvas = createCanvas();
     const renderer = new MinimapRenderer(canvas, status);
-    renderer.setMap(map, 'Lan');
+    renderer.setMap(map, '7202abb4-9a3b-4cef-8e13-00f544b1d44b');
     renderer.render({ x: 2, y: 2 }, { x: 0, y: 0, width: 10, height: 10 }, 0);
     renderer.render({ x: 2, y: 2 }, { x: 30, y: 30, width: 10, height: 10 }, 200);
     assert.equal(canvas.width, 60);
@@ -93,24 +94,26 @@ test('minimap discovers displayed camera regions without player movement and res
     assert.equal(canvas.width, 60);
     assert.deepEqual(outlines.at(-1), [20, 20, 20, 20]);
     renderer.destroy();
-    const first = new ExplorationMap(40, 40, saved.get(explorationStorageKey(map, 'Lan')));
+    const first = new ExplorationMap(40, 40, saved.get(explorationStorageKey(map, '7202abb4-9a3b-4cef-8e13-00f544b1d44b')));
     assert.equal(first.isExplored(2, 2), true);
     assert.equal(first.isExplored(30, 30), true);
     assert.equal(first.isExplored(9, 9), true);
     assert.equal(first.isExplored(10, 9), false);
     assert.equal(first.isExplored(20, 20), false);
+    const unrelated = new ExplorationMap(40, 40, saved.get(explorationStorageKey(map, 'f0411102-21c9-49cd-9b1a-6d4ca7c34d8c')));
+    assert.equal(unrelated.percentage, 0);
     const next = new MinimapRenderer(createCanvas(), status);
-    next.setMap(map, 'Lan');
+    next.setMap(map, '7202abb4-9a3b-4cef-8e13-00f544b1d44b');
     next.render({ x: 30, y: 30 }, { x: 20, y: 20, width: 5, height: 5 }, 0);
     next.destroy();
-    const restored = new ExplorationMap(40, 40, saved.get(explorationStorageKey(map, 'Lan')));
+    const restored = new ExplorationMap(40, 40, saved.get(explorationStorageKey(map, '7202abb4-9a3b-4cef-8e13-00f544b1d44b')));
     assert.equal(restored.isExplored(2, 2), true);
     assert.equal(restored.isExplored(30, 30), true);
     assert.equal(restored.isExplored(20, 20), true);
     globalThis.localStorage = { getItem: () => { throw Error('blocked'); }, setItem: () => { throw Error('full'); } };
     const unavailable = new MinimapRenderer(createCanvas(), status);
     assert.doesNotThrow(() => {
-        unavailable.setMap(map, 'Lan');
+        unavailable.setMap(map, '7202abb4-9a3b-4cef-8e13-00f544b1d44b');
         unavailable.render({ x: 2, y: 2 }, { x: 0, y: 0, width: 10, height: 10 }, 0);
         unavailable.destroy();
     });

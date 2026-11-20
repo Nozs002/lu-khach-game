@@ -1,0 +1,6 @@
+{
+  "knight": { "maxHp": 160, "damage": 18, "armor": 12 },
+  "hunter": { "maxHp": 100, "damage": 24, "armor": 4 },
+  "fighter": { "maxHp": 130, "damage": 30, "armor": 7 },
+  "lion": { "maxHp": 145, "damage": 26, "armor": 8 }
+}

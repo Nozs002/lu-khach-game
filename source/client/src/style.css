@@ -200,6 +200,8 @@ input[type="text"]:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3
 .character-stats h3 { color: #f1c40f; font-size: 15px; margin: 0 0 12px; overflow-wrap: anywhere; }
 .stat-label { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin: 0 0 7px; color: #ccc; }
 .stat-track { height: 12px; border: 1px solid #555; background: #080808; }
+.stat-fill { width: 0; height: 100%; background: #d95b55; transition: width 150ms ease; }
+.combat-stat { margin-top: 14px; }
 .stat-track.unavailable { background: repeating-linear-gradient(135deg, #202020, #202020 5px, #292929 5px, #292929 10px); }
 .mana-label { margin-top: 14px; }
 .placeholder-note { margin: 0; color: #999; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
@@ -232,6 +234,16 @@ input[type="text"]:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3
 .expanded-map .minimap-panel h2 { display: none; }
 .expanded-map .minimap-scroll { height: var(--map-view-height, 60dvh); overflow-y: auto; scrollbar-gutter: stable; }
 .expanded-map #minimap { height: auto; }
+.npc-dialogue { position: fixed; inset: auto 0 24px; margin: 0 auto; width: min(720px, calc(100vw - 24px)); max-height: calc(100dvh - 48px); overflow-y: auto; color: #eee; }
+.npc-dialogue::backdrop { background: #0006; }
+.npc-dialogue-header, .npc-dialogue-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.npc-dialogue-header h2 { color: #9ef0d5; font-size: 17px; margin: 0; }
+.npc-dialogue-header button { padding: 0 8px; font-size: 24px; }
+.npc-dialogue-body { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 18px; align-items: start; margin: 16px 0; }
+.npc-dialogue-portrait { width: 76px; height: 76px; image-rendering: pixelated; border: 2px solid #536b62; background: #080808; }
+.npc-dialogue-body p { margin: 0; font-size: 15px; line-height: 1.8; min-height: 76px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.npc-dialogue-footer span { color: #aaa; font-size: 12px; }
+.npc-dialogue-footer button { min-width: 110px; }
 @media (max-width: 1200px) {
     .main-body { grid-template-columns: 260px minmax(0, 1fr); }
     .sidebar { grid-column: 2; }

@@ -6,7 +6,71 @@ import warnings
 from pathlib import Path
 from unittest.mock import patch
 import import_tiled_world
-from import_tiled_world import ROOT, convert, monster_spawn_zones
+from import_tiled_world import ROOT, convert, monster_spawn_zones, npc_spawns
+
+
+class NpcImportTest(unittest.TestCase):
+    def setUp(self):
+        values = dict(npcId='elder_01', displayName='Trưởng làng', characterId='village_elder',
+                      interactionType='dialogue', dialogueId='elder_intro', interactionRadius=2, facing='down')
+        self.obj = dict(id=1, point=True, x=24.5, y=40.5,
+                        properties=[dict(name=k, value=v) for k, v in values.items()])
+        self.layer = dict(name='npcs', type='objectgroup', objects=[self.obj])
+        self.collision = [[0] * 4 for _ in range(4)]
+
+    def test_point_position_and_configuration_are_exported_without_mutation(self):
+        before = copy.deepcopy(self.layer)
+        npc, = npc_spawns([self.layer], 16, self.collision)
+        self.assertEqual((npc['x'], npc['y']), (1, 2))
+        self.assertEqual(npc['npcId'], 'elder_01')
+        self.assertEqual(npc['displayName'], 'Trưởng làng')
+        self.assertEqual(npc['interactionRadius'], 2)
+        self.assertEqual(self.layer, before)
+
+    def test_duplicate_ids_and_blocked_positions_are_rejected(self):
+        self.layer['objects'].append({**copy.deepcopy(self.obj), 'id': 2})
+        with self.assertRaisesRegex(ValueError, 'duplicate npcId'):
+            npc_spawns([self.layer], 16, self.collision)
+        self.layer['objects'].pop()
+        self.collision[2][1] = 1
+        with self.assertRaisesRegex(ValueError, 'blocked'):
+            npc_spawns([self.layer], 16, self.collision)
+        self.obj['x'] = -1
+        with self.assertRaisesRegex(ValueError, 'out-of-bounds'):
+            npc_spawns([self.layer], 16, self.collision)
+
+    def test_missing_metadata_and_invalid_interaction_radius_are_rejected(self):
+        for key, value in [('npcId', ''), ('characterId', ''), ('interactionRadius', 0),
+                           ('interactionRadius', True), ('interactionType', 'shop'), ('facing', 'north')]:
+            layer = copy.deepcopy(self.layer)
+            next(p for p in layer['objects'][0]['properties'] if p['name'] == key)['value'] = value
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                npc_spawns([layer], 16, self.collision)
+
+    def test_no_layer_and_disabled_npcs_export_empty_lists(self):
+        self.assertEqual(npc_spawns([], 16, self.collision), [])
+        self.obj['properties'] = [dict(name='enabled', value=False)]
+        self.assertEqual(npc_spawns([self.layer], 16, self.collision), [])
+
+    def test_authored_npcs_have_dialogues_and_valid_local_assets(self):
+        world = json.loads((ROOT / 'source/common/maps/world.tmj').read_text(encoding='utf-8'))
+        manifest = json.loads((ROOT / 'source/client/public/assets/manifest.json').read_text(encoding='utf-8'))
+        dialogues = json.loads((ROOT / 'source/common/npcs/dialogues.json').read_text(encoding='utf-8'))['dialogues']
+        npcs = convert(world)['npcs']
+        self.assertTrue(npcs)
+        for npc in npcs:
+            with self.subTest(npc=npc['npcId']):
+                dialogue = dialogues[npc['dialogueId']]
+                self.assertEqual(dialogue['npcId'], npc['npcId'])
+                self.assertTrue(all(isinstance(line, str) and line.strip() for line in dialogue['lines']))
+                for key in ('sprite', 'walk', 'portrait'):
+                    asset = manifest['npcTypes'][npc['characterId']][key]
+                    entry = manifest['assets'][asset]
+                    path = ROOT / 'source/client/public/assets' / asset
+                    header = path.read_bytes()[:24]
+                    self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
+                    self.assertEqual(int.from_bytes(header[16:20], 'big'), entry['width'])
+                    self.assertEqual(int.from_bytes(header[20:24], 'big'), entry['height'])
 
 
 class MonsterSpawnImportTest(unittest.TestCase):
