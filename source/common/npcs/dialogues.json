@@ -1,0 +1,74 @@
+{
+  "dialogues": {
+    "village_01_intro": {
+      "npcId": "village_01",
+      "lines": [
+        "Chào mừng đến Bến Cỏ, lữ khách. Hãy làm quen với đường làng trước khi đi xa.",
+        "Ngoài làng có slime. Đi về phía rừng, con sẽ gặp những loài nguy hiểm hơn."
+      ]
+    },
+    "blacksmith_01_intro": {
+      "npcId": "blacksmith_01",
+      "lines": [
+        "Chào lữ khách, ta là thợ rèn của làng.",
+        "Khi hệ thống trang bị sẵn sàng, hãy quay lại đây để xem các món đồ ta làm."
+      ]
+    },
+    "innkeeper_01_intro": {
+      "npcId": "innkeeper_01",
+      "lines": [
+        "Chào mừng đến quán trọ Bến Cỏ.",
+        "Đường phía trước còn dài, hãy chuẩn bị kỹ trước khi rời làng."
+      ]
+    },
+    "sand_elder_01_intro": {
+      "npcId": "sand_elder_01",
+      "lines": [
+        "Chào mừng đến làng cát. Ở đây, người đi đường phải biết quý từng bước chân.",
+        "Cẩn thận thằn lằn và nhện vàng ngoài sa mạc."
+      ]
+    },
+    "merchant_leader_01_intro": {
+      "npcId": "merchant_leader_01",
+      "lines": [
+        "Ta cùng các thương nhân lập nên khu buôn bán này để mọi người có nơi tập kết hàng hóa và trao đổi với nhau.",
+        "Có một chỗ giao thương cố định, các đoàn hàng sẽ dễ tìm bạn hàng và tiếp tế hơn trước khi tiếp tục hành trình."
+      ]
+    },
+    "forest_ranger_01_intro": {
+      "npcId": "forest_ranger_01",
+      "lines": [
+        "Ta trông coi khu rừng này. Đi theo đường mòn để tránh lạc.",
+        "Nấm và rắn thường xuất hiện giữa những tán cây."
+      ]
+    },
+    "retired_ranger_01_intro": {
+      "npcId": "retired_ranger_01",
+      "lines": [
+        "Ta từng đóng trại cùng các đồng đội trong khu rừng phía bắc... cho đến khi bọn quái vật tràn tới, tàn phá cả trại.",
+        "Các đồng đội của ta đã hy sinh trong cuộc tấn công ấy. Ta sống sót, nhưng chẳng thể đưa họ trở về. Nếu đi về phía bắc, đừng xem thường lũ quái ở đó."
+      ]
+    },
+    "traveler_01_intro": {
+      "npcId": "traveler_01",
+      "lines": [
+        "Nếu còn định tiến xa hơn về phía đông nam, hãy cẩn thận. Bọn thổ phỉ đang lộng hành ở đó.",
+        "Chúng chuyên chặn đường cướp các đoàn thương nhân, lại còn chặt phá rừng lấy gỗ. Đừng đi sâu vào địa bàn của chúng khi chưa chuẩn bị kỹ."
+      ]
+    },
+    "fisherman_01_intro": {
+      "npcId": "fisherman_01",
+      "lines": [
+        "Suỵt... cá sắp cắn câu rồi.",
+        "Dọc bờ biển có nhiều sinh vật lạ. Đừng chỉ nhìn mặt nước mà quên quan sát xung quanh."
+      ]
+    },
+    "mysterious_stranger_01_intro": {
+      "npcId": "mysterious_stranger_01",
+      "lines": [
+        "...",
+        "Có những chuyện chỉ người chịu đi đến cùng mới hiểu được."
+      ]
+    }
+  }
+}

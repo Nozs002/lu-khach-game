@@ -52,13 +52,13 @@ ID là string do server tạo: p-1, m-1, i-1; duy nhất trong vòng chạy serv
 
 | Kiểu | Các trường |
 | --- | --- |
-| MapData gửi client | id: string, width: integer, height: integer, tileSize: integer, collisions: integer[], safeZone: {x,y,width,height} |
+| MapData gửi client | id: string, width: integer, height: integer, tileSize: integer, tiles: integer[][], safeZone: {x,y,width,height} |
 | Player | id, name: string; x,y,hp,maxHp: integer; state: IDLE/MOVING/ATTACKING/DEAD; targetId: string hoặc null; respawnReadyTick: integer hoặc null |
 | Mob | id: string; kind: string; x,y,hp,maxHp: integer; state: IDLE/CHASE/ATTACK/RETURN/DEAD; targetId: string hoặc null; spawnGeneration: integer |
 | Item | id: string; kind: HEALTH_POTION; x,y,expiresTick: integer |
 | WorldState | players: Player[], mobs: Mob[], items: Item[] |
 
-Map ban đầu 32 × 24 ô, tileSize = 24; collisions chứa index ô chặn = y * width + x. Spawn/home/config AI chỉ giữ ở server; không cần gửi trong MapData. Snapshot chỉ gửi tọa độ ô đã đạt; client nội suy hình ảnh, server giữ tiến độ di chuyển nội bộ.
+Mỗi map rộng 172 × 314 ô, tileSize = 24; `tiles` có `height` hàng và mỗi hàng có `width` số nguyên không âm. Chỉ `tiles[y][x] == 0` là đi được; mọi giá trị khác `0` là vật cản. Biên map cũng phải được mã hóa bằng giá trị khác `0` nếu cần chặn. Spawn/home/config AI chỉ giữ ở server; không cần gửi trong MapData. Snapshot chỉ gửi tọa độ ô đã đạt; client nội suy hình ảnh, server giữ tiến độ di chuyển nội bộ.
 
 ## 5. Gói server gửi
 
@@ -89,7 +89,7 @@ Client vào game:
 Server trả (map 4 × 4 chỉ dùng làm fixture thử parser):
 
 ```json
-{"v":1,"type":"WELCOME","requestId":1,"tick":0,"payload":{"playerId":"p-1","tickDurationMs":100,"map":{"id":"test","width":4,"height":4,"tileSize":24,"collisions":[],"safeZone":{"x":0,"y":0,"width":1,"height":1}},"state":{"players":[{"id":"p-1","name":"An","x":0,"y":0,"hp":100,"maxHp":100,"state":"IDLE","targetId":null,"respawnReadyTick":null}],"mobs":[],"items":[]}}}
+{"v":1,"type":"WELCOME","requestId":1,"tick":0,"payload":{"playerId":"p-1","tickDurationMs":100,"map":{"id":"test","width":4,"height":4,"tileSize":24,"tiles":[[1,1,1,1],[1,0,0,1],[1,0,0,1],[1,1,1,1]],"safeZone":{"x":1,"y":1,"width":1,"height":1}},"state":{"players":[{"id":"p-1","name":"An","x":1,"y":1,"hp":100,"maxHp":100,"state":"IDLE","targetId":null,"respawnReadyTick":null}],"mobs":[],"items":[]}}}
 ```
 
 Client yêu cầu đi, server chấp nhận rồi cập nhật vị trí:

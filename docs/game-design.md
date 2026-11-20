@@ -10,7 +10,7 @@ Phiên bản: 0.1 — bản nháp để nhóm review. Ngày: 07/11/2026.
 
 Lữ khách là game nhập vai hành động 2D nhìn từ trên xuống, chơi trực tiếp trên trình duyệt. Tối đa 4 người trong phạm vi nghiệm thu cùng khám phá một bản đồ, chiến đấu với quái và nhặt bình máu. Thế giới dùng chung; mỗi người điều khiển một nhân vật, không có PvP.
 
-Game lấy cảm hứng từ BrowserQuest về góc nhìn, click-to-move và tương tác nhiều người chơi. Nhóm tự viết client TypeScript và server Java. Bản port hiện có giữ làm tham khảo; chưa dùng nó làm bằng chứng sản phẩm mới đã hoàn thành. Không đọc design hoặc sửa repo BrowserQuest nguồn.
+Game lấy cảm hứng từ BrowserQuest về góc nhìn, click-to-move và tương tác nhiều người chơi. Nhóm tự viết client TypeScript và server Java. Bản port hiện có giữ làm tham khảo; chưa dùng nó làm bằng chứng sản phẩm mới đã hoàn thành. Repo BrowserQuest nguồn chỉ đọc để tham khảo, không sửa. Theo hướng ngày 13/11/2026, thiết kế lại cốt truyện cơ bản và map tại [story-and-map.md](story-and-map.md); không sử dụng bộ thiết kế Miền Quên trong thư mục design của nguồn tham khảo. Các ý tưởng mới vẫn là đề xuất, chưa thay đổi phạm vi hoặc giao thức hiện hành.
 
 Mục tiêu trải nghiệm: người mới vào được game nhanh, thấy người chơi khác, hiểu cách di chuyển và đánh quái mà không cần hướng dẫn dài. Mục tiêu kỹ thuật: thể hiện kết nối hai chiều, đồng bộ trạng thái, quyền quyết định của server và xử lý đồng thời.
 
@@ -48,30 +48,33 @@ Khi focus ô chat, thao tác bàn phím không điều khiển nhân vật. Khi 
 
 ## 4. Bản đồ và quy ước tọa độ
 
-- Một map 32 × 24 ô, tileSize 24 pixel; kích thước logic Canvas 768 × 576 pixel. Canvas co theo màn hình và giữ tỉ lệ.
+- Mỗi map rộng 172 ô, cao 314 ô, tileSize 24 pixel; kích thước thế giới logic của mỗi map là 4128 × 7536 pixel. Canvas là khung nhìn có camera, co theo màn hình và giữ tỉ lệ; không mở rộng Canvas theo toàn bộ kích thước map.
 - Gốc (0,0) ở góc trên trái; x tăng sang phải, y tăng xuống dưới. Server dùng tọa độ ô nguyên; client có thêm tọa độ pixel để vẽ.
-- Va chạm tĩnh: 0 = đi được, 1 = bị chặn. Bốn biên map là vật cản.
+- Mỗi ô có giá trị số nguyên trong ma trận `tiles[y][x]`: chỉ `0` là đi được; mọi giá trị khác `0` là vật cản. Nếu biên map cần chặn thì dữ liệu các ô biên phải khác `0`.
 - Chia thành khu an toàn, lối đi và bãi quái. Không cần cửa hoặc chuyển map.
 - Khu an toàn đề xuất là hình chữ nhật x=2..7, y=2..7, có ít nhất 4 ô spawn player hợp lệ. Quái không sinh, đi vào hoặc gây sát thương trong vùng này.
-- Các vùng sinh quái nằm ngoài khu an toàn, mỗi vùng phải có ô trống và đường nối với lối đi. Khi nạp map, kiểm tra kích thước, chỉ số ô, vị trí spawn và vùng an toàn.
+- Các vùng sinh quái nằm ngoài khu an toàn, mỗi vùng phải có ô trống và đường nối với lối đi. Khi nạp map, kiểm tra đúng số hàng/cột của ma trận, giá trị tile, vị trí spawn và vùng an toàn.
 - Người chơi được đứng cùng ô để giảm kẹt đường. Quái được phép trùng ô ở bản đầu; không làm cơ chế đẩy/chặn động. Quái và người chơi chỉ đánh khi ở hai ô kề cạnh, không đánh chéo hoặc cùng ô.
 
-P1 tạo dữ liệu map mẫu; P3 xác thực và nạp. **Server gửi map chuẩn trong WELCOME**, client không giữ một bản collision tự sửa khác. Hình ảnh địa hình là dữ liệu hiển thị, không thay đổi luật va chạm.
+P1 tạo dữ liệu map mẫu; P3 xác thực và nạp. **Server gửi ma trận map chuẩn trong WELCOME**, client không giữ một bản map tự sửa khác. Giá trị tile quyết định khả năng đi lại; phần hình ảnh không thay đổi luật này.
 
 ```json
 {
-  "id": "starting-valley",
-  "width": 32,
-  "height": 24,
+  "id": "grid-example",
+  "width": 3,
+  "height": 3,
   "tileSize": 24,
-  "collisions": [0, 1, 2],
-  "safeZone": {"x": 2, "y": 2, "width": 6, "height": 6},
-  "playerSpawns": [{"x": 3, "y": 3}, {"x": 4, "y": 3}],
-  "mobSpawnZones": [{"id": "field-a", "x": 14, "y": 10, "width": 8, "height": 6, "count": 5}]
+  "tiles": [
+    [1, 1, 1],
+    [1, 0, 2],
+    [1, 1, 1]
+  ],
+  "safeZone": {"x": 1, "y": 1, "width": 1, "height": 1},
+  "playerSpawns": [{"x": 1, "y": 1}]
 }
 ```
 
-Đoạn JSON minh họa schema, không phải map hoàn chỉnh. collisions là danh sách index bị chặn, index = y × width + x. File thật cần đủ biên và ít nhất 4 playerSpawns; tổng count quái ban đầu là 5.
+JSON trên chỉ minh họa schema bằng ma trận 3 × 3. Map thật rộng 172 × 314 ô, do đó `tiles` phải có 314 hàng và mỗi hàng có 172 số nguyên không âm. Chỉ ô có giá trị `0` được đi qua; `1`, `2`, `3`,... đều là vật cản. Map thật cần ít nhất 4 `playerSpawns` ở các ô `0`; tổng count quái ban đầu là 5.
 
 ## 5. Di chuyển và tìm đường
 
@@ -107,7 +110,7 @@ Player tự đánh tới khi mục tiêu chết/mất, người chơi chết, g�
 
 Khi quái chết: đánh dấu DEAD một lần, ngừng AI/combat, xét drop một lần, phát sự kiện và lên lịch hồi sinh. Nếu nhiều player cùng đánh, đòn làm HP về 0 được ghi nhận trong sự kiện, không có điểm thưởng hoặc quyền loot riêng. Không phát hai lần death/drop cho cùng vòng đời.
 
-Player chết: hủy đường/mục tiêu/pending loot, giữ phiên kết nối, phát trạng thái chết. Không rơi đồ hoặc mất tiến trình vì bản đầu không có inventory. Không tự hồi máu khi đang sống; nguồn hồi máu là bình máu và hồi sinh.
+Player chết: hủy đường/mục tiêu/pending loot, giữ phiên kết nối, phát trạng thái chết. Không rơi đồ hoặc mất tiến trình vì bản đầu không có inventory. Khi còn sống và không bị quái đe dọa, player hồi thụ động 1 HP mỗi tick (10 HP/giây ở tick 100 ms), tối đa bằng maxHp. Quái còn sống trong bán kính aggro hoặc đang chủ động đuổi player sẽ ngăn hồi máu; quái đang RETURN không tính là mối đe dọa.
 
 ## 7. Quái: sinh, AI và hồi sinh
 
@@ -217,7 +220,7 @@ Client nội suy snapshot với độ trễ hiển thị mục tiêu 100 ms. N�
 | Player | id, name, x, y, hp, maxHp, state, targetId, path, nextAttackTick, respawnReadyTick | Server; client nhận các trường hiển thị |
 | Mob | id, kind, x, y, hp, maxHp, state, targetId, home, spawnZoneId, spawnGeneration, timers | Server; client nhận các trường hiển thị |
 | Item | id, kind, x, y, expiresTick | Server và snapshot client |
-| MapData | id, width, height, tileSize, collisions, safeZone, spawn definitions | JSON server; WELCOME gửi phần cần cho client |
+| MapData | id, width, height, tileSize, tiles, safeZone, spawn definitions | JSON server; WELCOME gửi phần cần cho client |
 | WorldState | tick, players, mobs, items | Snapshot server gửi xuống client |
 
 ID là chuỗi do server cấp, duy nhất trong vòng chạy server, ví dụ p-1, m-1, i-1. Không tái dùng ID player/item trong cùng vòng chạy. state player: IDLE/MOVING/ATTACKING/DEAD. Mob dùng state ở mục 7. Không gửi object connection, hàng đợi đường hoặc các cấu trúc nội bộ Java xuống client.

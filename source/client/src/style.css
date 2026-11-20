@@ -1,3 +1,55 @@
+.toast-container {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: min(380px, calc(100vw - 24px));
+    max-height: min(180px, calc(100dvh - 24px));
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+.toast {
+    --toast-color: #60a5fa;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #141414f2;
+    color: #fff;
+    border: 1px solid #666;
+    border-left: 3px solid var(--toast-color);
+    box-shadow: 4px 4px 0 #0008;
+    pointer-events: none;
+    overflow-wrap: anywhere;
+}
+
+.toast--error { --toast-color: #f87171; }
+.toast--success { --toast-color: #4ade80; }
+.toast--info { --toast-color: #60a5fa; }
+.toast-content { flex: 1; min-width: 0; }
+.toast-content strong { color: var(--toast-color); font-size: 11px; }
+.toast-content p { margin: 3px 0 0; font-size: 12px; line-height: 1.4; }
+
+.toast .toast-close {
+    pointer-events: auto;
+    flex-shrink: 0;
+    padding: 0 5px;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.toast .toast-close:hover { background: #ffffff20; }
+.toast .toast-close:focus-visible { outline: 2px solid var(--toast-color); }
+
 body {
     background-color: #121212;
     color: #fff;
@@ -6,8 +58,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
 /* Khung viền pixel chung */
@@ -38,7 +90,6 @@ body {
     cursor: pointer;
     flex: 1;
     transition: all 0.2s;
-    text-align: center;
 }
 
 .char-card:hover {
@@ -111,157 +162,137 @@ button:hover {
     background: #2ecc71;
 }
 
-/* Khung màn hình Game chính */
-#game-container {
-    width: 820px;
-    height: 560px;
-    background: #1e272e;
-    border: 4px solid #485460;
-    position: relative;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    overflow: hidden;
+/* Game shell follows the character selection template. */
+* { box-sizing: border-box; }
+body { padding: 20px; }
+[hidden] { display: none !important; }
+button:focus-visible, summary:focus-visible, .log:focus-visible,
+input[type="text"]:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3px; }
+#gameUI { width: 100%; max-width: 1440px; }
+#game-container { width: 100%; }
+.top-bar, .game-heading, .connection-controls { display: flex; align-items: center; gap: 20px; }
+.top-bar { justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; }
+.game-heading h1 { margin: 0; color: #f1c40f; font-size: 24px; }
+.game-heading > span { color: #aaa; font-size: 13px; }
+.connection-controls { font-size: 12px; flex-wrap: wrap; }
+.status-online { color: #72d494; }
+.status-offline { color: #f49b8e; }
+#status { overflow-wrap: anywhere; }
+.secondary-button { background: #222; border-color: #666; }
+.secondary-button:hover { background: #333; }
+.main-body { display: grid; grid-template-columns: 280px minmax(0, 1fr) 300px; align-items: start; gap: 18px; }
+.world-column, .sidebar, .exploration-sidebar { min-width: 0; }
+.world-column { display: flex; flex-direction: column; gap: 12px; }
+.canvas-frame { position: relative; padding: 6px; background: #101010; }
+#gameCanvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; background: #161d18; image-rendering: pixelated; }
+.death-overlay { position: absolute; inset: 6px; background: rgba(12, 6, 8, 0.82); display: flex; align-items: center; justify-content: center; z-index: 20; padding: 16px; }
+.death-card { width: min(340px, 100%); text-align: center; border-color: #b91c1c; }
+.death-card h2 { margin: 0 0 10px; color: #f87171; font-size: 18px; }
+.death-countdown { margin: 0 0 14px; color: #e2e8f0; font-size: 12px; line-height: 1.5; }
+.death-card button:disabled { background: #374151; border-color: #4b5563; color: #9ca3af; cursor: not-allowed; }
+.hp-bar-fill { height: 100%; width: 100%; background: #22c55e; transition: width 0.2s ease, background-color 0.2s ease; }
+.hp-bar-fill[data-level="mid"] { background: #eab308; }
+.hp-bar-fill[data-level="low"] { background: #ef4444; }
+.chat-panel { display: flex; flex-direction: column; gap: 10px; }
+.chat-panel h2 { margin-bottom: 4px; }
+.chat-messages { height: 132px; overflow-y: auto; font-size: 12px; line-height: 1.55; padding: 8px; background: #0c0c0c; border: 1px solid #333; scrollbar-color: #777 #111; }
+.chat-entry { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 3px 0; border-bottom: 1px dashed #222; overflow-wrap: anywhere; }
+.chat-entry time { color: #777; font-size: 10px; padding-top: 2px; }
+.chat-entry strong { color: #93c5fd; }
+.chat-entry.is-me strong { color: #f1c40f; }
+.chat-entry span { color: #e5e7eb; }
+.chat-form { display: flex; gap: 8px; }
+.chat-form input[type="text"] { flex: 1; min-width: 0; padding: 7px 10px; font-size: 12px; }
+.chat-form button { padding: 7px 14px; font-size: 12px; flex-shrink: 0; }
+.test-panel { padding: 14px 16px; }
+.test-panel summary { cursor: pointer; color: #f1c40f; font-size: 12px; font-weight: bold; }
+.test-actions { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 10px; }
+.test-actions button { padding: 7px 10px; font-size: 11px; }
+.danger-button { background: #7f1d1d; border-color: #ef4444; }
+.danger-button:hover { background: #991b1b; }
+.player-list .is-dead { color: #f87171; }
+.map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.map-toolbar button { padding: 6px 10px; font-size: 11px; }
+.ground-view-label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #ccc; font-size: 12px; }
+#ground-view { font: inherit; color: #eee; background: #141414; border: 2px solid #666; padding: 6px; max-width: 100%; }
+#ground-view:focus-visible { outline: 2px solid #f1c40f; outline-offset: 3px; }
+.sidebar { display: flex; flex-direction: column; gap: 12px; }
+.panel { padding: 16px; }
+.panel h2 { color: #f1c40f; font-size: 13px; margin: 0 0 12px; }
+.panel h2 { padding-bottom: 10px; border-bottom: 1px solid #3e3e3e; }
+.character-profile { display: flex; gap: 14px; align-items: center; }
+.player-avatar { width: 72px; height: 72px; flex-shrink: 0; object-fit: contain; image-rendering: pixelated; background: #080808; border: 2px solid #f1c40f; padding: 4px; }
+.character-stats { min-width: 0; flex: 1; }
+.character-stats h3 { color: #f1c40f; font-size: 15px; margin: 0 0 12px; overflow-wrap: anywhere; }
+.stat-label { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin: 0 0 7px; color: #ccc; }
+.stat-track { height: 12px; border: 1px solid #555; background: #080808; }
+.stat-fill { width: 0; height: 100%; background: #d95b55; transition: width 150ms ease; }
+.combat-stat { margin-top: 14px; }
+.combat-target { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.combat-target[hidden] { display: none; }
+.combat-target img { image-rendering: pixelated; }
+.combat-target h3 { margin: 0 0 7px; color: #f1c40f; font-size: 12px; }
+.combat-target p { margin: 0; font-size: 11px; }
+#view-nearest-mob, #stop-attack { margin-top: 10px; font-size: 10px; }
+.stat-track.unavailable { background: repeating-linear-gradient(135deg, #202020, #202020 5px, #292929 5px, #292929 10px); }
+.mana-label { margin-top: 14px; }
+.placeholder-note { margin: 0; color: #999; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
+.journal-panel { display: flex; flex-direction: column; }
+.log { height: 210px; overflow-y: auto; overflow-wrap: anywhere; font-size: 12px; line-height: 1.65; scrollbar-color: #777 #111; }
+.log-entry { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 6px 0; border-bottom: 1px dashed #292929; }
+.log-entry time { color: #888; font-size: 10px; padding-top: 2px; }
+.log-entry span { color: #ccc; white-space: pre-wrap; }
+.new-log-button { margin-top: 8px; padding: 6px; font-size: 11px; }
+.help-list { list-style: none; margin: 0 0 10px; padding: 0; color: #ddd; font-size: 12px; line-height: 1.85; }
+.online-panel { padding: 14px 16px; }
+.online-panel summary { cursor: pointer; color: #f1c40f; font-size: 12px; }
+#player-count { color: #ccc; }
+.player-list { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; max-height: 160px; overflow-y: auto; }
+.player-list li { padding: 6px 0; border-top: 1px dashed #333; overflow-wrap: anywhere; }
+.player-list .is-me { color: #f1c40f; }
+.minimap-panel h2 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.minimap-north { font-size: 10px; color: #aaa; white-space: nowrap; }
+.minimap-scroll { height: auto; overflow: hidden; overscroll-behavior: contain; scrollbar-color: #87988b #080d12; background: #080d12; }
+.minimap-scroll:focus-visible { outline: 2px solid #f1c40f; outline-offset: 2px; }
+#minimap { display: block; width: 100%; height: auto; background: #080d12; border: 1px solid #39444d; image-rendering: pixelated; }
+.minimap-status { color: #ddd; font-size: 11px; margin: 10px 0 6px; }
+.minimap-player-key { color: #f1c40f; }
+.expanded-map { width: min(1000px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 18px; color: #fff; background: #121819; border: 3px solid #777; overflow-y: auto; }
+.expanded-map::backdrop { background: #000c; }
+.expanded-map-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.expanded-map-header h2 { margin: 0; font-size: 16px; color: #f1c40f; }
+.expanded-map-header button { font-size: 12px; }
+.expanded-map .minimap-panel { padding: 0; border: 0; box-shadow: none; background: transparent; }
+.expanded-map .minimap-panel h2 { display: none; }
+.expanded-map .minimap-scroll { height: var(--map-view-height, 60dvh); overflow-y: auto; scrollbar-gutter: stable; }
+.expanded-map #minimap { height: auto; }
+.npc-dialogue { position: fixed; inset: auto 0 24px; margin: 0 auto; width: min(720px, calc(100vw - 24px)); max-height: calc(100dvh - 48px); overflow-y: auto; color: #eee; }
+.npc-dialogue::backdrop { background: #0006; }
+.npc-dialogue-header, .npc-dialogue-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.npc-dialogue-header h2 { color: #9ef0d5; font-size: 17px; margin: 0; }
+.npc-dialogue-header button { padding: 0 8px; font-size: 24px; }
+.npc-dialogue-body { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 18px; align-items: start; margin: 16px 0; }
+.npc-dialogue-portrait { width: 76px; height: 76px; image-rendering: pixelated; border: 2px solid #536b62; background: #080808; }
+.npc-dialogue-body p { margin: 0; font-size: 15px; line-height: 1.8; min-height: 76px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.npc-dialogue-footer span { color: #aaa; font-size: 12px; }
+.npc-dialogue-footer button { min-width: 110px; }
+@media (max-width: 1200px) {
+    .main-body { grid-template-columns: 260px minmax(0, 1fr); }
+    .sidebar { grid-column: 2; }
 }
-
-/* Thanh trạng thái top bar */
-.top-bar {
-    padding: 6px 12px;
-    background: rgba(0, 0, 0, 0.6);
-    font-size: 13px;
-    border-bottom: 2px solid #333;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 38px;
-    box-sizing: border-box;
+@media (max-width: 900px) {
+    body { padding: 12px; }
+    .main-body { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { grid-column: auto; }
+    .world-column { grid-row: 1; }
+    .top-bar { gap: 14px; }
+    .game-heading { gap: 12px; }
+    .connection-controls { gap: 12px; }
 }
-
-.btn-start {
-    background: #e67e22;
-    border: 2px solid #f39c12;
-    color: #fff;
-    padding: 4px 14px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 2px 2px 0px #000;
-    transition: all 0.1s ease;
-}
-
-.btn-start:hover {
-    background: #f39c12;
-    transform: scale(1.03);
-}
-
-.btn-start:active {
-    transform: scale(0.97);
-}
-
-.status-online { color: #2ecc71; font-weight: bold; }
-.status-offline { color: #e74c3c; font-weight: bold; }
-
-/* Phần thân chính (Canvas + Sidebar) */
-.main-body {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    height: 410px;
-    box-sizing: border-box;
-}
-
-#gameCanvas {
-    background-color: #2c3e50;
-    border: 3px solid #485460;
-    width: 510px;
-    height: 340px;
-    box-sizing: border-box;
-}
-
-/* Sidebar quản lý người chơi & Log */
-.sidebar {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 340px;
-}
-
-.panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 8px;
-    overflow: hidden;
-}
-
-.panel h3 {
-    margin: 0 0 6px 0;
-    font-size: 13px;
-    color: #f39c12;
-    border-bottom: 1px solid #444;
-    padding-bottom: 4px;
-}
-
-.player-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-    flex: 1;
-    font-size: 12px;
-}
-
-.player-list li {
-    padding: 3px 0;
-    border-bottom: 1px dashed #333;
-}
-
-.log {
-    color: #bdc3c7;
-    font-size: 11px;
-    overflow-y: auto;
-    flex: 1;
-    word-break: break-word;
-    line-height: 1.4;
-}
-
-/* Hộp thoại Dialogue Box nằm dưới cùng */
-.dialogue-box {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    height: 80px;
-    background-color: rgba(0, 0, 0, 0.9);
-    border: 3px solid #ecf0f1;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-sizing: border-box;
-}
-
-.avatar {
-    width: 56px;
-    height: 56px;
-    border: 2px solid #bdc3c7;
-    image-rendering: pixelated;
-    object-fit: cover;
-    background-color: #333;
-}
-
-.character-name {
-    color: #f1c40f;
-    margin: 0 0 4px 0;
-    font-size: 15px;
-}
-
-.dialogue-text {
-    color: #ffffff;
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.3;
+@media (max-width: 460px) {
+    .login-card { width: 100%; padding: 14px; }
+    .char-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .char-card { min-width: 0; }
+    .game-heading h1 { font-size: 20px; }
+    .panel { padding: 14px; }
 }

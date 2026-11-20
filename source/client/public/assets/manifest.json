@@ -70,6 +70,512 @@
       "source": "Backgrounds/Tilesets/TilesetNature.png",
       "width": 384,
       "height": 336
+    },
+    "mobs/bamboo.png": {
+      "url": "/assets/mobs/bamboo.png",
+      "source": "Actor/Monster/Bamboo/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/bamboo-face.png": {
+      "url": "/assets/mobs/bamboo-face.png",
+      "source": "Actor/Monster/Bamboo/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/bamboo_yellow.png": {
+      "url": "/assets/mobs/bamboo_yellow.png",
+      "source": "Actor/Monster/BambooYellow/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/bamboo_yellow-face.png": {
+      "url": "/assets/mobs/bamboo_yellow-face.png",
+      "source": "Actor/Monster/BambooYellow/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/kappa_green.png": {
+      "url": "/assets/mobs/kappa_green.png",
+      "source": "Actor/Monster/KappaGreen/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/kappa_green-face.png": {
+      "url": "/assets/mobs/kappa_green-face.png",
+      "source": "Actor/Monster/KappaGreen/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/lizard.png": {
+      "url": "/assets/mobs/lizard.png",
+      "source": "Actor/Monster/Lizard/Lizard.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/lizard-face.png": {
+      "url": "/assets/mobs/lizard-face.png",
+      "source": "Actor/Monster/Lizard/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/mole.png": {
+      "url": "/assets/mobs/mole.png",
+      "source": "Actor/Monster/Mole/Mole.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/mole-face.png": {
+      "url": "/assets/mobs/mole-face.png",
+      "source": "Actor/Monster/Mole/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/mollusc.png": {
+      "url": "/assets/mobs/mollusc.png",
+      "source": "Actor/Monster/Mollusc/Mollusc.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/mollusc-face.png": {
+      "url": "/assets/mobs/mollusc-face.png",
+      "source": "Actor/Monster/Mollusc/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/mushroom.png": {
+      "url": "/assets/mobs/mushroom.png",
+      "source": "Actor/Monster/Mushroom/mushroom.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/mushroom-face.png": {
+      "url": "/assets/mobs/mushroom-face.png",
+      "source": "Actor/Monster/Mushroom/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/octopus.png": {
+      "url": "/assets/mobs/octopus.png",
+      "source": "Actor/Monster/Octopus/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/octopus-face.png": {
+      "url": "/assets/mobs/octopus-face.png",
+      "source": "Actor/Monster/Octopus/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/owl2.png": {
+      "url": "/assets/mobs/owl2.png",
+      "source": "Actor/Monster/Owl2/Owl2.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/owl2-face.png": {
+      "url": "/assets/mobs/owl2-face.png",
+      "source": "Actor/Monster/Owl2/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/panda.png": {
+      "url": "/assets/mobs/panda.png",
+      "source": "Actor/Monster/Panda/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/panda-face.png": {
+      "url": "/assets/mobs/panda-face.png",
+      "source": "Actor/Monster/Panda/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/skull.png": {
+      "url": "/assets/mobs/skull.png",
+      "source": "Actor/Monster/Skull/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/skull-face.png": {
+      "url": "/assets/mobs/skull-face.png",
+      "source": "Actor/Monster/Skull/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/slime-face.png": {
+      "url": "/assets/mobs/slime-face.png",
+      "source": "Actor/Monster/Slime/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/slime2.png": {
+      "url": "/assets/mobs/slime2.png",
+      "source": "Actor/Monster/Slime2/Slime2.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/slime2-face.png": {
+      "url": "/assets/mobs/slime2-face.png",
+      "source": "Actor/Monster/Slime2/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/snake.png": {
+      "url": "/assets/mobs/snake.png",
+      "source": "Actor/Monster/Snake/Snake.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/snake-face.png": {
+      "url": "/assets/mobs/snake-face.png",
+      "source": "Actor/Monster/Snake/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/spider_yellow.png": {
+      "url": "/assets/mobs/spider_yellow.png",
+      "source": "Actor/Monster/SpiderYellow/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/spider_yellow-face.png": {
+      "url": "/assets/mobs/spider_yellow-face.png",
+      "source": "Actor/Monster/SpiderYellow/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "mobs/spirit.png": {
+      "url": "/assets/mobs/spirit.png",
+      "source": "Actor/Monster/Spirit/SpriteSheet.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "mobs/spirit-face.png": {
+      "url": "/assets/mobs/spirit-face.png",
+      "source": "Actor/Monster/Spirit/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/village_elder-idle.png": {
+      "url": "/assets/npcs/village_elder-idle.png",
+      "source": "Actor/Character/OldMan3/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/village_elder-walk.png": {
+      "url": "/assets/npcs/village_elder-walk.png",
+      "source": "Actor/Character/OldMan3/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/village_elder-face.png": {
+      "url": "/assets/npcs/village_elder-face.png",
+      "source": "Actor/Character/OldMan3/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/blacksmith-idle.png": {
+      "url": "/assets/npcs/blacksmith-idle.png",
+      "source": "Actor/Character/FighterWhite/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/blacksmith-walk.png": {
+      "url": "/assets/npcs/blacksmith-walk.png",
+      "source": "Actor/Character/FighterWhite/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/blacksmith-face.png": {
+      "url": "/assets/npcs/blacksmith-face.png",
+      "source": "Actor/Character/FighterWhite/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/innkeeper-idle.png": {
+      "url": "/assets/npcs/innkeeper-idle.png",
+      "source": "Actor/Character/Villager2/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/innkeeper-walk.png": {
+      "url": "/assets/npcs/innkeeper-walk.png",
+      "source": "Actor/Character/Villager2/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/innkeeper-face.png": {
+      "url": "/assets/npcs/innkeeper-face.png",
+      "source": "Actor/Character/Villager2/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/desert_elder-idle.png": {
+      "url": "/assets/npcs/desert_elder-idle.png",
+      "source": "Actor/Character/Sultan/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/desert_elder-walk.png": {
+      "url": "/assets/npcs/desert_elder-walk.png",
+      "source": "Actor/Character/Sultan/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/desert_elder-face.png": {
+      "url": "/assets/npcs/desert_elder-face.png",
+      "source": "Actor/Character/Sultan/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/merchant_leader-idle.png": {
+      "url": "/assets/npcs/merchant_leader-idle.png",
+      "source": "Actor/Character/Noble/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/merchant_leader-walk.png": {
+      "url": "/assets/npcs/merchant_leader-walk.png",
+      "source": "Actor/Character/Noble/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/merchant_leader-face.png": {
+      "url": "/assets/npcs/merchant_leader-face.png",
+      "source": "Actor/Character/Noble/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/ranger-idle.png": {
+      "url": "/assets/npcs/ranger-idle.png",
+      "source": "Actor/Character/Hunter/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/ranger-walk.png": {
+      "url": "/assets/npcs/ranger-walk.png",
+      "source": "Actor/Character/Hunter/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/ranger-face.png": {
+      "url": "/assets/npcs/ranger-face.png",
+      "source": "Actor/Character/Hunter/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/retired_ranger-idle.png": {
+      "url": "/assets/npcs/retired_ranger-idle.png",
+      "source": "Actor/Character/OldMan2/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/retired_ranger-walk.png": {
+      "url": "/assets/npcs/retired_ranger-walk.png",
+      "source": "Actor/Character/OldMan2/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/retired_ranger-face.png": {
+      "url": "/assets/npcs/retired_ranger-face.png",
+      "source": "Actor/Character/OldMan2/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/traveler-idle.png": {
+      "url": "/assets/npcs/traveler-idle.png",
+      "source": "Actor/Character/NinjaGray/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/traveler-walk.png": {
+      "url": "/assets/npcs/traveler-walk.png",
+      "source": "Actor/Character/NinjaGray/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/traveler-face.png": {
+      "url": "/assets/npcs/traveler-face.png",
+      "source": "Actor/Character/NinjaGray/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/fisherman-idle.png": {
+      "url": "/assets/npcs/fisherman-idle.png",
+      "source": "Actor/Character/Villager6/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/fisherman-walk.png": {
+      "url": "/assets/npcs/fisherman-walk.png",
+      "source": "Actor/Character/Villager6/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/fisherman-face.png": {
+      "url": "/assets/npcs/fisherman-face.png",
+      "source": "Actor/Character/Villager6/Faceset.png",
+      "width": 38,
+      "height": 38
+    },
+    "npcs/mysterious_stranger-idle.png": {
+      "url": "/assets/npcs/mysterious_stranger-idle.png",
+      "source": "Actor/Character/NinjaDark/SeparateAnim/Idle.png",
+      "width": 64,
+      "height": 16,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 1
+    },
+    "npcs/mysterious_stranger-walk.png": {
+      "url": "/assets/npcs/mysterious_stranger-walk.png",
+      "source": "Actor/Character/NinjaDark/SeparateAnim/Walk.png",
+      "width": 64,
+      "height": 64,
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "columns": 4,
+      "rows": 4
+    },
+    "npcs/mysterious_stranger-face.png": {
+      "url": "/assets/npcs/mysterious_stranger-face.png",
+      "source": "Actor/Character/NinjaDark/Faceset.png",
+      "width": 38,
+      "height": 38
     }
   },
   "staticFrames": {
@@ -106,5 +612,183 @@
     "Đã có khung hình tĩnh để sử dụng; cần kiểm tra trực quan hướng và thứ tự khung hình trước khi tích hợp hoạt ảnh.",
     "floor.png và nature.png là atlas chứa nhiều ô hình. Việc chọn ô hình và dữ liệu va chạm được quy định trong dữ liệu bản đồ, không nằm trong ảnh PNG.",
     "Vẽ vùng an toàn và các dấu chỉ mục tiêu bằng Canvas."
-  ]
+  ],
+  "monsterTypes": {
+    "bamboo": {
+      "sprite": "mobs/bamboo.png",
+      "portrait": "mobs/bamboo-face.png"
+    },
+    "bamboo_yellow": {
+      "sprite": "mobs/bamboo_yellow.png",
+      "portrait": "mobs/bamboo_yellow-face.png"
+    },
+    "kappa_green": {
+      "sprite": "mobs/kappa_green.png",
+      "portrait": "mobs/kappa_green-face.png"
+    },
+    "lizard": {
+      "sprite": "mobs/lizard.png",
+      "portrait": "mobs/lizard-face.png"
+    },
+    "mole": {
+      "sprite": "mobs/mole.png",
+      "portrait": "mobs/mole-face.png"
+    },
+    "mollusc": {
+      "sprite": "mobs/mollusc.png",
+      "portrait": "mobs/mollusc-face.png"
+    },
+    "mushroom": {
+      "sprite": "mobs/mushroom.png",
+      "portrait": "mobs/mushroom-face.png"
+    },
+    "octopus": {
+      "sprite": "mobs/octopus.png",
+      "portrait": "mobs/octopus-face.png"
+    },
+    "owl2": {
+      "sprite": "mobs/owl2.png",
+      "portrait": "mobs/owl2-face.png"
+    },
+    "panda": {
+      "sprite": "mobs/panda.png",
+      "portrait": "mobs/panda-face.png"
+    },
+    "skull": {
+      "sprite": "mobs/skull.png",
+      "portrait": "mobs/skull-face.png"
+    },
+    "slime": {
+      "sprite": "mobs/slime.png",
+      "portrait": "mobs/slime-face.png"
+    },
+    "slime2": {
+      "sprite": "mobs/slime2.png",
+      "portrait": "mobs/slime2-face.png"
+    },
+    "snake": {
+      "sprite": "mobs/snake.png",
+      "portrait": "mobs/snake-face.png"
+    },
+    "spider_yellow": {
+      "sprite": "mobs/spider_yellow.png",
+      "portrait": "mobs/spider_yellow-face.png"
+    },
+    "spirit": {
+      "sprite": "mobs/spirit.png",
+      "portrait": "mobs/spirit-face.png"
+    }
+  },
+  "npcTypes": {
+    "village_elder": {
+      "sprite": "npcs/village_elder-idle.png",
+      "walk": "npcs/village_elder-walk.png",
+      "portrait": "npcs/village_elder-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "blacksmith": {
+      "sprite": "npcs/blacksmith-idle.png",
+      "walk": "npcs/blacksmith-walk.png",
+      "portrait": "npcs/blacksmith-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "innkeeper": {
+      "sprite": "npcs/innkeeper-idle.png",
+      "walk": "npcs/innkeeper-walk.png",
+      "portrait": "npcs/innkeeper-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "desert_elder": {
+      "sprite": "npcs/desert_elder-idle.png",
+      "walk": "npcs/desert_elder-walk.png",
+      "portrait": "npcs/desert_elder-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "merchant_leader": {
+      "sprite": "npcs/merchant_leader-idle.png",
+      "walk": "npcs/merchant_leader-walk.png",
+      "portrait": "npcs/merchant_leader-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "ranger": {
+      "sprite": "npcs/ranger-idle.png",
+      "walk": "npcs/ranger-walk.png",
+      "portrait": "npcs/ranger-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "retired_ranger": {
+      "sprite": "npcs/retired_ranger-idle.png",
+      "walk": "npcs/retired_ranger-walk.png",
+      "portrait": "npcs/retired_ranger-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "traveler": {
+      "sprite": "npcs/traveler-idle.png",
+      "walk": "npcs/traveler-walk.png",
+      "portrait": "npcs/traveler-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "fisherman": {
+      "sprite": "npcs/fisherman-idle.png",
+      "walk": "npcs/fisherman-walk.png",
+      "portrait": "npcs/fisherman-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "mysterious_stranger": {
+      "sprite": "npcs/mysterious_stranger-idle.png",
+      "walk": "npcs/mysterious_stranger-walk.png",
+      "portrait": "npcs/mysterious_stranger-face.png",
+      "sourceRect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    }
+  }
 }

@@ -1,3 +1,21 @@
-# Client web — chưa triển khai
+# Client web — Lữ khách
 
-Xem [thiết kế game](../../docs/game-design.md) và [kế hoạch 10 ngày](../../docs/plan-10-days.md). Hiện chưa có lệnh chạy hoặc package.json.
+Client TypeScript/Vite. Chạy `npm install` rồi `npm run dev` trong `source/client`; kiểm tra production bằng `npm run build`. Cả dev và build tự import `source/common/maps/world.tmj` trước khi chạy (cần Python 3). WebSocket tại `ws://localhost:8080`.
+
+Map runtime giữ nguyên bố cục Tiled, nhiều tileset, GID và hướng lật. Tile logic 16 px; viewport 32 × 24 ô. Camera theo người chơi tại spawn; mục “Xem bản đồ” cho phép xem vùng khác, chọn “Điểm xuất hiện” để camera theo nhân vật. Click ô trống để đi theo A*, click đích mới để đổi đường. Client xem trước đường, server tính đường và tiến một ô mỗi 200ms; client nội suy vị trí. Không còn điều khiển bàn phím. Chưa có animation bước chân và tương tác NPC. Collision chỉ lấy từ lớp collision, không tự chặn theo ảnh nhà/cây/nước.
+
+Sau khi chỉnh Tiled, lưu rồi chạy `npm run import-map`, build/khởi động lại server để cập nhật dữ liệu. Xem [hướng dẫn map](../common/maps/README.md).
+
+Giao diện gồm chọn nhân vật, canvas, bảng nhân vật, vùng kỹ năng/trang bị, nhật ký và danh sách online. Máu hiện tại/tối đa, sát thương và giáp nhận từ server, hiển thị trong bảng nhân vật; mana, kỹ năng và trang bị chưa có dữ liệu gameplay. “Rời game” tải lại trang. Chưa có chat.
+
+Minimap “BẢN ĐỒ KHÁM PHÁ” nằm ở cột bên trái màn hình game: vùng chưa đi tới bị che tối, chấm vàng là nhân vật và khung trắng là vùng camera đang xem. Vùng mở khóa khớp với khung hình đang hiển thị trên canvas (32 × 24 ô), kể cả khi lia camera; các ô chỉ hiện một phần ở mép màn hình cũng được mở. Vùng đã mở được giữ lại và tự lưu trên trình duyệt theo mã UUID người chơi và bố cục collision của map. UUID được tạo ngẫu nhiên và giữ trong localStorage (`lu-khach:player-id:v1`), độc lập với tên hiển thị và ID kết nối WebSocket. Đổi tên trên cùng trình duyệt vẫn giữ tiến trình; đổi trình duyệt/hồ sơ trình duyệt, xóa dữ liệu trình duyệt hoặc đổi bố cục collision sẽ có tiến trình riêng; đây chưa phải dữ liệu lưu trên tài khoản/server. Nếu trình duyệt chặn lưu trữ, khám phá vẫn hoạt động trong phiên hiện tại. Chạy `npm test` để kiểm tra khám phá, lưu/khôi phục và di chuyển.
+
+Minimap thu nhỏ bên trái hiển thị vùng 3 × 3 khung hình game (96 × 72 ô), khung hình hiện tại luôn ở giữa; ngoài biên map được đệm tối. Nhấn M trong game để mở/đóng bản đồ khám phá phóng to: khung xem khoảng 1/3 chiều cao bản đồ, giữ đúng tỷ lệ bản đồ dọc. Khi mở sẽ cuộn tới nhân vật; dùng con lăn, thanh cuộn hoặc thao tác vuốt để xem các phần phía trên/dưới. Esc, nút Đóng hoặc click nền tối cũng đóng bản đồ. Bản đồ lớn dùng cùng vùng đã khám phá với minimap; phím M không kích hoạt khi đang nhập văn bản.
+
+NPC được vẽ từ các điểm trong layer `npcs` đã import, dùng sprite toàn thân và tên trên đầu. Gần điểm vào có Trưởng làng và Chủ trọ. Nếu dev server đang chạy, tải lại trang sau khi import; nếu dùng bản production cần build lại. Đến trong bán kính tương tác (2 ô theo khoảng cách bốn hướng), click vào sprite NPC để mở hội thoại có chân dung và tên. Chỉ NPC nói; click Chuyển để đọc câu tiếp theo, câu cuối có nút Kết thúc để đóng. Có thể đóng sớm bằng nút × hoặc Esc. Click NPC không gửi lệnh đi tới ô NPC; đường đi hiện tại được hủy khi hội thoại mở. Trong hộp thoại, click nền game và các phím camera/bản đồ không điều khiển game; mất kết nối sẽ đóng hội thoại. Nội dung đang là hội thoại tĩnh phía client, chưa có thay đổi tiền, vật phẩm hoặc nhiệm vụ.
+
+Tiến trình khám phá dùng namespace `lu-khach:exploration:v2` theo UUID. Dữ liệu v1 theo tên không bị xóa và không tự nhập vào UUID mới vì không thể xác định chủ sở hữu từ tên trùng. Một hồ sơ trình duyệt hiện có một UUID; người dùng chung hồ sơ đó vẫn dùng chung tiến trình. UUID này chỉ nhận diện bản lưu local, không phải tài khoản hay bằng chứng xác thực server.
+
+Chỉ số nhân vật dùng các trường `hp`, `maxHp`, `damage`, `armor` trên player từ WELCOME/PLAYER_JOINED/STATE_UPDATE. Client không tự đặt chỉ số theo nhân vật; khi chưa có dữ liệu sẽ hiển thị dấu —. Cấu hình cân bằng nằm ở `../server/src/main/resources/config/characters.json`.
+
+Sau tích hợp chiến đấu: click quái để nhân vật tự tìm đường đến ô kề và tấn công; click đất hoặc nhấn Esc để dừng. Người chơi tự hồi 10 HP/giây khi không còn quái đe dọa ở gần. Thanh máu, sát thương và giáp tiếp tục nhận từ server; không dùng hằng số chỉ số của nhánh quái. Tương tác NPC được ưu tiên trước click chiến đấu/di chuyển khi click cùng ô.

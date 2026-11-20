@@ -4,24 +4,36 @@ Dự án bài tập lớn Lập trình mạng. Nhóm tự xây game tương tự
 
 ## Trạng thái hiện tại
 
-Đang thiết kế, chưa bắt đầu triển khai game mới. Ngày 07/11/2026 đã xóa mã nguồn game cũ, bản port BrowserQuest, prototype Phaser, tài nguyên đi kèm và các thư mục thư viện/build. Hiện chưa có lệnh chạy game.
+Đang triển khai client TypeScript/Vite và server Java/WebSocket. Client có click-to-move với A*; server kiểm tra đường đi và cập nhật vị trí theo từng ô. Map runtime được xuất từ `source/common/maps/world.tmj`, giữ nguyên bố cục Tiled và dùng collision/spawn trong map. Chạy `python statics/map-design/import_tiled_world.py` trước khi build server.
 
 ## Tài liệu hiện hành
 
+- [Hệ thống map](docs/world-maps.md): đề xuất làng nghỉ và các vùng khám phá nối tiếp, bố cục, NPC, quái và nội dung bảng tin; chưa triển khai.
+- [Cốt truyện cơ bản và map](docs/story-and-map.md): bản đề xuất mới ngày 13/11/2026, tham khảo cấu trúc BrowserQuest; độc lập với Miền Quên, hiện chỉ viết tài liệu.
 - [Giao thức v1 và chia dọc đã chốt](docs/protocol-v1.md): phân công mỗi người làm cả client/server, schema, JSON mẫu và cách ghép module. Ưu tiên tài liệu này khi phân công/giao thức khác bản thiết kế và lịch cũ.
 - [Thiết kế game v0.1](docs/game-design.md): gameplay, luật chơi, giao diện, kiến trúc, dữ liệu, giao thức và nghiệm thu.
 - [Kế hoạch 10 ngày](docs/plan-10-days.md): phân công P1–P4, lịch thực hiện và các mốc tích hợp.
 
 Các tài liệu architecture.md, protocol.md, scope.md và migration.md cũ trong docs được giữ làm lịch sử; không mô tả trạng thái code hiện tại. NOTICE.md và LICENSE-BrowserQuest giữ thông tin nguồn gốc của bản port trước đây.
 
-## Công nghệ dự kiến
+## Chạy và kiểm tra
 
-- Client: TypeScript, HTML5 Canvas 2D, HTML/CSS, Vite.
-- Server: Java 17+, Java-WebSocket, Gson.
-- Giao tiếp: WebSocket, JSON; server quyết định trạng thái gameplay.
-- Dữ liệu: RAM cho phiên chơi; JSON cho bản đồ và cấu hình; chưa có database.
+Yêu cầu JDK 17+, Maven và Node.js.
 
-## Cấu trúc chuẩn bị
+```powershell
+cd source\server
+mvn compile exec:java
+```
+
+Trong terminal khác:
+
+```powershell
+cd source\client
+npm run dev
+npm test
+```
+
+## Cấu trúc hiện tại
 
 ```text
 btl_ltm/
@@ -30,8 +42,8 @@ btl_ltm/
 ├── docs/                # Thiết kế, kế hoạch và tài liệu lịch sử
 ├── statics/             # Sơ đồ/hình ảnh phục vụ báo cáo
 └── source/
-    ├── client/          # Chưa triển khai client mới
-    └── server/          # Chưa triển khai server mới
+    ├── client/          # TypeScript, Vite, Canvas 2D
+    └── server/          # Java, Java-WebSocket, Gson
 ```
 
 Thư mục BrowserQuest nguồn bên ngoài dự án giữ nguyên, chỉ dùng tham khảo và không đọc design. Tên nhóm, thành viên và ngày bắt đầu triển khai chưa chốt.
