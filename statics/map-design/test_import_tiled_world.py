@@ -10,6 +10,12 @@ from import_tiled_world import ROOT, convert, monster_spawn_zones
 
 
 class MonsterSpawnImportTest(unittest.TestCase):
+    def test_disabled_draft_is_not_exported(self):
+        layer = dict(name='monster_spawns', type='objectgroup', objects=[dict(
+            id=82, x=0, y=0, width=0, height=0,
+            properties=[dict(name='enabled', type='bool', value=False)])])
+        self.assertEqual(monster_spawn_zones([layer], 16), [])
+
     def setUp(self):
         self.obj = dict(id=101, x=24, y=40, width=80, height=48, rotation=0,
                         properties=[dict(name=k, value=v) for k, v in dict(

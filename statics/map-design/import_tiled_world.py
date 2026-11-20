@@ -22,6 +22,10 @@ def monster_spawn_zones(layers, size):
         for obj in layer.get('objects', []):
             label = f'monster_spawns object {obj.get("id")}'
             props = {p['name']: p['value'] for p in obj.get('properties', [])}
+            if type(props.get('enabled', True)) is not bool:
+                raise ValueError(f'{label}: enabled must be a boolean')
+            if props.get('enabled', True) is False:
+                continue
             for key in ('zoneId', 'monsterType'):
                 if not isinstance(props.get(key), str) or not props[key].strip():
                     raise ValueError(f'{label}: missing or invalid {key}')

@@ -1334,23 +1334,28 @@
                 {
                  "height":206,
                  "id":10,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_10",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
@@ -1365,7 +1370,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_10"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1377,38 +1382,43 @@
                 {
                  "height":120,
                  "id":11,
-                 "name":"forest_slimes_01",
+                 "name":"forest_mushroom_11",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":10
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":2
                         }, 
                         {
                          "name":"monsterType",
                          "type":"string",
-                         "value":"slime"
+                         "value":"mushroom"
                         }, 
                         {
                          "name":"respawnSeconds",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }, 
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"forest_mushroom_11"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1420,13 +1430,18 @@
                 {
                  "height":124,
                  "id":12,
-                 "name":"forest_slimes_01",
+                 "name":"forest_snake_12",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
                          "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
@@ -1436,22 +1451,22 @@
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":2
                         }, 
                         {
                          "name":"monsterType",
                          "type":"string",
-                         "value":"slime"
+                         "value":"snake"
                         }, 
                         {
                          "name":"respawnSeconds",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }, 
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"forest_snake_12"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1463,38 +1478,43 @@
                 {
                  "height":172,
                  "id":13,
-                 "name":"forest_slimes_01",
+                 "name":"forest_mushroom_13",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":10
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":2
                         }, 
                         {
                          "name":"monsterType",
                          "type":"string",
-                         "value":"slime"
+                         "value":"mushroom"
                         }, 
                         {
                          "name":"respawnSeconds",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }, 
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"forest_mushroom_13"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1506,23 +1526,28 @@
                 {
                  "height":266,
                  "id":14,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_14",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
@@ -1537,7 +1562,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_14"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1549,23 +1574,28 @@
                 {
                  "height":228,
                  "id":15,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_15",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
@@ -1580,7 +1610,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_15"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1592,23 +1622,28 @@
                 {
                  "height":330,
                  "id":16,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_16",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
@@ -1623,7 +1658,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_16"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1635,38 +1670,43 @@
                 {
                  "height":298.666666666667,
                  "id":17,
-                 "name":"forest_slimes_01",
+                 "name":"forest_mushroom_17",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":10
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
                          "type":"string",
-                         "value":"slime"
+                         "value":"mushroom"
                         }, 
                         {
                          "name":"respawnSeconds",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }, 
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"forest_mushroom_17"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1678,13 +1718,18 @@
                 {
                  "height":466,
                  "id":18,
-                 "name":"forest_slimes_01",
+                 "name":"forest_snake_18",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
                          "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
@@ -1694,22 +1739,22 @@
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":4
                         }, 
                         {
                          "name":"monsterType",
                          "type":"string",
-                         "value":"slime"
+                         "value":"snake"
                         }, 
                         {
                          "name":"respawnSeconds",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }, 
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"forest_snake_18"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1721,23 +1766,28 @@
                 {
                  "height":296,
                  "id":20,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_20",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
@@ -1752,7 +1802,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_20"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1764,38 +1814,43 @@
                 {
                  "height":354.666666666665,
                  "id":21,
-                 "name":"forest_slimes_01",
+                 "name":"forest_mushroom_21",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":10
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
                          "type":"string",
-                         "value":"slime"
+                         "value":"mushroom"
                         }, 
                         {
                          "name":"respawnSeconds",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }, 
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"forest_mushroom_21"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1807,23 +1862,28 @@
                 {
                  "height":488.666666666666,
                  "id":23,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_23",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":3
                         }, 
                         {
                          "name":"monsterType",
@@ -1838,7 +1898,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_23"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1850,23 +1910,28 @@
                 {
                  "height":260,
                  "id":25,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_25",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":1
                         }, 
                         {
                          "name":"monsterType",
@@ -1881,7 +1946,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_25"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1893,23 +1958,28 @@
                 {
                  "height":290,
                  "id":26,
-                 "name":"forest_slimes_01",
+                 "name":"meadow_slime_26",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"aggroRadius",
                          "type":"int",
-                         "value":6
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"leashRadius",
                          "type":"int",
-                         "value":12
+                         "value":8
                         }, 
                         {
                          "name":"maxAlive",
                          "type":"int",
-                         "value":6
+                         "value":1
                         }, 
                         {
                          "name":"monsterType",
@@ -1924,7 +1994,7 @@
                         {
                          "name":"zoneId",
                          "type":"string",
-                         "value":"forest_slimes_01"
+                         "value":"meadow_slime_26"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1932,6 +2002,1974 @@
                  "width":146,
                  "x":1308,
                  "y":3580
+                }, 
+                {
+                 "height":325.333333333333,
+                 "id":27,
+                 "name":"desert_lizard_27",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"lizard"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_lizard_27"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":252,
+                 "x":1638.66666666667,
+                 "y":3900
+                }, 
+                {
+                 "height":70.6666666666665,
+                 "id":28,
+                 "name":"desert_lizard_28",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"lizard"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_lizard_28"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":426.666666666667,
+                 "x":1920,
+                 "y":3948
+                }, 
+                {
+                 "height":56,
+                 "id":29,
+                 "name":"desert_spider_yellow_29",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spider_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_spider_yellow_29"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":149.333333333333,
+                 "x":2253.33333333333,
+                 "y":4025.33333333333
+                }, 
+                {
+                 "height":205.333333333333,
+                 "id":30,
+                 "name":"desert_lizard_30",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"lizard"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_lizard_30"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":169.333333333333,
+                 "x":2341.33333333333,
+                 "y":3681.33333333333
+                }, 
+                {
+                 "height":117.333333333333,
+                 "id":31,
+                 "name":"ruins_skull_31",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"skull"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":30
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"ruins_skull_31"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":88,
+                 "x":2498.66666666667,
+                 "y":3902.66666666667
+                }, 
+                {
+                 "height":104,
+                 "id":33,
+                 "name":"ruins_skull_33",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"skull"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":30
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"ruins_skull_33"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":2553.33333333333,
+                 "y":4030.66666666667
+                }, 
+                {
+                 "height":537.333333333333,
+                 "id":34,
+                 "name":"desert_lizard_34",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"lizard"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_lizard_34"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":285.333333333333,
+                 "x":2112,
+                 "y":2909.33333333333
+                }, 
+                {
+                 "height":192,
+                 "id":35,
+                 "name":"desert_spider_yellow_35",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spider_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_spider_yellow_35"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":138.666666666667,
+                 "x":2418.66666666667,
+                 "y":2922.66666666667
+                }, 
+                {
+                 "height":92,
+                 "id":36,
+                 "name":"desert_spider_yellow_36",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spider_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_spider_yellow_36"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":53.3333333333335,
+                 "x":2574.66666666667,
+                 "y":2961.33333333333
+                }, 
+                {
+                 "height":697.333333333333,
+                 "id":40,
+                 "name":"badlands_spider_yellow_40",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spider_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"badlands_spider_yellow_40"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":166.666666666667,
+                 "x":2584,
+                 "y":3058.66666666667
+                }, 
+                {
+                 "height":169.333333333333,
+                 "id":42,
+                 "name":"rocky_mole_42",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mole"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"rocky_mole_42"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":313.333333333333,
+                 "x":1473.33333333333,
+                 "y":3313.33333333333
+                }, 
+                {
+                 "height":582.666666666667,
+                 "id":43,
+                 "name":"rocky_mole_43",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mole"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"rocky_mole_43"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":414.666666666667,
+                 "x":1616,
+                 "y":2724
+                }, 
+                {
+                 "height":150.666666666667,
+                 "id":44,
+                 "name":"rocky_mole_44",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mole"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"rocky_mole_44"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":404,
+                 "x":1201.33333333333,
+                 "y":2930.66666666667
+                }, 
+                {
+                 "height":290.666666666667,
+                 "id":45,
+                 "name":"rocky_mole_45",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mole"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"rocky_mole_45"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":116,
+                 "x":1490.66666666667,
+                 "y":2629.33333333333
+                }, 
+                {
+                 "height":161.333333333333,
+                 "id":49,
+                 "name":"rocky_skull_49",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"skull"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":30
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"rocky_skull_49"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":318.666666666667,
+                 "x":2041.33333333333,
+                 "y":2712
+                }, 
+                {
+                 "height":104,
+                 "id":50,
+                 "name":"forest_mushroom_50",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mushroom"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"forest_mushroom_50"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":450.666666666667,
+                 "x":728,
+                 "y":2294.66666666667
+                }, 
+                {
+                 "height":240,
+                 "id":51,
+                 "name":"forest_snake_51",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"snake"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"forest_snake_51"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":322.666666666667,
+                 "x":1160,
+                 "y":2421.33333333333
+                }, 
+                {
+                 "height":468,
+                 "id":52,
+                 "name":"forest_snake_52",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"snake"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"forest_snake_52"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":465.333333333333,
+                 "x":1204,
+                 "y":1918.66666666667
+                }, 
+                {
+                 "height":193.333333333333,
+                 "id":53,
+                 "name":"forest_mushroom_53",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mushroom"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"forest_mushroom_53"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":284,
+                 "x":1508,
+                 "y":2408
+                }, 
+                {
+                 "height":352,
+                 "id":55,
+                 "name":"bamboo_yellow_55",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"bamboo_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"bamboo_yellow_55"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":932,
+                 "x":1810,
+                 "y":2180
+                }, 
+                {
+                 "height":318,
+                 "id":57,
+                 "name":"panda_57",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"panda"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"panda_57"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":300,
+                 "x":2436,
+                 "y":2558
+                }, 
+                {
+                 "height":246,
+                 "id":58,
+                 "name":"bamboo_58",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"bamboo"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"bamboo_58"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":320,
+                 "x":2256,
+                 "y":1920
+                }, 
+                {
+                 "height":446,
+                 "id":59,
+                 "name":"badlands_spider_yellow_59",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spider_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"badlands_spider_yellow_59"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":146,
+                 "x":2596,
+                 "y":1710
+                }, 
+                {
+                 "height":1648.48484848485,
+                 "id":60,
+                 "name":"badlands_mole_60",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mole"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"badlands_mole_60"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":818.181818181818,
+                 "x":1909.09090909091,
+                 "y":12.1212121212121
+                }, 
+                {
+                 "height":675.757575757576,
+                 "id":61,
+                 "name":"snow_slime2_61",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"slime2"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"snow_slime2_61"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":1860.60606060606,
+                 "x":9.09090909090909,
+                 "y":0
+                }, 
+                {
+                 "height":148.484848484848,
+                 "id":62,
+                 "name":"snow_slime2_62",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"slime2"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"snow_slime2_62"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":1178.78787878788,
+                 "x":596.969696969697,
+                 "y":700
+                }, 
+                {
+                 "height":315.151515151515,
+                 "id":63,
+                 "name":"snow_owl2_63",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"owl2"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"snow_owl2_63"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":318.181818181818,
+                 "x":1306.06060606061,
+                 "y":875.757575757576
+                }, 
+                {
+                 "height":666.666666666667,
+                 "id":64,
+                 "name":"forest_mushroom_64",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mushroom"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"forest_mushroom_64"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":572.727272727273,
+                 "x":690.909090909091,
+                 "y":893.939393939394
+                }, 
+                {
+                 "height":366.666666666667,
+                 "id":65,
+                 "name":"riverside_kappa_green_65",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"kappa_green"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"riverside_kappa_green_65"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":472.727272727273,
+                 "x":1342.42424242424,
+                 "y":1512.12121212121
+                }, 
+                {
+                 "height":278.787878787879,
+                 "id":66,
+                 "name":"riverside_kappa_green_66",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"kappa_green"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"riverside_kappa_green_66"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":627.272727272727,
+                 "x":624.242424242424,
+                 "y":1609.09090909091
+                }, 
+                {
+                 "height":136.363636363636,
+                 "id":67,
+                 "name":"ruins_spirit_67",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":7
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":14
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spirit"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":35
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"ruins_spirit_67"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":175.757575757576,
+                 "x":990.909090909091,
+                 "y":1930.30303030303
+                }, 
+                {
+                 "height":2145.45454545455,
+                 "id":69,
+                 "name":"sea_octopus_69",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"octopus"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":30
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"sea_octopus_69"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":278.787878787879,
+                 "x":12.1212121212121,
+                 "y":739.393939393939
+                }, 
+                {
+                 "height":552,
+                 "id":70,
+                 "name":"coast_mollusc_70",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mollusc"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"coast_mollusc_70"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":288,
+                 "x":332,
+                 "y":760
+                }, 
+                {
+                 "height":532,
+                 "id":71,
+                 "name":"coast_mollusc_71",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mollusc"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"coast_mollusc_71"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":260,
+                 "x":340,
+                 "y":1352
+                }, 
+                {
+                 "height":356,
+                 "id":72,
+                 "name":"coast_mollusc_72",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mollusc"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"coast_mollusc_72"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":156,
+                 "x":392,
+                 "y":2368
+                }, 
+                {
+                 "height":172,
+                 "id":74,
+                 "name":"forest_mushroom_74",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mushroom"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"forest_mushroom_74"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":116,
+                 "x":580,
+                 "y":2372
+                }, 
+                {
+                 "height":932,
+                 "id":75,
+                 "name":"coast_mollusc_75",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mollusc"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"coast_mollusc_75"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":140,
+                 "x":24,
+                 "y":2944
+                }, 
+                {
+                 "height":304,
+                 "id":76,
+                 "name":"coast_mollusc_76",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":8
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"mollusc"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"coast_mollusc_76"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":1180,
+                 "x":52,
+                 "y":4712
+                }, 
+                {
+                 "height":732,
+                 "id":78,
+                 "name":"desert_lizard_78",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"lizard"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_lizard_78"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":960,
+                 "x":1716,
+                 "y":4276
+                }, 
+                {
+                 "height":276,
+                 "id":79,
+                 "name":"desert_spider_yellow_79",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"spider_yellow"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":25
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_spider_yellow_79"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":360,
+                 "x":1316,
+                 "y":4724
+                }, 
+                {
+                 "height":148,
+                 "id":81,
+                 "name":"desert_lizard_81",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"leashRadius",
+                         "type":"int",
+                         "value":12
+                        }, 
+                        {
+                         "name":"maxAlive",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"monsterType",
+                         "type":"string",
+                         "value":"lizard"
+                        }, 
+                        {
+                         "name":"respawnSeconds",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"zoneId",
+                         "type":"string",
+                         "value":"desert_lizard_81"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":500,
+                 "x":2188,
+                 "y":4108
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1940,7 +3978,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":27,
+ "nextobjectid":83,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

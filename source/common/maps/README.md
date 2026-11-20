@@ -20,6 +20,12 @@ Kiểm tra importer: `python statics/map-design/test_import_tiled_world.py`.
 
 ## Vùng spawn quái
 
+Thuộc tính bool `enabled` mặc định là true; đặt false để giữ một vùng nháp trong Tiled nhưng bỏ qua khi export. Vùng phải có diện tích hợp lệ trước khi đặt `enabled = true`.
+
+Cấu hình hiện tại có 55 vùng hoạt động, tổng giới hạn `maxAlive` là 149 (chỉ là giới hạn cấu hình, chưa sinh quái). Vùng gần làng dùng slime với bán kính phát hiện 4 ô và đuổi tối đa 8 ô. Những vùng khác có 1–6 con tùy diện tích đi được; hai vùng lớn phía bắc tối đa 8 con/vùng. Các mã `zoneId` chứa tên khu vực, loại quái và object ID để không trùng nhau.
+
+Các mã `monsterType` đang dùng tương ứng thư mục sprite trong Ninja Adventure: `slime` → Slime; `slime2` → Slime2; `mushroom` → Mushroom; `bamboo` → Bamboo; `bamboo_yellow` → BambooYellow; `panda` → Panda; `snake` → Snake; `lizard` → Lizard; `spider_yellow` → SpiderYellow; `mole` → Mole; `skull` → Skull; `spirit` → Spirit; `owl2` → Owl2; `kappa_green` → KappaGreen; `mollusc` → Mollusc; `octopus` → Octopus. Đây là quy ước cấu hình; chưa có code ánh xạ sprite, AI hay cơ chế di chuyển dưới nước.
+
 Object Layer `monster_spawns` được xuất thành mảng `monsterSpawns` trong cả hai file generated. Mỗi object cần `zoneId`, `monsterType` kiểu string; `maxAlive` là số nguyên dương; `respawnSeconds`, `aggroRadius`, `leashRadius` là số nguyên không âm. Không cần đặt Class. Mỗi vùng xuất kèm `objectId` từ Tiled để giữ riêng từng object; mã `zoneId` trùng sẽ có cảnh báo, không gộp hoặc loại vùng. Nên sửa mã trùng trực tiếp trong Tiled.
 
 `geometry` của hình chữ nhật có `type: rectangle` và `x`, `y`, `width`, `height`. Polygon có `type: polygon` và `points` chứa tọa độ tuyệt đối của các đỉnh. Toàn bộ geometry được đổi từ pixel sang đơn vị ô, giữ phần thập phân, không làm tròn; bán kính cũng tính bằng ô, thời gian tính bằng giây. Hiện hỗ trợ hình chữ nhật/polygon không xoay và layer không offset. File Tiled gốc không bị sửa. Đây chỉ là cấu hình xuất ra; chưa có logic server sinh quái, AI hoặc hồi sinh.
