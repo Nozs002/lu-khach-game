@@ -1,6 +1,7 @@
 package com.game;
 
 import com.game.handler.JoinHandler;
+import com.game.features.loot.LootSystem;
 import com.game.features.combat.AttackHandler;
 import com.game.features.combat.CombatConfig;
 import com.game.features.combat.CombatNavigation;
@@ -39,7 +40,9 @@ public class GameServer extends WebSocketServer {
     private final Gson gson = new Gson();
     private final WorldMap worldMap = WorldMap.loadFromResource(MAP_RESOURCE, gson);
     private final Map<String, Mob> mobs = MobSpawnSystem.load(MAP_RESOURCE, worldMap, gson, new Random());
-    private final JoinHandler joinHandler = new JoinHandler(players, gson, MAX_PLAYERS, worldMap, mobs.values());
+    private final LootSystem loot = new LootSystem(new Random());
+    private final Map<String, LootSystem.GroundItem> drops = new java.util.LinkedHashMap<>();
+    private final JoinHandler joinHandler = new JoinHandler(players, gson, MAX_PLAYERS, worldMap, mobs.values(), drops.values());
     private final CombatNavigation navigation = new CombatNavigation(worldMap);
     private final AttackHandler attackHandler = new AttackHandler(mobs, navigation);
     private final MobAISystem mobAI = new MobAISystem(navigation);
@@ -175,7 +178,9 @@ public class GameServer extends WebSocketServer {
     }
 
     private void onEntityDeath(EntityDeathEvent event) {
-        // P4 có thể nhận sự kiện này để xử lý loot/hồi sinh đúng một lần.
+        for (LootSystem.GroundItem item : loot.roll(event)) {
+            drops.put(item.id(), item);
+        }
         System.out.println("[DEAD] " + event.entityId() + " killer=" + event.killerId()
                 + " generation=" + event.spawnGeneration());
     }
@@ -193,6 +198,7 @@ public class GameServer extends WebSocketServer {
                 movementSystem.advanceOneTick(new ArrayList<>(players.values()));
                 mobAI.update(mobs.values(), playersById, tick);
                 combat.update(playersById, mobs, tick, this::emit, this::onEntityDeath);
+                loot.collectWeapons(playersById.values(), drops);
                 // Quái và HP vẫn thay đổi ngay cả khi player không di chuyển.
                 broadcastState();
             }
@@ -206,6 +212,7 @@ public class GameServer extends WebSocketServer {
         msg.payload = new ArrayList<>(players.values());
         msg.tick = tick;
         msg.mobs = new ArrayList<>(mobs.values());
+        msg.drops = new ArrayList<>(drops.values());
         broadcastMessage(gson.toJson(msg), null);
     }
 

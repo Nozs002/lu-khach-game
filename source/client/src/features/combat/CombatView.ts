@@ -20,6 +20,31 @@ export class CombatView {
     private readonly poses = new Map<string, Pose>();
     private hits: Hit[] = [];
 
+    drawDrops(ctx: CanvasRenderingContext2D, map: MapData, cameraX: number, cameraY: number): void {
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        for (const drop of this.net.drops.values()) {
+            // Tách bình máu và vũ khí để nhìn thấy cả hai khi rơi cùng ô.
+            const health = drop.itemId === 'health-potion';
+            const x = (drop.x + 0.5) * map.tileSize - cameraX + (health ? -8 : 2);
+            const y = (drop.y + 0.5) * map.tileSize - cameraY - 4;
+            if (x < -16 || y < -16 || x > ctx.canvas.width || y > ctx.canvas.height) continue;
+            ctx.fillStyle = health ? '#ef7272' : '#ffd166';
+            ctx.globalAlpha = 0.4;
+            ctx.beginPath();
+            ctx.ellipse(x + 4, y + 9, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            const image = imageCache.get(`/assets/items/${drop.itemId}.png`);
+            if (image.complete && image.naturalWidth > 0) {
+                const scale = Math.min(12 / image.naturalWidth, 12 / image.naturalHeight);
+                const width = image.naturalWidth * scale, height = image.naturalHeight * scale;
+                ctx.drawImage(image, x + 4 - width / 2, y + 8 - height, width, height);
+            } else ctx.fillRect(x, y, 8, 8);
+        }
+        ctx.restore();
+    }
+
     constructor(private readonly renderer: CanvasRenderer, private readonly net: WebSocketClient) {}
 
     reset(): void {

@@ -8,6 +8,7 @@ import java.util.Queue;
 public class Player extends CombatEntity {
     private String name;
     private String characterId;
+    private String equippedWeaponId;
     private transient Queue<Point> path = new ArrayDeque<>();
 
     public Player(String id, String name, String characterId, int x, int y) {
@@ -26,6 +27,14 @@ public class Player extends CombatEntity {
 
     public String getCharacterId() {
         return characterId;
+    }
+
+    public String getEquippedWeaponId() {
+        return equippedWeaponId;
+    }
+
+    public void equipWeapon(String itemId) {
+        equippedWeaponId = itemId;
     }
 
     public int getX() {

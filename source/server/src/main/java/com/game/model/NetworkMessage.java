@@ -1,6 +1,7 @@
 package com.game.model;
 
 import java.util.List;
+import com.game.features.loot.LootSystem.GroundItem;
 
 import com.game.world.WorldMap;
 
@@ -18,6 +19,7 @@ public class NetworkMessage {
 
     public Long tick;
     public List<Mob> mobs;
+    public List<GroundItem> drops;
     public NetworkMessage(String type) {
         this.type = type;
     }

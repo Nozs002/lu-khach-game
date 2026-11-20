@@ -1,5 +1,6 @@
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
+import { replaceDropSnapshot, type GroundItem } from '../data/items';
 import { replaceMobSnapshot, parseDamage, type Mob, type DamageEvent } from '../data/mob';
 import type { HandlerContext } from './handlers/HandlerContext';
 import { WelcomeHandler } from './handlers/WelcomeHandler';
@@ -14,6 +15,7 @@ export class WebSocketClient {
     public myId: string | null = null;
     public players: Map<string, Player> = new Map();
     public mobs: Map<string, Mob> = new Map();
+    public drops = new Map<string, GroundItem>();
     public readonly damageListeners = new Set<(event: DamageEvent) => void>();
     public readonly resetListeners = new Set<() => void>();
 
@@ -47,6 +49,7 @@ export class WebSocketClient {
         this.myId = null;
         this.players.clear();
         this.mobs.clear();
+        this.drops.clear();
         this.resetListeners.forEach(listener => listener());
         this.map = null;
         // mở cổng kết nối
@@ -91,6 +94,7 @@ export class WebSocketClient {
 
             switch (data.type) {
                 case 'WELCOME':
+                    replaceDropSnapshot(this.drops, data.drops);
                     replaceMobSnapshot(this.mobs, data.mobs);
                     welcomeHandler.handle(data);
                     break;
@@ -104,6 +108,7 @@ export class WebSocketClient {
                     break;
 
                 case 'STATE_UPDATE':
+                    replaceDropSnapshot(this.drops, data.drops);
                     replaceMobSnapshot(this.mobs, data.mobs);
                     stateUpdateHandler.handle(data);
                     break;

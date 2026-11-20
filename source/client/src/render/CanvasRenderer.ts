@@ -414,6 +414,7 @@ export class CanvasRenderer {
     }
 
     private drawPlayers(players: Map<string, Player>, myId: string | null, map: MapData, timestamp: number): void {
+        this.combatView?.drawDrops(this.ctx, map, this.cameraX, this.cameraY);
         const drawables = this.combatView?.getMobDrawables(this.ctx, map, this.cameraX, this.cameraY, timestamp) ?? [];
         players.forEach(player => {
             const position = this.renderPositions.get(player.id);

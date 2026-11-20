@@ -45,6 +45,20 @@
                         </div>
                         <p id="minimap-status" class="minimap-status">Chưa khám phá</p>
                     </section>
+                    <section class="pixel-box panel equipment-panel" aria-labelledby="equipment-title">
+                        <h2 id="equipment-title">VŨ KHÍ TRANG BỊ</h2>
+                        <div class="equipped-weapon" aria-live="polite" aria-atomic="true">
+                            <div id="weapon-slot" class="weapon-slot" role="img" aria-label="Ô vũ khí trống">
+                                <span id="weapon-slot-empty" aria-hidden="true">+</span>
+                                <img id="weapon-slot-icon" alt="" hidden>
+                            </div>
+                            <div class="weapon-details">
+                                <p id="weapon-slot-name">Chưa trang bị</p>
+                                <p id="weapon-slot-state" class="placeholder-note">Ô vũ khí trống</p>
+                            </div>
+                        </div>
+                        <p class="placeholder-note equipment-help">Đi vào ô có vũ khí để nhặt và tự trang bị. Vũ khí mới thay vũ khí cũ.</p>
+                    </section>
                 </aside>
                 <section class="world-column" aria-label="Thế giới game">
                     <div class="canvas-frame pixel-box">
@@ -89,10 +103,6 @@
                         <h2 id="skills-title">KỸ NĂNG</h2>
                         <p class="placeholder-note">Chưa thiết kế kỹ năng.</p>
                     </section>
-                    <section class="pixel-box panel" aria-labelledby="equipment-title">
-                        <h2 id="equipment-title">TRANG BỊ</h2>
-                        <p class="placeholder-note">Chưa thiết kế hệ thống trang bị.</p>
-                    </section>
                     <section class="pixel-box panel journal-panel" aria-labelledby="journal-title">
                         <h2 id="journal-title">NHẬT KÝ</h2>
                         <div id="systemLog" class="log" role="log" aria-label="Nhật ký sự kiện" tabindex="0"></div>
@@ -103,6 +113,7 @@
                         <ul class="help-list">
                             <li>Click ô trống: tự tìm đường và di chuyển.</li>
                             <li>Click quái: chọn mục tiêu, tự đánh khi đứng kề. Esc để dừng.</li>
+                            <li>Đi vào ô có vũ khí: tự nhặt và trang bị.</li>
                             <li>Vật cản được đánh dấu trong bản đồ sẽ chặn đường.</li>
                             <li>Chọn vùng để xem các khu vực khác.</li>
                         </ul>

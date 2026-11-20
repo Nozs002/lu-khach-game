@@ -20,6 +20,18 @@ mvn compile exec:java
 Server mặc định lắng nghe tại cổng `8080`, địa chỉ WebSocket là `ws://localhost:8080`.
 Dừng server bằng `Ctrl+C`.
 
+## Vật phẩm rơi từ quái
+
+Mỗi lần quái chết, server quay hai lượt độc lập: 70% rơi một bình máu và
+50% rơi một vũ khí ngẫu nhiên trong 5 loại (cần câu, xương, rìu, gậy, đại kiếm).
+Mỗi vũ khí có xác suất 10% trên mỗi lần quái chết. Kết quả tổng hợp:
+35% cả hai, 35% chỉ máu, 15% chỉ vũ khí, 15% không rơi gì.
+Vật phẩm nằm tại ô quái chết và được đồng bộ qua `WELCOME.drops` và
+`STATE_UPDATE.drops`, kể cả cho người vào sau. Nhân vật còn sống đi vào ô có
+vũ khí sẽ tự nhặt và trang bị, thay vũ khí cũ. Server xóa vũ khí đã nhặt khỏi
+đất và đồng bộ `equippedWeaponId` trong trạng thái người chơi. Ô vũ khí nằm
+dưới bản đồ khám phá. Vũ khí hiện chưa thay đổi sát thương; dùng bình máu chưa triển khai.
+
 ## Map runtime
 
 Server nạp `src/main/resources/maps/world.generated.json`, được xuất từ `source/common/maps/world.tmj`. WorldMap ánh xạ collision sang tiles (0 đi được, 1 bị chặn) và spawns sang playerSpawns. Không tạo bản đồ thay thế. Nếu map chưa định nghĩa safeZone, metadata này chỉ bao các điểm spawn để tương thích contract client; chưa có luật chiến đấu vùng an toàn.

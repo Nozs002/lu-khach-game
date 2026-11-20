@@ -2,6 +2,7 @@ import { getCharacterAvatarSource } from '../data/characters';
 import type { Player } from '../data/player';
 import { selectedCharacterId } from './CharacterSelection';
 import { showInfo } from './Toast';
+import { updateEquipmentSlot } from './EquipmentSlot';
 
 export function bindJoin(handler: () => void) {
     document.getElementById('leaveBtn')?.addEventListener('click', () => window.location.reload());
@@ -68,6 +69,7 @@ export function updatePlayers(players: Map<string, Player>, myId: string | null)
     list.replaceChildren();
     document.getElementById('player-count')!.textContent = `(${players.size})`;
     const me = myId ? players.get(myId) : undefined;
+    updateEquipmentSlot(me?.equippedWeaponId);
     if (me) {
         document.getElementById('player-name')!.textContent = `${me.name} (Bạn)`;
         (document.getElementById('player-avatar') as HTMLImageElement).src = getCharacterAvatarSource(me.characterId);
