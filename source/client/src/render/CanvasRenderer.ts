@@ -1,6 +1,6 @@
 import { WORLD, WORLD_VIEWS } from '../data/tiledWorld';
 import { drawWorld } from './TiledWorldRenderer';
-import { getCharacterWalkSheet } from '../data/characters';
+import { getCharacterAttackSheet, getCharacterWalkSheet } from '../data/characters';
 import { getItemDefinition, type WorldItem } from '../data/items';
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
@@ -24,7 +24,9 @@ interface FloatingText {
 }
 
 const SPRITE_SIZE = 16;
-const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh (ms)
+const WALK_FRAME_DURATION_MS = 125; // Thời gian mỗi frame hoạt ảnh đi bộ (ms)
+export const ATTACK_FRAME_COUNT = 4;
+export const ATTACK_FRAME_DURATION_MS = 75; // 4 frame * 75ms = 300ms cho một đòn đánh
 const EDGE_PAN_MARGIN_PX = 48; // Vùng mép trong của canvas kích hoạt lia camera (tọa độ canvas)
 const EDGE_PAN_SPEED_PX_PER_SEC = 520; // Tốc độ lia camera tối đa (pixel/giây)
 const MAX_FRAME_DELTA_MS = 100; // Giới hạn delta time tránh giật khung hình khi chuyển tab
@@ -49,6 +51,26 @@ interface RenderPosition {
     animFrame: number;
     animElapsedMs: number;
     lastTickAt: number;
+    attackStartedAt: number | null;
+    attackFlipX: boolean;
+}
+
+/**
+ * Tính chỉ số frame (0..frameCount-1) của hoạt ảnh đánh theo timestamp.
+ * Trả về null khi chưa đánh hoặc đã chạy xong toàn bộ frame.
+ */
+export function computeAttackFrame(
+    attackStartedAt: number | null,
+    now: number,
+    frameCount: number = ATTACK_FRAME_COUNT,
+    frameDurationMs: number = ATTACK_FRAME_DURATION_MS
+): number | null {
+    if (attackStartedAt === null) return null;
+    const elapsed = now - attackStartedAt;
+    if (elapsed < 0) return 0;
+    const frameIndex = Math.floor(elapsed / frameDurationMs);
+    if (frameIndex >= frameCount) return null;
+    return frameIndex;
 }
 
 export class CanvasRenderer {
@@ -75,6 +97,30 @@ export class CanvasRenderer {
     public getRenderedPlayerPosition(id: string): GridPoint | undefined {
         const position = this.renderPositions.get(id);
         return position ? { x: position.x, y: position.y } : undefined;
+    }
+
+    public triggerPlayerAttack(
+        attackerId: string,
+        targetPoint?: GridPoint,
+        now: number = performance.now()
+    ): boolean {
+        const position = this.renderPositions.get(attackerId);
+        if (!position) return false;
+
+        if (targetPoint) {
+            const dx = targetPoint.x - position.x;
+            const dy = targetPoint.y - position.y;
+            if (dx !== 0 || dy !== 0) {
+                position.direction = this.resolveDirection(dx, dy, position.direction);
+            }
+            position.attackFlipX = dx < 0;
+        } else {
+            position.attackFlipX = position.direction === DirectionColumn.Left;
+        }
+
+        // Đặt lại mốc bắt đầu để khởi động lại từ frame 0 nếu nhận DAMAGE liên tiếp
+        position.attackStartedAt = now;
+        return true;
     }
 
     public getWorldPointAtClientPosition(clientX: number, clientY: number): GridPoint | null {
@@ -353,7 +399,9 @@ export class CanvasRenderer {
                 direction: DirectionColumn.Down,
                 animFrame: 0,
                 animElapsedMs: 0,
-                lastTickAt: now
+                lastTickAt: now,
+                attackStartedAt: null,
+                attackFlipX: false
             };
             this.renderPositions.set(player.id, position);
             return;
@@ -384,6 +432,15 @@ export class CanvasRenderer {
                 position.targetY = player.y;
                 position.startedAt = now;
             }
+        }
+
+        if (player.state === 'DEAD') {
+            position.attackStartedAt = null;
+        } else if (
+            position.attackStartedAt !== null
+            && computeAttackFrame(position.attackStartedAt, now) === null
+        ) {
+            position.attackStartedAt = null;
         }
 
         const isMoving = position.x !== position.targetX || position.y !== position.targetY;
@@ -531,23 +588,76 @@ export class CanvasRenderer {
                 const characterId = player.characterId && player.characterId !== 'undefined'
                     ? player.characterId
                     : 'knight';
+
+                const attackFrame = player.state === 'DEAD'
+                    ? null
+                    : computeAttackFrame(position.attackStartedAt, timestamp);
+                const attackSheet = attackFrame !== null ? getCharacterAttackSheet(characterId) : null;
                 const walkSheet = getCharacterWalkSheet(characterId);
                 const isMoving = !isDead && (position.x !== position.targetX || position.y !== position.targetY);
-                const img = imageCache.get(walkSheet.source);
+                const img = imageCache.get(attackSheet ? attackSheet.source : walkSheet.source);
+
                 const offset = this.combatView?.getAttackOffset(player.id, timestamp) ?? { x: 0, y: 0 };
                 const pixelX = (position.x + offset.x) * map.tileSize
                     + (map.tileSize - SPRITE_SIZE) / 2 - this.cameraX;
                 const pixelY = (position.y + offset.y) * map.tileSize
                     + map.tileSize - SPRITE_SIZE - this.cameraY;
 
+                this.ctx.imageSmoothingEnabled = false;
                 if (img.complete && img.naturalWidth !== 0) {
-                    const frameWidth = img.naturalWidth / walkSheet.cols;
-                    const frameHeight = img.naturalHeight / walkSheet.rows;
-                    const frameIndex = isMoving ? position.animFrame : 0;
-                    const sx = position.direction * frameWidth;
-                    const sy = frameIndex * frameHeight;
-                    this.ctx.drawImage(img, sx, sy, frameWidth, frameHeight,
-                        pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);
+                    if (attackSheet && attackFrame !== null) {
+                        const frameWidth = img.naturalWidth / attackSheet.cols;
+                        const frameHeight = img.naturalHeight / attackSheet.rows;
+                        const sx = attackFrame * frameWidth;
+                        const sy = 0;
+
+                        if (position.attackFlipX) {
+                            this.ctx.save();
+                            this.ctx.translate(pixelX + SPRITE_SIZE / 2, pixelY);
+                            this.ctx.scale(-1, 1);
+                            this.ctx.drawImage(
+                                img,
+                                sx,
+                                sy,
+                                frameWidth,
+                                frameHeight,
+                                -SPRITE_SIZE / 2,
+                                0,
+                                SPRITE_SIZE,
+                                SPRITE_SIZE
+                            );
+                            this.ctx.restore();
+                        } else {
+                            this.ctx.drawImage(
+                                img,
+                                sx,
+                                sy,
+                                frameWidth,
+                                frameHeight,
+                                pixelX,
+                                pixelY,
+                                SPRITE_SIZE,
+                                SPRITE_SIZE
+                            );
+                        }
+                    } else {
+                        const frameWidth = img.naturalWidth / walkSheet.cols;
+                        const frameHeight = img.naturalHeight / walkSheet.rows;
+                        const frameIndex = isMoving ? position.animFrame : 0;
+                        const sx = position.direction * frameWidth;
+                        const sy = frameIndex * frameHeight;
+                        this.ctx.drawImage(
+                            img,
+                            sx,
+                            sy,
+                            frameWidth,
+                            frameHeight,
+                            pixelX,
+                            pixelY,
+                            SPRITE_SIZE,
+                            SPRITE_SIZE
+                        );
+                    }
                 } else {
                     this.ctx.fillStyle = isMe ? '#f1c40f' : '#e74c3c';
                     this.ctx.fillRect(pixelX, pixelY, SPRITE_SIZE, SPRITE_SIZE);

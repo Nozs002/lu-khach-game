@@ -20,7 +20,15 @@ export class CombatController {
         document.getElementById('stop-attack')?.addEventListener('click', this.stopAttack);
     }
 
-    private handleDamage = (event: DamageEvent): void => { this.view.addDamage(event); };
+    private handleDamage = (event: DamageEvent): void => {
+        this.view.addDamage(event);
+        const target = this.net.mobs.get(event.targetId) ?? this.net.players.get(event.targetId);
+        this.renderer.triggerPlayerAttack(
+            event.attackerId,
+            target ? { x: target.x, y: target.y } : undefined
+        );
+    };
+
     private handleReset = (): void => { this.view.reset(); this.lastPanel = ''; };
 
     private handleClick = (event: MouseEvent): void => {

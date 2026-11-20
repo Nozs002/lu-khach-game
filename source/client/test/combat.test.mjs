@@ -75,12 +75,13 @@ test('clicking a mob sends ATTACK and consumes the click; ground movement is lef
         return elements.get(id);
     }};
     let click, pointer = { x: 4.5, y: 5.5 }, cleared = 0, stopped = false;
-    const attacks = [];
+    const attacks = [], attackAnimations = [];
     const canvas = { addEventListener: (type, listener, capture) => {
         if (type === 'click' && capture) click = listener;
     }, removeEventListener() {} };
     const renderer = { getCanvas: () => canvas, setCombatView() {},
-        getWorldPointAtClientPosition: () => pointer };
+        triggerPlayerAttack: (...args) => { attackAnimations.push(args); },
+        getWorldPointAtClientPosition: () => pointer, getRenderedPlayerPosition: () => undefined };
     const player = { id: 'p-1', x: 3, y: 5, hp: 100, state: 'IDLE' };
     const net = { myId: 'p-1', players: new Map([['p-1', player]]), mobs: new Map([['m-1', mob()]]),
         damageListeners: new Set(), resetListeners: new Set(),
@@ -88,6 +89,8 @@ test('clicking a mob sends ATTACK and consumes the click; ground movement is lef
     let controller;
     try {
         controller = new CombatController(renderer, net, () => {}, () => cleared++);
+        net.damageListeners.forEach(listener => listener({ attackerId: 'p-1', targetId: 'm-1', amount: 10 }));
+        assert.deepEqual(attackAnimations, [['p-1', { x: 4, y: 5 }]]);
         const event = { clientX: 0, clientY: 0, preventDefault() {}, stopImmediatePropagation() { stopped = true; } };
         click(event);
         assert.deepEqual(attacks, ['m-1']);

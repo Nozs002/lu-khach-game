@@ -10,7 +10,7 @@ const world = JSON.parse(fs.readFileSync(new URL('../src/data/world.generated.js
 const manifest = JSON.parse(fs.readFileSync(new URL('../public/assets/manifest.json', import.meta.url), 'utf8'));
 const worldUrl = moduleUrl(`export const WORLD = ${JSON.stringify({ ...world, layers: [], tilesets: [] })}; export const WORLD_VIEWS = [];`);
 const manifestUrl = moduleUrl(`export default ${JSON.stringify(manifest)};`);
-const imagesUrl = moduleUrl(`export const imageCache = { ready: true, get(source) { return { source, complete: this.ready, naturalWidth: this.ready ? 64 : 0 }; } };`);
+const imagesUrl = moduleUrl(`export const imageCache = { ready: true, get(source) { return { source, complete: this.ready, naturalWidth: this.ready ? 64 : 0, naturalHeight: this.ready ? 64 : 0 }; } };`);
 const { imageCache } = await import(imagesUrl);
 const npcSource = fs.readFileSync(new URL('../src/render/NpcRenderer.ts', import.meta.url), 'utf8')
     .replace('../data/tiledWorld', worldUrl)
@@ -51,7 +51,7 @@ test('NPC names and fallback markers remain visible while images load', () => {
 
 test('main game renderer draws NPCs without waiting for an NPC network message', async () => {
     const drawUrl = moduleUrl('export const drawWorld = () => {};');
-    const charactersUrl = moduleUrl('export const getCharacterWalkSheet = () => ({source:"player.png", cols:4, rows:4});');
+    const charactersUrl = moduleUrl('export const getCharacterWalkSheet = () => ({source:"player.png", cols:4, rows:4}); export const getCharacterAttackSheet = () => ({source:"attack.png", cols:4, rows:1});');
     const itemsUrl = moduleUrl('export const getItemDefinition = () => undefined;');
     const source = fs.readFileSync(new URL('../src/render/CanvasRenderer.ts', import.meta.url), 'utf8')
         .replace('../data/tiledWorld', worldUrl)
@@ -63,10 +63,18 @@ test('main game renderer draws NPCs without waiting for an NPC network message',
     const { CanvasRenderer } = await import(moduleUrl(source));
     const { ctx, calls } = drawingContext();
     const renderer = new CanvasRenderer({ width: 0, height: 0, getContext: () => ctx });
+    const renderMap = { width:world.width, height:world.height, tileSize:16 };
     renderer.setGridVisible(false);
     renderer.render(new Map([['me', {id:'me', name:'Test', characterId:'knight', x:53, y:233}]]), 'me', [],
-        { width:world.width, height:world.height, tileSize:16 }, 0);
+        renderMap, 0);
     const npcNames = calls.filter(c => c.method === 'fillText').map(c => c.args[0]);
     assert.ok(npcNames.includes('Trưởng làng'));
     assert.ok(npcNames.includes('Chủ trọ'));
+
+    assert.equal(renderer.triggerPlayerAttack('me', { x: 52, y: 233 }, 0), true);
+    renderer.render(new Map([['me', {id:'me', name:'Test', characterId:'knight', x:53, y:233}]]), 'me', [],
+        renderMap, 75);
+    const attackDraw = calls.find(c => c.method === 'drawImage' && c.args[0].source === 'attack.png');
+    assert.ok(attackDraw);
+    assert.equal(attackDraw.args[1], 16);
 });
