@@ -37,6 +37,15 @@
                 </div>
             </header>
             <div class="main-body">
+                <aside class="exploration-sidebar" aria-label="Bản đồ khám phá">
+                    <section class="pixel-box panel minimap-panel" aria-labelledby="minimap-title">
+                        <h2 id="minimap-title">BẢN ĐỒ KHÁM PHÁ <span class="minimap-north" aria-label="Phía bắc">BẮC ↑</span></h2>
+                        <div class="minimap-scroll" tabindex="0" aria-label="Cuộn lên xuống để xem bản đồ">
+                        <canvas id="minimap" width="344" height="628" role="img" aria-label="Bản đồ nhỏ: vùng tối chưa khám phá, chấm vàng là bạn"></canvas>
+                        </div>
+                        <p id="minimap-status" class="minimap-status">Chưa khám phá</p>
+                    </section>
+                </aside>
                 <section class="world-column" aria-label="Thế giới game">
                     <div class="canvas-frame pixel-box">
                         <canvas id="gameCanvas" width="768" height="576" aria-label="Thế giới Tiled — Bến Cỏ"></canvas>
@@ -94,6 +103,14 @@
     </main>
 
     <div id="toast-container" class="toast-container" aria-label="Thông báo game"></div>
+
+    <dialog id="expanded-map" class="expanded-map" aria-labelledby="expanded-map-title">
+        <header class="expanded-map-header">
+            <h2 id="expanded-map-title">BẢN ĐỒ KHÁM PHÁ</h2>
+            <button type="button" class="secondary-button" data-close-map autofocus>Đóng (M / Esc)</button>
+        </header>
+        <div data-map-content></div>
+    </dialog>
 
     <script type="module" src="/src/main.ts"></script>
 </body>

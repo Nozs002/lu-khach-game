@@ -1,6 +1,8 @@
 import { WebSocketClient } from '../network/WebSocketClient';
 import { CanvasRenderer } from '../render/CanvasRenderer';
 import { MovementController } from '../input/MovementController';
+import { MinimapRenderer } from '../render/MinimapRenderer';
+import { ExpandedMap } from '../ui/ExpandedMap';
 import { selectedCharacterId } from '../ui/CharacterSelection';
 import { WORLD_VIEWS } from '../data/tiledWorld';
 import { bindJoin, getPlayerName, showError, showInfo, showGame, addLog, updatePlayers, updateStatus } from '../ui/GameUI';
@@ -25,6 +27,13 @@ export interface GameControllerHandle {
 export function initGameController(net: WebSocketClient, renderer: CanvasRenderer): GameControllerHandle {
     const movement = new MovementController(renderer, net, showInfo);
     const canvas = renderer.getCanvas();
+    const minimapCanvas = document.getElementById('minimap') as HTMLCanvasElement;
+    const minimap = new MinimapRenderer(minimapCanvas, document.getElementById('minimap-status')!);
+    const expandedMap = new ExpandedMap(document.querySelector<HTMLElement>('.minimap-panel')!,
+        document.getElementById('expanded-map') as HTMLDialogElement, () => {
+            const player = net.myId ? net.players.get(net.myId) : undefined;
+            return player && net.map ? (player.y + 0.5) / net.map.height : 0.5;
+        }, expanded => minimap.setExpanded(expanded));
     bindJoin(connectGame);
 
     const groundView = document.getElementById('ground-view') as HTMLSelectElement | null;
@@ -81,6 +90,16 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
         if (event.ctrlKey || event.metaKey || event.altKey) return;
         if (isEditableElement(event.target)) return;
 
+        if (event.code === 'KeyM') {
+            event.preventDefault();
+            if (!event.repeat) {
+                renderer.clearPointerPosition();
+                expandedMap.toggle();
+            }
+            return;
+        }
+        if (expandedMap.isOpen) return;
+
         if (event.code === 'KeyY' && !event.repeat) {
             const freeCamera = renderer.toggleFreeCamera(net.myId);
             showInfo(freeCamera
@@ -125,6 +144,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
             return;
         }
         renderer.setFreeCamera(false, net.myId);
+        minimap.setMap(net.map, getPlayerName());
         if (groundView) groundView.value = 'spawn';
         showGame();
         start();
@@ -141,6 +161,7 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
     function gameLoop(timestamp: number) {
         if (!running) return;
         renderer.render(net.players, net.myId, movement.getPreviewPath(), net.map, timestamp);
+        minimap.render(net.myId ? net.players.get(net.myId) : undefined, renderer.getMapViewport(), timestamp);
         rafId = requestAnimationFrame(gameLoop);
     }
 
@@ -152,6 +173,8 @@ export function initGameController(net: WebSocketClient, renderer: CanvasRendere
                 rafId = null;
             }
             movement.destroy();
+            minimap.destroy();
+            expandedMap.destroy();
             renderer.setCameraModeChangeListener(undefined);
             groundView?.removeEventListener('change', handleGroundViewChange);
             gridToggle?.removeEventListener('click', handleGridToggleClick);

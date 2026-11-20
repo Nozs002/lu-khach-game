@@ -127,6 +127,12 @@ export class CanvasRenderer {
         return this.canvas;
     }
 
+    public getMapViewport(): { x: number; y: number; width: number; height: number } {
+        const size = this.map?.tileSize ?? WORLD.tileSize;
+        return { x: this.cameraX / size, y: this.cameraY / size,
+            width: this.canvas.width / size, height: this.canvas.height / size };
+    }
+
     private clientToCanvasPoint(clientX: number, clientY: number): GridPoint | null {
         const rect = this.canvas.getBoundingClientRect();
         const clientWidth = this.canvas.clientWidth;

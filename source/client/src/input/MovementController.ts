@@ -74,7 +74,6 @@ export class MovementController {
             return;
         }
         if (!pathfinder.isWalkable(goal.x, goal.y)) {
-            this.onNotify?.('Ô đích bị chặn.');
             return;
         }
 
