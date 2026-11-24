@@ -10,6 +10,7 @@ public class Player extends CombatEntity {
 
     private String name;
     private String characterId;
+    private String equippedWeaponId;
     private final int damage;
     private final int armor;
     private Long respawnReadyTick;
@@ -43,6 +44,14 @@ public class Player extends CombatEntity {
 
     public String getCharacterId() {
         return characterId;
+    }
+
+    public String getEquippedWeaponId() {
+        return equippedWeaponId;
+    }
+
+    public void equipWeapon(String itemId) {
+        this.equippedWeaponId = itemId;
     }
 
     public boolean isDead() {

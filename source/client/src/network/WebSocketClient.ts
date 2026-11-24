@@ -1,4 +1,4 @@
-import type { WorldItem } from '../data/items';
+import { replaceDropSnapshot, type GroundItem, type WorldItem } from '../data/items';
 import type { MapData } from '../data/maps';
 import type { Player } from '../data/player';
 import { replaceMobSnapshot, parseDamage, type Mob, type DamageEvent } from '../data/mob';
@@ -20,6 +20,7 @@ export class WebSocketClient {
     public readonly damageListeners = new Set<(event: DamageEvent) => void>();
     public readonly resetListeners = new Set<() => void>();
     public items: Map<string, WorldItem> = new Map();
+    public drops: Map<string, GroundItem> = new Map();
     public map: MapData | null = null;
     public currentTick = 0;
     public tickDurationMs = 100;
@@ -103,6 +104,7 @@ export class WebSocketClient {
         this.mobs.clear();
         this.resetListeners.forEach(listener => listener());
         this.items.clear();
+        this.drops.clear();
         this.map = null;
         this.currentTick = 0;
         this.tickDurationMs = 100;
@@ -154,6 +156,7 @@ export class WebSocketClient {
 
             switch (data.type) {
                 case 'WELCOME':
+                    replaceDropSnapshot(this.drops, data.drops);
                     replaceMobSnapshot(this.mobs, data.mobs);
                     welcomeHandler.handle(data);
                     break;
@@ -169,6 +172,7 @@ export class WebSocketClient {
                     break;
 
                 case 'STATE_UPDATE':
+                    replaceDropSnapshot(this.drops, data.drops);
                     replaceMobSnapshot(this.mobs, data.mobs);
                     stateUpdateHandler.handle(data);
                     break;

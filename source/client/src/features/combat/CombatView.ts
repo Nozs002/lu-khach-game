@@ -20,6 +20,35 @@ export class CombatView {
     private readonly poses = new Map<string, Pose>();
     private hits: Hit[] = [];
 
+    drawDrops(ctx: CanvasRenderingContext2D, map: MapData, cameraX: number, cameraY: number): void {
+        if (!this.net.drops || this.net.drops.size === 0) return;
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        for (const drop of this.net.drops.values()) {
+            // Lệch nhẹ sang phải (+3px) để nhìn thấy cả vũ khí lẫn bình máu nếu rơi cùng ô.
+            const x = (drop.x + 0.5) * map.tileSize - cameraX + 3;
+            const y = (drop.y + 0.5) * map.tileSize - cameraY - 2;
+            if (x < -16 || y < -16 || x > ctx.canvas.width + 16 || y > ctx.canvas.height + 16) continue;
+            ctx.fillStyle = '#ffd166';
+            ctx.globalAlpha = 0.4;
+            ctx.beginPath();
+            ctx.ellipse(x, y + 7, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            const image = imageCache.get(`/assets/items/${drop.itemId}.png`);
+            if (image.complete && image.naturalWidth > 0) {
+                const scale = Math.min(13 / image.naturalWidth, 13 / image.naturalHeight);
+                const width = image.naturalWidth * scale;
+                const height = image.naturalHeight * scale;
+                ctx.drawImage(image, x - width / 2, y + 6 - height, width, height);
+            } else {
+                ctx.fillStyle = '#ffd166';
+                ctx.fillRect(x - 4, y - 4, 8, 8);
+            }
+        }
+        ctx.restore();
+    }
+
     constructor(private readonly renderer: CanvasRenderer, private readonly net: WebSocketClient) {}
 
     reset(): void {

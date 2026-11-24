@@ -1,10 +1,10 @@
 package com.game.model;
 
-import java.util.List;
-
+import com.game.features.loot.LootSystem.GroundItem;
 import com.game.world.WorldMap;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NetworkMessage {
@@ -25,6 +25,7 @@ public class NetworkMessage {
     public Object items;
     public Object payload;
     public List<Mob> mobs;
+    public List<GroundItem> drops;
     public NetworkMessage(String type) {
         this.type = type;
     }

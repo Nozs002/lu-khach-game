@@ -1,5 +1,6 @@
 package com.game.handler;
 
+import com.game.features.loot.LootSystem.GroundItem;
 import com.game.model.Mob;
 import com.game.model.NetworkMessage;
 import com.game.model.Player;
@@ -24,6 +25,7 @@ public class JoinHandler {
     private final WorldMap worldMap;
     private final Collection<Mob> mobs;
     private final WorldContext worldContext;
+    private final Collection<GroundItem> drops;
 
     public JoinHandler(Map<WebSocket, Player> players, Gson gson, int maxPlayers, WorldMap worldMap) {
         this(players, gson, maxPlayers, worldMap, List.of());
@@ -42,6 +44,7 @@ public class JoinHandler {
         this.worldMap = worldMap;
         this.mobs = mobs;
         this.worldContext = null;
+        this.drops = List.of();
     }
 
     public JoinHandler(
@@ -51,12 +54,24 @@ public class JoinHandler {
             WorldMap worldMap,
             WorldContext worldContext
     ) {
+        this(players, gson, maxPlayers, worldMap, worldContext, List.of());
+    }
+
+    public JoinHandler(
+            Map<WebSocket, Player> players,
+            Gson gson,
+            int maxPlayers,
+            WorldMap worldMap,
+            WorldContext worldContext,
+            Collection<GroundItem> drops
+    ) {
         this.players = players;
         this.gson = gson;
         this.maxPlayers = maxPlayers;
         this.worldMap = worldMap;
         this.mobs = List.of();
         this.worldContext = worldContext;
+        this.drops = drops;
     }
 
     public Player handle(WebSocket conn, NetworkMessage input) {
@@ -89,6 +104,7 @@ public class JoinHandler {
         welcomeMsg.payload = players.values();
         welcomeMsg.map = worldMap.toClientData();
         welcomeMsg.mobs = new ArrayList<>(worldContext != null ? worldContext.getMobs() : mobs);
+        welcomeMsg.drops = new ArrayList<>(drops);
         if (worldContext != null) {
             welcomeMsg.tick = worldContext.getCurrentTick();
             welcomeMsg.tickDurationMs = TICK_DURATION_MS;

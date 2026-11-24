@@ -324,6 +324,7 @@ export class CanvasRenderer {
         if (items && items.size > 0) {
             this.drawItems(items, map, timestamp);
         }
+        this.combatView?.drawDrops(this.ctx, map, this.cameraX, this.cameraY);
         drawNpcs(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, map.tileSize);
         this.drawPlayers(players, myId, map, timestamp);
         drawWorld(this.ctx, this.cameraX, this.cameraY, this.canvas.width, this.canvas.height, true);
@@ -543,7 +544,7 @@ export class CanvasRenderer {
                 return;
             }
 
-            const centerX = worldX + tileSize / 2;
+            const centerX = worldX + tileSize / 2 - 3;
             const centerY = worldY + tileSize / 2;
 
             this.ctx.save();

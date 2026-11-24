@@ -12,5 +12,6 @@ export interface Player {
     armor: number;
     state: 'IDLE' | 'MOVING' | 'ATTACKING' | 'DEAD';
     targetId?: string | null;
+    equippedWeaponId?: string | null;
     respawnReadyTick?: number | null;
 }

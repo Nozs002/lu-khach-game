@@ -3,6 +3,7 @@ import type { Player } from '../data/player';
 import { selectedCharacterId } from './CharacterSelection';
 import { showInfo } from './Toast';
 import { updatePlayerStats } from './PlayerStats';
+import { updateEquipmentSlot } from './EquipmentSlot';
 
 export function bindJoin(handler: () => void) {
     document.getElementById('leaveBtn')?.addEventListener('click', () => window.location.reload());
@@ -70,11 +71,12 @@ export function updatePlayers(players: Map<string, Player>, myId: string | null)
     document.getElementById('player-count')!.textContent = `(${players.size})`;
     const me = myId ? players.get(myId) : undefined;
     updatePlayerStats(me);
+    updateEquipmentSlot(me?.equippedWeaponId);
     if (me) {
         document.getElementById('player-name')!.textContent = `${me.name} (Bạn)`;
         (document.getElementById('player-avatar') as HTMLImageElement).src = getCharacterAvatarSource(me.characterId);
         document.getElementById('player-combat-state')!.textContent = me.state === 'DEAD'
-            ? 'Nhân vật đã chết · Chờ tính năng hồi sinh.' : 'Mana chưa thiết kế';
+            ? 'Nhân vật đã tử trận · Chờ 3 giây để hồi sinh.' : 'Trạng thái: Sẵn sàng';
     }
     players.forEach((player, id) => {
         const li = document.createElement('li');

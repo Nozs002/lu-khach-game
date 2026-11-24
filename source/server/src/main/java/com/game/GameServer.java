@@ -7,6 +7,7 @@ import com.game.features.combat.CombatSystem;
 import com.game.features.combat.EntityDeathEvent;
 import com.game.features.combat.MobAISystem;
 import com.game.features.combat.MobSpawnSystem;
+import com.game.features.loot.LootSystem;
 import com.game.features.movement.MoveToHandler;
 import com.game.features.movement.MovementSystem;
 import com.game.handler.JoinHandler;
@@ -27,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -47,7 +49,9 @@ public class GameServer extends WebSocketServer {
     private final WorldMap worldMap = WorldMap.loadFromResource(MAP_RESOURCE, gson);
     private final WorldContext worldContext = new WorldContext(worldMap);
     private final Map<String, Mob> mobs = MobSpawnSystem.load(MAP_RESOURCE, worldMap, gson, new Random());
-    private final JoinHandler joinHandler = new JoinHandler(players, gson, MAX_PLAYERS, worldMap, worldContext);
+    private final LootSystem lootSystem = new LootSystem(new Random());
+    private final Map<String, LootSystem.GroundItem> drops = new LinkedHashMap<>();
+    private final JoinHandler joinHandler = new JoinHandler(players, gson, MAX_PLAYERS, worldMap, worldContext, drops.values());
     private final CombatNavigation navigation = new CombatNavigation(worldMap);
     private final AttackHandler attackHandler = new AttackHandler(mobs, navigation);
     private final MobAISystem mobAI = new MobAISystem(navigation);
@@ -255,6 +259,9 @@ public class GameServer extends WebSocketServer {
     private void onEntityDeath(EntityDeathEvent event) {
         if ("MOB".equals(event.entityKind())) {
             lootRespawnSystem.onCombatMobDeath(mobs.get(event.entityId()));
+            for (LootSystem.GroundItem item : lootSystem.roll(event)) {
+                drops.put(item.id(), item);
+            }
         } else if ("PLAYER".equals(event.entityKind())) {
             lootRespawnSystem.onCombatPlayerDeath(worldContext.getPlayer(event.entityId()));
         }
@@ -274,9 +281,10 @@ public class GameServer extends WebSocketServer {
                         && movementSystem.advanceOneTick(new ArrayList<>(players.values()));
                 mobAI.update(mobs.values(), playersById, tick);
                 combat.update(playersById, mobs, tick, this::emit, this::onEntityDeath);
+                boolean weaponsCollected = lootSystem.collectWeapons(playersById.values(), drops);
                 boolean itemsOrMobsChanged = lootRespawnSystem.updateTick();
                 flushAndBroadcastEvents();
-                if (moved || itemsOrMobsChanged || !players.isEmpty()) broadcastState();
+                if (moved || weaponsCollected || itemsOrMobsChanged || !players.isEmpty()) broadcastState();
             }
         } catch (RuntimeException e) {
             System.err.println("Lỗi cập nhật thế giới: " + e.getMessage());
@@ -295,6 +303,7 @@ public class GameServer extends WebSocketServer {
         msg.payload = new ArrayList<>(players.values());
         msg.mobs = new ArrayList<>(mobs.values());
         msg.items = worldContext.getItems();
+        msg.drops = new ArrayList<>(drops.values());
         broadcastMessage(gson.toJson(msg), null);
     }
 

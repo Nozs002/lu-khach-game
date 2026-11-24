@@ -85,7 +85,7 @@ export class CombatController {
         const nearest = this.nearestMob();
         const distance = nearest && player ? Math.abs(nearest.x - player.x) + Math.abs(nearest.y - player.y) : null;
         const targetDistance = target && player ? Math.abs(target.x - player.x) + Math.abs(target.y - player.y) : null;
-        const hint = player?.state === 'DEAD' ? 'Nhân vật đã chết; chưa có hồi sinh.'
+        const hint = player?.state === 'DEAD' ? 'Nhân vật đã tử trận; chờ 3 giây để hồi sinh.'
             : target ? player?.targetId !== target.id ? 'Click quái để bắt đầu đuổi theo.'
                 : targetDistance === 1 && player?.state === 'ATTACKING'
                     ? 'Đang tấn công · Click đất hoặc Esc để dừng.'
